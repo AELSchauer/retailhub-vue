@@ -1,7 +1,9 @@
 import _ from 'lodash'
+const _wrappers = [ 'address', 'div', 'footer', 'header', 'span'];
+const _textWrappers = [ 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p'];
 
 export default class Manifest {
-  static build(attrName, attrType) {
+  static find(attrName, attrType) {
     try {
       if (attrType === 'component') {
         return new Manifest(attrName).build()
@@ -9,8 +11,8 @@ export default class Manifest {
       else {
         return new Manifest(attrType).build()
       }
-    } catch (_) {
-      return null
+    } catch (error) {
+      return {}
     }
   }
 
@@ -19,7 +21,65 @@ export default class Manifest {
   }
 
   build() {
-    return _.get(this, this.attrName)
+    return (_.get(this, this.attrName) || {})
+  }
+
+  get container() {
+    return {
+      allows_children: true,
+      allowed_children: [
+        // 'carousel',
+        'container',
+        'deals',
+        'directory',
+        'if',
+        'image',
+        'link-to',
+        'nav-menu',
+        'share-icons',
+        'text',
+      ],
+      attributes: {
+        classes: {
+          type: 'text',
+          required: false,
+        },
+        element: {
+          type:      'drop-down',
+          required:  true,
+          default:   'div',
+          whitelist: _wrappers,
+        },
+        wrap_content: {
+          type:      'drop-down',
+          required:  false,
+          whitelist: [ 'true', 'false' ],
+          default:   'false',
+        }
+      },
+      icon: 'fa-window-maximize',
+    }
+  }
+
+  get image() {
+    return {
+      allows_children: false,
+      attributes: {
+        classes: {
+          type: 'text',
+          required: false,
+        },
+        src: {
+          type:     'text',
+          required: true,
+        },
+        alt: {
+          type:        'text',
+          recommended: true,
+        },
+      },
+      icon: 'fa-image',
+    }
   }
 
   get partial() {

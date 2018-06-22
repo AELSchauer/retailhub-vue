@@ -1,16 +1,21 @@
 <template>
   <div class="container">
-    {{ component.name }}
+    {{ model.name }}
     <ul>
-      <li v-for="attribute in component.attributes">
-        {{ attribute.name }}
+      <li v-for="attr in model.manifestAttributes">
+        <component
+          :is=attr.vuePath
+          :changeset=model.attributes
+          :attribute=attr
+        ></component>
       </li>
     </ul>
   </div>
 </template>
 
 <script>
-// import SiteEditorAttributes from '@/components/site-editor/attributes/index'
+import BentoDropDownAttribute from '@/components/site-editor/attributes/drop-down'
+import BentoTextAttribute from '@/components/site-editor/attributes/text'
 
 export default {
   name: 'bento-base-component-attributes',
@@ -18,11 +23,12 @@ export default {
     return {}
   },
   props: {
-    component: Object
+    model: Object
   },
-  // components: {
-  //   SiteEditorAttributes
-  // }
+  components: {
+    BentoDropDownAttribute,
+    BentoTextAttribute
+  }
 }
 </script>
 

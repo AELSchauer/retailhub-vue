@@ -8,30 +8,36 @@
   <div v-else class="row">
     <div class="component-tree container col-md-8">
       <ul>
-        <li v-for="component in body">
-          <bento-base-component-body
-            :component="component"
-            @viewComponentDetails="viewComponentDetails"
-          ></bento-base-component-body>
-
-        </li>
+        <draggable v-model="body" :options="{group:'body'}" @start="drag=true" @end="drag=false">
+          <li v-for="component in body" :key="component.id">
+            <bento-base-component-body
+              :model="component"
+              :bus="bus"
+            ></bento-base-component-body>
+          </li>
+        </draggable>
       </ul>
     </div>
-    <div class="component-details container col-md-4">
+    <div class="component-details-aside container col-md-4">
       <button v-on:click="closeComponentDetails">x</button>
         <bento-base-component-attributes
-          v-bind:component="detailComponent"
+          :model="detailComponent.model"
         ></bento-base-component-attributes>
     </div>
   </div>
 </template>
 
 <script>
+import Vue from 'vue'
 import { mapGetters } from 'vuex'
+import draggable from 'vuedraggable'
+import changeset from '../../../models/_changeset'
+
 import Page from '../../../models/page'
-import Changeset from '../../../models/_changeset'
+import BentoComponent from '../../../models/bento/component'
 import BentoBaseComponentAttributes from '@/components/site-editor/bento-components/attributes'
 import BentoBaseComponentBody from '@/components/site-editor/bento-components/body'
+
 
 export default {
   name: 'SitePageEdit',
@@ -43,8 +49,9 @@ export default {
 
       body: null,
       page: null,
+      bus:  new Vue(),
 
-      detailComponent: {}
+      detailComponent: { model: new BentoComponent() }
     }
   },
   computed: {
@@ -60,13 +67,16 @@ export default {
   },
   mounted() {
     this.getPage()
+    this.bus.$on('selectedComponent', (component) => {
+      this.viewComponentDetails(component)
+    })
   },
   methods: {
     viewComponentDetails: function(component) {
       this.detailComponent = component;
     },
     closeComponentDetails: function() {
-      this.detailComponent = {};
+      this.detailComponent = { model: new BentoComponent() };
     },
     checkCurrentLogin() {
       if (!this.currentUser && this.$route.path !== '/') {
@@ -123,7 +133,8 @@ export default {
   },
   components: {
     BentoBaseComponentAttributes,
-    BentoBaseComponentBody
+    BentoBaseComponentBody,
+    draggable
   }
 }
 </script>
@@ -148,7 +159,7 @@ a {
 .component-tree {
   background: #D2D4C8
 }
-.component-details {
+.component-details-aside {
   background: #889696
 }
 </style>

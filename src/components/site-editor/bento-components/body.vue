@@ -1,13 +1,23 @@
 <template>
   <div class="container">
-    {{ component.name }}
+    {{ model.name }}
     <button v-on:click="viewDetails">Details</button>
-    <!-- children: -->
+    <ul>
+      <draggable v-model="model.children" :options="{group:'children'}" @start="drag=true" @end="drag=false">
+        <li v-for="child in model.children" :key="model.id">
+          <bento-base-component-body
+            :model="child"
+            :bus="bus"
+          ></bento-base-component-body>
+        </li>
+      </draggable>
+    </ul>
   </div>
 </template>
 
 <script>
 // import SiteEditorAttributes from '@/components/site-editor/attributes/index'
+import draggable from 'vuedraggable'
 
 export default {
   name: 'bento-base-component-body',
@@ -15,16 +25,18 @@ export default {
     return {}
   },
   props: {
-    component: Object
+    model: Object,
+    bus:   Object
   },
   methods: {
     viewDetails: function() {
-      this.$emit('viewComponentDetails', this.component)
+      this.bus.$emit('selectedComponent', this)
     },
+  },
+  components: {
+    draggable
+    // SiteEditorAttributes
   }
-  // components: {
-  //   SiteEditorAttributes
-  // }
 }
 </script>
 
