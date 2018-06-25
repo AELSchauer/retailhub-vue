@@ -7,6 +7,10 @@ let Attribute = class {
     this.data = data
   }
 
+  get manifest() {
+    return this.data
+  }
+
   get vuePath() {
     return `bento-${this.data.type}-attribute`
   }
@@ -16,6 +20,7 @@ export default class BentoComponent {
   constructor(json={}) {
     this.name       = json.name;
     this.type       = json.type;
+    this.meta       = (json.meta || {});
     this.attributes = (json.attributes || {});
     this.children   = (json.children || []).map(component => {
                         return new BentoComponent(component)

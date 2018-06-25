@@ -7,22 +7,42 @@
   </div>
   <div v-else class="row">
     <div class="component-tree container col-md-8">
-      <ul>
-        <draggable v-model="body" :options="{group:'body'}" @start="drag=true" @end="drag=false">
-          <li v-for="component in body" :key="component.id">
-            <bento-base-component-body
-              :model="component"
-              :bus="bus"
-            ></bento-base-component-body>
-          </li>
-        </draggable>
-      </ul>
+      <draggable
+        v-model="body"
+        class="children-list"
+        element="ol"
+        :options="{group:'body'}"
+        @start="drag=true"
+        @end="drag=false"
+      >
+        <template v-for="bentoComponent in body">
+          <bento-base-component-body
+            :key="bentoComponent.id"
+            :model="bentoComponent"
+            :bus="bus"
+          ></bento-base-component-body>
+        </template>
+      </draggable>
     </div>
     <div class="component-details-aside container col-md-4">
-      <button v-on:click="closeComponentDetails">x</button>
+      <div class="row">
+        <span class="col-md-11 component-name">
+          {{ detailComponent.model.name }}
+        </span>
+        <span class="col-md-1">
+          <button @click="closeComponentDetails" class="close-component-details">x</button>
+        </span>
+      </div>
+      <template v-if="detailComponent.model.name">
+        <hr>
+        attributes:
         <bento-base-component-attributes
           :model="detailComponent.model"
         ></bento-base-component-attributes>
+        <hr>
+        meta:
+        {{ detailComponent.model.meta }}
+      </template>
     </div>
   </div>
 </template>
@@ -139,27 +159,34 @@ export default {
 }
 </script>
 
-<!-- https://coolors.co/e0e2db-d2d4c8-b8bdb5-889696-5f7470 -->
+
 <style scoped>
+@import './src/styles/variables.scss'
 h1, h2 {
   font-weight: normal;
 }
 ul {
   list-style-type: disc;
-  padding: 0;
 }
 li {
   display: list-item;
-  margin: 0 10px;
-  text-align: left;
 }
 a {
   color: #42b983;
 }
 .component-tree {
-  background: #D2D4C8
+  background: #d2d4c8;
 }
 .component-details-aside {
-  background: #889696
+  background: #889696;
+}
+.component-name {
+  font-weight: 600;
+}
+.close-component-details {
+  float: right;
+}
+.children-list {
+  min-height: 10px;
 }
 </style>

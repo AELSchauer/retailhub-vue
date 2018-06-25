@@ -1,18 +1,24 @@
 <template>
-  <div class="container">
+  <li class="container">
     {{ model.name }}
     <button @click="viewDetails">Details</button>
-    <ul>
-      <draggable v-model="model.children" :options="{group:'children'}" @start="drag=true" @end="drag=false">
-        <li v-for="child in model.children" :key="model.id">
-          <bento-base-component-body
-            :model="child"
-            :bus="bus"
-          ></bento-base-component-body>
-        </li>
-      </draggable>
-    </ul>
-  </div>
+    <draggable
+      v-model="model.children"
+      class="children-list"
+      element="ol"
+      :options="{group:'children'}"
+      @start="drag=true"
+      @end="drag=false"
+    >
+      <template v-for="child in model.children">
+        <bento-base-component-body
+          :key="model.id"
+          :model="child"
+          :bus="bus"
+        ></bento-base-component-body>
+      </template>
+    </draggable>
+  </li>
 </template>
 
 <script>
@@ -28,10 +34,14 @@ export default {
     model: Object,
     bus:   Object
   },
+  computed: {
+    // placeholder: function() {},
+  },
   methods: {
     viewDetails: function() {
       this.bus.$emit('selectedComponent', this)
     },
+
   },
   components: {
     draggable
@@ -43,5 +53,10 @@ export default {
 <style lang="scss" scoped>
 button {
   background: #605B56 !important;
+  height: 30px;
+  width: 65px;
+}
+.children-list {
+  min-height: 10px;
 }
 </style>

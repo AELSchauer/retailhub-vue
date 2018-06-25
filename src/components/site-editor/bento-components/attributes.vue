@@ -1,15 +1,14 @@
 <template>
   <div class="container">
-    {{ model.name }}
-    <ul class="attribute-list">
-      <li v-for="attr in model.manifestAttributes">
+    <div class="attribute-list">
+      <template v-for="attr in model.manifestAttributes">
         <component
           :is=attr.vuePath
           :changeset=model.attributes
           :attribute=attr
         ></component>
-      </li>
-    </ul>
+      </template>
+    </div>
   </div>
 </template>
 

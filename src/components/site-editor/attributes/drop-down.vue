@@ -13,8 +13,8 @@
       <span class="attribute-label col-md-4" @click="toggleShowingAttributeInput">
         {{ attribute.name }}:
       </span>
-      <span class="attribute-value col-md-8">
-        {{ value }}
+      <span class="attribute-value col-md-8" :class="[{ 'default-value': !getAttribute.isPresent }]">
+        {{ getAttribute.data }}
       </span>
     </div>
   </div>
@@ -33,9 +33,15 @@ export default {
     changeset: Object
   },
   computed: {
-    value: function() {
-      return this.changeset[this.attribute.name]
-    }
+    getAttribute: function() {
+      let val = this.changeset[this.attribute.name]
+      if (val) {
+        return { data: val, isPresent: true }
+      }
+      else {
+        return { data: this.attribute.manifest.default, isPresent: false }
+      }
+    },
   },
   methods: {
     toggleShowingAttributeInput: function() {
@@ -46,13 +52,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-// button {
-//   background: #605B56 !important;
-// }
-// .attribute-label {
-//   padding: 0px;
-// }
-// .attribute-input, .attribute-value {
-//   padding: 0 10px 0 0;
-// }
+.default-value {
+  font-style: italic;
+}
 </style>
