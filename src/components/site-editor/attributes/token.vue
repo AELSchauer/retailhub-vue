@@ -22,7 +22,7 @@
 
 <script>
 export default {
-  name: 'bento-drop-down-attribute',
+  name: 'bento-token-attribute',
   data() {
     return {
       isShowingAttributeInput: false,

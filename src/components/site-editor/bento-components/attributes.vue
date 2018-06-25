@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     {{ model.name }}
-    <ul>
+    <ul class="attribute-list">
       <li v-for="attr in model.manifestAttributes">
         <component
           :is=attr.vuePath
@@ -15,7 +15,9 @@
 
 <script>
 import BentoDropDownAttribute from '@/components/site-editor/attributes/drop-down'
+import BentoRichTextAttribute from '@/components/site-editor/attributes/rich-text'
 import BentoTextAttribute from '@/components/site-editor/attributes/text'
+import BentoTokenAttribute from '@/components/site-editor/attributes/token'
 
 export default {
   name: 'bento-base-component-attributes',
@@ -27,7 +29,9 @@ export default {
   },
   components: {
     BentoDropDownAttribute,
-    BentoTextAttribute
+    BentoRichTextAttribute,
+    BentoTextAttribute,
+    BentoTokenAttribute
   }
 }
 </script>
@@ -35,5 +39,10 @@ export default {
 <style lang="scss" scoped>
 button {
   background: #605B56 !important;
+}
+.attribute-list {
+  text-align: left;
+  list-style-type: none;
+  padding: 0px;
 }
 </style>

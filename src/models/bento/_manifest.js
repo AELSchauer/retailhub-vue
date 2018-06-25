@@ -45,19 +45,36 @@ export default class Manifest {
           required: false,
         },
         element: {
-          type:      'drop-down',
-          required:  true,
-          default:   'div',
+          type: 'drop-down',
+          required: true,
+          default: 'div',
           whitelist: _wrappers,
         },
         wrap_content: {
-          type:      'drop-down',
-          required:  false,
+          type: 'drop-down',
+          required: false,
           whitelist: [ 'true', 'false' ],
-          default:   'false',
+          default: 'false',
         }
       },
       icon: 'fa-window-maximize',
+    }
+  }
+
+  get deals() {
+    return {
+      allows_children: false,
+      attributes:      {
+        classes: {
+          type: 'text',
+          required: false,
+        },
+        deals: {
+          type: 'token',
+          required: true,
+        },
+      },
+      icon: 'fa-shopping-cart',
     }
   }
 
@@ -70,11 +87,11 @@ export default class Manifest {
           required: false,
         },
         src: {
-          type:     'text',
+          type: 'text',
           required: true,
         },
         alt: {
-          type:        'text',
+          type: 'text',
           recommended: true,
         },
       },
@@ -86,6 +103,28 @@ export default class Manifest {
     return {
       attributes: null,
       icon: 'fa-chevron-right',
+    }
+  }
+
+  get text() {
+    return {
+      attributes:      {
+        classes: {
+          type: 'text',
+          required: false,
+        },
+        element: {
+          type: 'drop-down',
+          required: true,
+          default: 'span',
+          whitelist: [].concat(_wrappers).concat(_textWrappers),
+        },
+        content: {
+          type: 'rich-text',
+          required: true,
+        },
+      },
+      icon: 'fa-quote-right',
     }
   }
 }

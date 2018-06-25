@@ -38,6 +38,9 @@ export default {
 </script>
 
 <style>
+/*@import './styles/custom-bootstrap.scss';*/
+/*@import '../node_modules/bootstrap/scss/bootstrap.scss';*/
+
 #app {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -46,4 +49,5 @@ export default {
   color: #2c3e50;
   margin-top: 60px;
 }
+
 </style>

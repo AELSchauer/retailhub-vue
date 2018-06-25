@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     {{ model.name }}
-    <button v-on:click="viewDetails">Details</button>
+    <button @click="viewDetails">Details</button>
     <ul>
       <draggable v-model="model.children" :options="{group:'children'}" @start="drag=true" @end="drag=false">
         <li v-for="child in model.children" :key="model.id">
