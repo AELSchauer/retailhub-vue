@@ -13,8 +13,8 @@
       <span class="attribute-label col-md-4" @click="toggleShowingAttributeInput">
         {{ attribute.name }}:
       </span>
-      <span class="attribute-value col-md-8" :class="[{ 'default-value': !getAttribute.isPresent }]">
-        {{ getAttribute.data }}
+      <span class="attribute-value col-md-8" :class="[{ 'default-value': getChangesetAttribute.isDefault }]">
+        {{ getChangesetAttribute.value }}
       </span>
     </div>
   </div>
@@ -33,13 +33,13 @@ export default {
     changeset: Object
   },
   computed: {
-    getAttribute: function() {
+    getChangesetAttribute: function() {
       let val = this.changeset[this.attribute.name]
       if (val) {
-        return { data: val, isPresent: true }
+        return { value: val, isDefault: false }
       }
       else {
-        return { data: this.attribute.manifest.default, isPresent: false }
+        return { value: this.attribute.manifest.default, isDefault: true }
       }
     },
   },
@@ -61,4 +61,7 @@ export default {
 // .attribute-input, .attribute-value {
 //   padding: 0 10px 0 0;
 // }
+.default-value {
+  font-style: italic;
+}
 </style>
