@@ -3,7 +3,10 @@
     <h1>{{ msg }}</h1>
     <ul>
       <li>
-        <router-link :to="{ name: 'SiteIndex'}">Sites</router-link>
+        <router-link :to="{ name: 'SiteIndex' }">Sites</router-link>
+      </li>
+      <li>
+        <router-link :to="{ name: 'MallIndex' }">Malls</router-link>
       </li>
     </ul>
   </div>
