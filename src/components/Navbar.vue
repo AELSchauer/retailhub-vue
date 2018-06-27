@@ -1,6 +1,6 @@
 <template>
-  <nav class="navbar navbar-dark bg-bookstore">
-    <a class="navbar-brand" href="/">Bookstore</a>
+  <nav class="navbar navbar-dark bg-retailhub">
+    <a class="navbar-brand" href="/">RetailHub</a>
 
     <span class="navbar-text">
       {{ currentUser.email }}
@@ -21,7 +21,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.bg-bookstore {
+.bg-retailhub {
   background: #605B56 !important;
 }
 

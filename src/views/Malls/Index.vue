@@ -6,7 +6,7 @@
     <section v-else>
       <div v-if="loading">Loading...</div>
       <ul v-else>
-        <li v-for="mall in malls">
+        <li v-for="mall in model">
           {{ mall.name }}
         </li>
       </ul>
@@ -20,11 +20,11 @@ import Mall from '@/models/mall'
 import json_api from '@/services/json-api'
 
 export default {
-  name: 'SiteIndex',
+  name: 'MallIndex',
   data() {
     return {
       permissions: ['admin'],
-      sites:       null,
+      model:       null,
       loading:     true,
       error:       false
     }
@@ -58,29 +58,16 @@ export default {
       }
     },
     getMalls() {
-      let query = json_api.findAll('malls')
-
-      this.$http.request(query)
+      json_api.findAll('malls')
       .then((request) => {
-        if (request.status === 200) {
-          this.requestSucceeded(request)
-        }
-        else {
-          this.requestFailed(request)
-        }
+        this.model = Mall.all() || [];
       })
-      .catch((error) => this.requestFailed(error))
+      .catch((error) => {
+        console.error('request failed', error);
+        this.error = true;
+      })
       .finally(() => this.loading = false)
     },
-    requestSucceeded(req) {
-      let converted_data = json_api.convertJsonApiToVueOrm(req.data)
-      Mall.dispatch('create', { data: converted_data } )
-      this.malls = Mall.all() || [];
-    },
-    requestFailed(req) {
-      console.error('request failed', req);
-      this.error = true;
-    }
   }
 }
 </script>
@@ -89,14 +76,6 @@ export default {
 <style scoped>
 h1, h2 {
   font-weight: normal;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
 }
 a {
   color: #42b983;

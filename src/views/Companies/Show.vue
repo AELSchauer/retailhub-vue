@@ -5,11 +5,16 @@
     </section>
     <section v-else>
       <div v-if="loading">Loading...</div>
-      <ul v-else>
-        <li v-for="company in model">
-          <router-link :to="{ name: 'CompanyShow', params: { company_id: company.id }}">{{ company.name }}</router-link>
-        </li>
-      </ul>
+      <div v-else>
+        <h1>{{ model.name }}</h1>
+        <hr>
+        <h3>malls</h3>
+        <ul>
+          <li v-for="mall in model.malls">
+            {{ mall.name }}
+          </li>
+        </ul>
+      </div>
     </section>
   </div>
 </template>
@@ -19,15 +24,17 @@ import { mapGetters } from 'vuex'
 import json_api from '@/services/json-api'
 
 import Company from '@/models/company'
+import Mall from '@/models/mall'
 
 export default {
-  name: 'CompanyIndex',
+  name: 'CompanyShow',
   data() {
     return {
       permissions: ['admin'],
       model:       null,
       loading:     true,
-      error:       false
+      error:       false,
+      company_id:  this.$route.params.company_id
     }
   },
   computed: {
@@ -59,9 +66,9 @@ export default {
       }
     },
     getModel() {
-      json_api.findAll('companies')
+      json_api.findRecord('companies', this.company_id, { params: { include: 'malls' } })
       .then((request) => {
-        this.model = Company.all() || [];
+        this.model = Company.query().with('malls').find(53) || {};
       })
       .catch((error) => {
         console.error('request failed', error);

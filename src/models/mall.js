@@ -1,4 +1,4 @@
-import { Model } from '@vuex-orm/core'
+import Model from '@/services/extended-vuex-orm-model'
 import Company from './company'
 
 export default class Mall extends Model {
@@ -9,10 +9,10 @@ export default class Mall extends Model {
   // for the generic field type. The argument is the default value.
   static fields () {
     return {
-      id: this.attr(null),
-      name: this.attr(''),
-      city: this.attr(''),
-      state: this.attr(''),
+      id:     this.attr(null),
+      name:   this.attr(''),
+      city:   this.attr(''),
+      state:  this.attr(''),
       
       company_id: this.attr(null),
 

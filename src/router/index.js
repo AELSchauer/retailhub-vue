@@ -11,6 +11,7 @@ import SiteShow from '@/views/Sites/Show'
 import SitePageEdit from '@/views/Sites/Pages/Edit'
 
 import MallRoutes from '@/router/malls'
+import CompanyRoutes from '@/router/companies'
 
 Vue.use(Router)
 
@@ -47,5 +48,7 @@ export default new Router({
       name: 'Logout',
       component: Logout
     }
-  ].concat(MallRoutes)
+  ]
+  .concat(MallRoutes)
+  .concat(CompanyRoutes)
 })

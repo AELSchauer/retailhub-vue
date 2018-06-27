@@ -2,29 +2,44 @@
   <div class="container">
     <h1>{{ msg }}</h1>
     <ul>
-      <li>
-        <router-link :to="{ name: 'SiteIndex' }">Sites</router-link>
-      </li>
-      <li>
-        <router-link :to="{ name: 'MallIndex' }">Malls</router-link>
+      <li v-for="link in linkList">
+        <router-link :to="{ name: link.route }">{{ link.text }}</router-link>
       </li>
     </ul>
   </div>
 </template>
 
 <script>
+import _ from 'lodash'
 import { mapGetters } from 'vuex'
 
 export default {
   name: 'Dashboard',
-  computed: {
-    ...mapGetters({ currentUser: 'currentUser' })
-  },
   data() {
     return {
-      msg: 'Hello from Ashley!'
+      msg: 'Welcome to RetailHub!',
+      unsortedLinkList: [
+        {
+          route: 'MallIndex',
+          text: 'Malls'
+        },
+        {
+          route: 'CompanyIndex',
+          text: 'Companies'
+        },
+        {
+          route: 'SiteIndex',
+          text: 'Sites'
+        }
+      ]
     }
-  }
+  },
+  computed: {
+    ...mapGetters({ currentUser: 'currentUser' }),
+    linkList: function() {
+      return _.sortBy(this.unsortedLinkList, link => link.text)
+    }
+  },
 }
 </script>
 
@@ -32,14 +47,6 @@ export default {
 <style scoped>
 h1, h2 {
   font-weight: normal;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
 }
 a {
   color: #42b983;
