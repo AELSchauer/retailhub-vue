@@ -10,6 +10,7 @@ export default class Mall extends Model {
   static fields () {
     return {
       id:     this.attr(null),
+      type:   this.attr('malls'),
       name:   this.attr(''),
       city:   this.attr(''),
       state:  this.attr(''),

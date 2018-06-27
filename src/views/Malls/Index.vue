@@ -41,7 +41,7 @@ export default {
     this.checkCurrentPermissions()
   },
   mounted() {
-    this.getMalls()
+    this.getModel()
   },
   methods: {
     checkCurrentLogin() {
@@ -57,8 +57,8 @@ export default {
         this.$router.push('/dashboard?redirect=' + this.$route.path)
       }
     },
-    getMalls() {
-      json_api.findAll('malls')
+    getModel() {
+      json_api.findAll({ resource: 'malls' })
       .then((request) => {
         this.model = Mall.all() || [];
       })

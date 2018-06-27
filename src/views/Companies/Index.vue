@@ -59,7 +59,7 @@ export default {
       }
     },
     getModel() {
-      json_api.findAll('companies')
+      json_api.findAll({ resource: 'companies' })
       .then((request) => {
         this.model = Company.all() || [];
       })

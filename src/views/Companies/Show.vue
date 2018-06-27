@@ -9,11 +9,20 @@
         <h1>{{ model.name }}</h1>
         <hr>
         <h3>malls</h3>
-        <ul>
-          <li v-for="mall in model.malls">
-            {{ mall.name }}
-          </li>
-        </ul>
+        <table>
+          <th>
+            <td>name</td>
+            <td>edit associations</td>
+          </th>
+          <tr v-for="mall in model.malls">
+            <td>
+              {{ mall.name }}
+            </td>
+            <td>
+              <button @click="deleteAssociation(mall)">Delete Association</button>
+            </td>
+          </tr>
+        </table>
       </div>
     </section>
   </div>
@@ -66,9 +75,33 @@ export default {
       }
     },
     getModel() {
-      json_api.findRecord('companies', this.company_id, { params: { include: 'malls' } })
-      .then((request) => {
-        this.model = Company.query().with('malls').find(53) || {};
+      json_api.findRecord({
+        resource: 'companies',
+        id:       this.company_id,
+        options:  {
+          params: { include: 'malls' }
+        }
+      })
+      .then(() => {
+        this.model = Company.query().with('malls').find(this.company_id) || {};
+      })
+      .catch((error) => {
+        console.error('request failed', error);
+        this.error = true;
+      })
+      .finally(() => this.loading = false)
+    },
+    deleteAssociation(record) {
+      this.loading = true
+      json_api.deleteAssociations({
+        resource: 'companies',
+        id: this.company_id,
+        associatedRecords: [
+          { type: record.type, id: record.id }
+        ]
+      })
+      .then(() => {
+        this.model = Company.query().with('malls').find(this.company_id) || {};
       })
       .catch((error) => {
         console.error('request failed', error);
