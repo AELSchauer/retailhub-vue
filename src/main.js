@@ -7,7 +7,9 @@ import App from './App'
 import router from './router'
 import axios from './backend/vue-axios'
 import store from './store'
+import fontAwesome from './services/import-font-awesome'
 
+Vue.component('font-awesome-icon', fontAwesome)
 Vue.config.productionTip = false
 
 /* eslint-disable no-new */

@@ -8,21 +8,30 @@
       <div v-else>
         <h1>{{ model.name }}</h1>
         <hr>
-        <h3>malls</h3>
-        <table>
-          <th>
-            <td>name</td>
-            <td>edit associations</td>
-          </th>
-          <tr v-for="mall in model.malls">
-            <td>
-              {{ mall.name }}
-            </td>
-            <td>
-              <button @click="deleteAssociation(mall)">Delete Association</button>
-            </td>
-          </tr>
-        </table>
+        <div class="malls-section">
+          <h3>malls</h3>
+          <h4>current associations</h4>
+          <table>
+            <th>
+              <td>name</td>
+              <td>edit associations</td>
+            </th>
+            <tr v-for="mall in model.malls">
+              <td>
+                {{ mall.name }}
+              </td>
+              <td>
+                <button @click="deleteAssociation(mall)">Delete Association</button>
+              </td>
+            </tr>
+          </table>
+          <br>
+          <h4 @click="addResource = 'malls'">add association</h4> 
+          <div v-if="addResource === 'malls'">
+            <button @click="addResource = null">cancel</button>
+            woohoo!
+          </div>
+        </div>
       </div>
     </section>
   </div>
@@ -43,7 +52,8 @@ export default {
       model:       null,
       loading:     true,
       error:       false,
-      company_id:  this.$route.params.company_id
+      company_id:  this.$route.params.company_id,
+      addResource: null
     }
   },
   computed: {
@@ -108,6 +118,26 @@ export default {
         this.error = true;
       })
       .finally(() => this.loading = false)
+    },
+    fetchResource(resource) {
+      // console.log('resource', resource)
+      // this.loading = true
+      // this.addResource = resource
+      // json_api.findAll({
+      //   resource: 'malls',
+      //   id: this.company_id,
+      //   associatedRecords: [
+      //     { type: record.type, id: record.id }
+      //   ]
+      // })
+      // .then(() => {
+      //   this.model = Company.query().with('malls').find(this.company_id) || {};
+      // })
+      // .catch((error) => {
+      //   console.error('request failed', error);
+      //   this.error = true;
+      // })
+      // .finally(() => this.loading = false)
     },
   }
 }

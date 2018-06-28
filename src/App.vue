@@ -1,6 +1,7 @@
 <template>
   <div id="app">
     <template v-if="currentUser">
+      <font-awesome-icon icon="coffee" />
       <Navbar></Navbar>
     </template>
     <div class="container-fluid">
