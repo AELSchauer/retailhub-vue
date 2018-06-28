@@ -26,10 +26,21 @@
             </tr>
           </table>
           <br>
-          <h4 @click="addResource = 'malls'">add association</h4> 
+          <span>
+            <h4>add association</h4>
+            <font-awesome-icon
+              v-if="addResource === null"
+              :icon="['fas', 'plus-square']"
+              @click="addResource = 'malls'"
+            />
+            <font-awesome-icon
+              v-if="addResource === 'malls'"
+              :icon="['fas', 'minus-square']"
+              @click="addResource = null"
+            />
+          </span>
           <div v-if="addResource === 'malls'">
-            <button @click="addResource = null">cancel</button>
-            woohoo!
+            form goes here
           </div>
         </div>
       </div>
