@@ -1,5 +1,6 @@
 <template>
   <div class="container">
+    <router-link :to="{ name: 'CompanyIndex' }">Companies</router-link>
     <section v-if="error">
       <p>We're sorry, we're not able to retrieve this information at the moment, please try back later</p>
     </section>
@@ -96,6 +97,7 @@ export default {
       }
     },
     getModel() {
+      console.log('before', 'Company.all()', Company.all())
       json_api.findRecord({
         resource: 'companies',
         id:       this.company_id,
@@ -103,14 +105,20 @@ export default {
           params: { include: 'malls' }
         }
       })
-      .then(() => {
-        this.model = Company.query().with('malls').find(this.company_id) || {};
+      // .then(() => {
+      .then((record) => {
+        console.log('record 2', record)
+        // this.model = Company.query().with('malls').find(this.company_id) || {};
+        this.model = record
       })
       .catch((error) => {
         console.error('request failed', error);
         this.error = true;
       })
-      .finally(() => this.loading = false)
+      .finally(() => {
+        this.loading = false
+        console.log('after', 'Company.all()', Company.query().with('malls').all())
+      })
     },
     deleteAssociation(record) {
       this.loading = true

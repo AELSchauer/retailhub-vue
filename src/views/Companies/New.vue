@@ -51,6 +51,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import VueGoogleAutocomplete from 'vue-google-autocomplete'
 import json_api from '@/services/json-api'
 import Company from '@/models/company'
 

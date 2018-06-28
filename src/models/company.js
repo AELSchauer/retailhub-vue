@@ -20,6 +20,6 @@ export default class Company extends Model {
   }
 
   constructor(args) {
-    super();
+    super(args);
   }
 }

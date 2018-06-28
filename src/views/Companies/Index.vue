@@ -67,7 +67,9 @@ export default {
         console.error('request failed', error);
         this.error = true;
       })
-      .finally(() => this.loading = false)
+      .finally(() => {
+        this.loading = false
+      })
     },
   }
 }

@@ -6,34 +6,14 @@ import Company from '@/models/company'
 
 export default class JsonApi {
   static findAll(args) {
-    let argChecker = new ArgumentsChecker(args, ['resource'])
-    if (argChecker.noneMissing) {
-      return new JsonApi(argChecker.args).findAll
-    }
-    else {
-      return new Promise(() => {
-        throw { 'missing arguments': argChecker.missingArgs }
-      })
-    }
+    let params = ['resource']
+    return this.request('findAll', args, params)
   }
 
   static findRecord(args) {
-    let argChecker = new ArgumentsChecker(args, ['resource', 'id'])
-    if (argChecker.noneMissing) {
-      return new JsonApi(argChecker.args).findRecord
-    }
-    else {
-      throw 'missing arguments:', argChecker.missing
-    }
+    let params = ['resource', 'id']
+    return this.request('findRecord', args, params)
   }
-
-  // static deleteRecord(resource, id, options) {
-  //   return new JsonApi({
-  //     resource: resource,
-  //     resourceId: id,
-  //     options: options
-  //   }).deleteRecord
-  // }
 
   static deleteAssociations(args) {
     let params = ['resource', 'id', 'associatedRecords']
@@ -43,7 +23,7 @@ export default class JsonApi {
   static request(method, args, params) {
     let argChecker = new ArgumentsChecker(args, params)
     if (argChecker.noneMissing) {
-      return new JsonApi(argChecker.args)[method]
+      return new JsonApi(argChecker.args)[method]()
     }
     else {
       return new Promise(() => {
@@ -60,7 +40,7 @@ export default class JsonApi {
     this.options            = args.options || {}
   }
 
-  get findAll() {
+  findAll() {
     return $http.request({
       method: 'get',
       url: this.url,
@@ -75,28 +55,52 @@ export default class JsonApi {
     })
   }
 
-  get findRecord() {
-    return $http.request({
-      method: 'get',
-      url: this.url,
-      headers: this.getHeaders,
-      params: this.params
-    }).then((response) => {
-      if (response.status != 200) {
-        throw response
+  peekRecord() {
+    return new Promise((resolve) => {
+      let getRecord = $store.getters[`entities/${this.resource}/query`]()
+      console.log('include', this.includeRelationships)
+      if (this.includeRelationships) {
+        this.includeRelationships.forEach((resource) => {
+          getRecord = getRecord.with(resource)
+        })
       }
-      let convertedData = this.convertJsonToRest(response.data)
-      $store.dispatch(`entities/${this.resource}/${this.storeMethod}`, { data: convertedData } )
+      getRecord = getRecord.find(this.resourceId)
+      resolve(getRecord)
+    }) 
+  }
+
+  findRecord() {
+    return this.peekRecord().then((record) => {
+      let recordHasAllRelationships = _.every(this.includeRelationships, include => !!record[include].length)
+      if (record && recordHasAllRelationships) {
+        console.log('record')
+        return record
+      }
+      console.log('request')
+      return $http.request({
+        method: 'get',
+        url: this.url,
+        headers: this.getHeaders,
+        params: this.params
+      }).then((response) => {
+        if (response.status != 200) {
+          throw response
+        }
+        let convertedData = this.convertJsonToRest(response.data)
+        console.log('convertedData', convertedData)
+        $store.dispatch(`entities/${this.resource}/${this.storeMethod}`, { data: convertedData } )
+      }).then(() => {
+        return this.peekRecord()
+      })
     })
   }
 
-  get deleteAssociations() {
+  deleteAssociations() {
     if (!this.associatedRecords.length) {
       return new Promise(() => {
         throw 'must include at least one associated record to delete'
       })
     }
-    console.log('deleteAssociations', this.url)
 
     try {
       return $http.request({
@@ -121,6 +125,10 @@ export default class JsonApi {
     catch (e) {
       return e
     }
+  }
+
+  get includeRelationships() {
+    return _.flatten([ this.options.params.include.split(',') ])
   }
 
   get currentUser() {
