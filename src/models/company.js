@@ -18,8 +18,4 @@ export default class Company extends Model {
       malls: this.hasMany(Mall, 'company_id')
     }
   }
-
-  constructor(args) {
-    super(args);
-  }
 }

@@ -58,7 +58,6 @@ export default class JsonApi {
   peekRecord() {
     return new Promise((resolve) => {
       let getRecord = $store.getters[`entities/${this.resource}/query`]()
-      console.log('include', this.includeRelationships)
       if (this.includeRelationships) {
         this.includeRelationships.forEach((resource) => {
           getRecord = getRecord.with(resource)
@@ -71,12 +70,10 @@ export default class JsonApi {
 
   findRecord() {
     return this.peekRecord().then((record) => {
-      let recordHasAllRelationships = _.every(this.includeRelationships, include => !!record[include].length)
+      let recordHasAllRelationships = _.every(this.includeRelationships, include => record && !!record[include].length)
       if (record && recordHasAllRelationships) {
-        console.log('record')
         return record
       }
-      console.log('request')
       return $http.request({
         method: 'get',
         url: this.url,
@@ -87,7 +84,6 @@ export default class JsonApi {
           throw response
         }
         let convertedData = this.convertJsonToRest(response.data)
-        console.log('convertedData', convertedData)
         $store.dispatch(`entities/${this.resource}/${this.storeMethod}`, { data: convertedData } )
       }).then(() => {
         return this.peekRecord()
@@ -229,11 +225,16 @@ export default class JsonApi {
             result[key] = convertRelationship(value)
             return result;
           }, {})
-        .omitBy(r => isFalsey(r))
         .value()
     }
 
     function convertRelationship(value) {
+      if (value.data === undefined) {
+        return undefined
+      }
+      else if (_.isEmpty(value.data)) {
+        return [ { id: "0" } ]
+      }
       return _
         .chain([ value.data ])
         .flatten()

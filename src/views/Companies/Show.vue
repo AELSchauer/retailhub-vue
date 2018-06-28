@@ -1,6 +1,5 @@
 <template>
   <div class="container">
-    <router-link :to="{ name: 'CompanyIndex' }">Companies</router-link>
     <section v-if="error">
       <p>We're sorry, we're not able to retrieve this information at the moment, please try back later</p>
     </section>
@@ -15,9 +14,9 @@
           <table>
             <th>
               <td>name</td>
-              <td>edit associations</td>
+              <td></td>
             </th>
-            <tr v-for="mall in model.malls">
+            <tr v-for="mall in model.get('malls')">
               <td>
                 {{ mall.name }}
               </td>
@@ -97,7 +96,6 @@ export default {
       }
     },
     getModel() {
-      console.log('before', 'Company.all()', Company.all())
       json_api.findRecord({
         resource: 'companies',
         id:       this.company_id,
@@ -105,10 +103,7 @@ export default {
           params: { include: 'malls' }
         }
       })
-      // .then(() => {
       .then((record) => {
-        console.log('record 2', record)
-        // this.model = Company.query().with('malls').find(this.company_id) || {};
         this.model = record
       })
       .catch((error) => {
@@ -117,7 +112,6 @@ export default {
       })
       .finally(() => {
         this.loading = false
-        console.log('after', 'Company.all()', Company.query().with('malls').all())
       })
     },
     deleteAssociation(record) {
@@ -137,26 +131,6 @@ export default {
         this.error = true;
       })
       .finally(() => this.loading = false)
-    },
-    fetchResource(resource) {
-      // console.log('resource', resource)
-      // this.loading = true
-      // this.addResource = resource
-      // json_api.findAll({
-      //   resource: 'malls',
-      //   id: this.company_id,
-      //   associatedRecords: [
-      //     { type: record.type, id: record.id }
-      //   ]
-      // })
-      // .then(() => {
-      //   this.model = Company.query().with('malls').find(this.company_id) || {};
-      // })
-      // .catch((error) => {
-      //   console.error('request failed', error);
-      //   this.error = true;
-      // })
-      // .finally(() => this.loading = false)
     },
   }
 }
