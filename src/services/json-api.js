@@ -38,28 +38,27 @@ export default class JsonApi {
     this.resourceId         = args.id
     this.associatedRecords  = args.associatedRecords
     this.options            = args.options || {}
+    this.params             = this.options.params || {}
   }
 
-  findAll() {
-    return $http.request({
-      method: 'get',
-      url: this.url,
-      headers: this.getHeaders,
-      params: this.params
-    }).then((response) => {
-      if (response.status != 200) {
-        throw response
+  peekAll() {
+    return new Promise((resolve) => {
+      let getRecords = $store.getters[`entities/${this.resource}/query`]()
+      if (this.included) {
+        this.included.forEach((resource) => {
+          getRecords = getRecords.with(resource)
+        })
       }
-      let convertedData = this.convertJsonToRest(response.data)
-      $store.dispatch(`entities/${this.resource}/${this.storeMethod}`, { data: convertedData } )
-    })
+      getRecords = getRecords.all()
+      resolve(getRecords)
+    }) 
   }
 
   peekRecord() {
     return new Promise((resolve) => {
       let getRecord = $store.getters[`entities/${this.resource}/query`]()
-      if (this.includeRelationships) {
-        this.includeRelationships.forEach((resource) => {
+      if (this.included) {
+        this.included.forEach((resource) => {
           getRecord = getRecord.with(resource)
         })
       }
@@ -68,23 +67,53 @@ export default class JsonApi {
     }) 
   }
 
-  findRecord() {
-    return this.peekRecord().then((record) => {
-      let recordHasAllRelationships = _.every(this.includeRelationships, include => record && !!record[include].length)
-      if (record && recordHasAllRelationships) {
-        return record
+  findAll() {
+    return this.peekAll().then((records) => {
+      let allRecordsHaveAllRelationships = _.every(records, record => {
+        return _.every(this.included, include => record && !!record[include].length)
+      })
+
+      if (records.length && allRecordsHaveAllRelationships) {
+        return records
       }
       return $http.request({
         method: 'get',
         url: this.url,
-        headers: this.getHeaders,
-        params: this.params
+        headers: this.headers('get'),
+        params: this.requestParams
       }).then((response) => {
         if (response.status != 200) {
           throw response
         }
-        let convertedData = this.convertJsonToRest(response.data)
-        $store.dispatch(`entities/${this.resource}/${this.storeMethod}`, { data: convertedData } )
+        let convertedData = { data: this.convertJsonToRest(response.data) }
+        $store.dispatch(`entities/${this.resource}/${this.storeMethod}`, convertedData )
+      }).then(() => {
+        return this.peekAll()
+      })
+    })
+  }
+
+  findRecord() {
+    return this.peekRecord().then((record) => {
+      console.log('this.included', this.included)
+      let recordHasAllRelationships = _.every(this.included, include => record && !!record[include].length)
+      if (record && recordHasAllRelationships) {
+        console.log('record', record)
+        return record
+      }
+      console.log('request')
+      return $http.request({
+        method: 'get',
+        url: this.url,
+        headers: this.headers('get'),
+        params: this.requestParams
+      }).then((response) => {
+        console.log('response', response)
+        if (response.status != 200) {
+          throw response
+        }
+        let convertedData = { data: this.convertJsonToRest(response.data) }
+        $store.dispatch(`entities/${this.resource}/${this.storeMethod}`, convertedData )
       }).then(() => {
         return this.peekRecord()
       })
@@ -103,7 +132,7 @@ export default class JsonApi {
         method: 'delete',
         url: this.url,
         headers: this.headers('delete'),
-        params: this.params,
+        params: this.requestParams,
         data: {
           data: this.associatedRecords
         }
@@ -123,8 +152,15 @@ export default class JsonApi {
     }
   }
 
-  get includeRelationships() {
-    return _.flatten([ this.options.params.include.split(',') ])
+  get included() {
+    let include = this.params.include
+    if (include === null) {
+      return []
+    }
+    else if (typeof include === 'string') {
+      include = _.chain(include).replace(/ /g, '').split(',').value()
+    }
+    return include
   }
 
   get currentUser() {
@@ -143,7 +179,7 @@ export default class JsonApi {
     }
   }
 
-  get params() {
+  get requestParams() {
     return _.merge(this.authorizationParams, (this.options.params || {}))
   }
 
