@@ -1,4 +1,6 @@
 import _ from 'lodash'
+import pluralize from 'pluralize'
+
 import $http from '@/backend/vue-axios/axios';
 import $store from '@/store';
 
@@ -38,14 +40,13 @@ export default class JsonApi {
     this.resourceId         = args.id
     this.associatedRecords  = args.associatedRecords
     this.options            = args.options || {}
-    this.params             = this.options.params || {}
   }
 
   peekAll() {
     return new Promise((resolve) => {
       let getRecords = $store.getters[`entities/${this.resource}/query`]()
-      if (this.included) {
-        this.included.forEach((resource) => {
+      if (this.include.length) {
+        this.include.split(',').forEach((resource) => {
           getRecords = getRecords.with(resource)
         })
       }
@@ -57,8 +58,8 @@ export default class JsonApi {
   peekRecord() {
     return new Promise((resolve) => {
       let getRecord = $store.getters[`entities/${this.resource}/query`]()
-      if (this.included) {
-        this.included.forEach((resource) => {
+      if (this.include.length) {
+        this.include.split(',').forEach((resource) => {
           getRecord = getRecord.with(resource)
         })
       }
@@ -69,11 +70,20 @@ export default class JsonApi {
 
   findAll() {
     return this.peekAll().then((records) => {
-      let allRecordsHaveAllRelationships = _.every(records, record => {
-        return _.every(this.included, include => record && !!record[include].length)
-      })
+      let allRecordsHaveAllRelationships = (_records) => {
+        return _.every(this.include.split(','), i => {
+          let includeResources = i.split('.')
+          let includeQueried = `${includeResources.pop()}_queried`
+          _.every(_records, record => {
+            includeResources.forEach(resource => {
+              record = record[resource]
+            })
+            return record[includeQueried]
+          })
+        })
+      }
 
-      if (records.length && allRecordsHaveAllRelationships) {
+      if (records.length && allRecordsHaveAllRelationships(records)) {
         return records
       }
       return $http.request({
@@ -95,24 +105,41 @@ export default class JsonApi {
 
   findRecord() {
     return this.peekRecord().then((record) => {
-      console.log('this.included', this.included)
-      let recordHasAllRelationships = _.every(this.included, include => record && !!record[include].length)
-      if (record && recordHasAllRelationships) {
-        console.log('record', record)
+      let recordHasAllRelationships = (_record) => {
+        return _.every(this.include.split(','), i => {
+          let includeResources = i.split('.')
+          let includeQueried = `${includeResources.pop()}_queried`
+          includeResources.forEach(resource => {
+            _record = _record[resource]
+          })
+          return _record[includeQueried]
+        })
+      }
+
+      if (record && recordHasAllRelationships(record)) {
         return record
       }
-      console.log('request')
       return $http.request({
         method: 'get',
         url: this.url,
         headers: this.headers('get'),
         params: this.requestParams
       }).then((response) => {
-        console.log('response', response)
         if (response.status != 200) {
           throw response
         }
         let convertedData = { data: this.convertJsonToRest(response.data) }
+        this.include.split(',').forEach(i => {
+          let includeResources = i.split('.')
+          let includeQueried = `${includeResources.pop()}_queried`
+          convertedData.data.forEach(record => {
+            includeResources.forEach(resource => {
+              record = record[resource]
+            })
+            record[includeQueried] = true
+          })
+        })
+
         $store.dispatch(`entities/${this.resource}/${this.storeMethod}`, convertedData )
       }).then(() => {
         return this.peekRecord()
@@ -152,15 +179,33 @@ export default class JsonApi {
     }
   }
 
-  get included() {
-    let include = this.params.include
-    if (include === null) {
-      return []
+
+  buildParams(params = {}) {
+    function formatInclude(include = '') {
+      if (_.isArray(include)) {
+        include = include.join(',')
+      }
+      if (_.isString(include)) {
+        include = include.replace(/ /g, '')
+      }
+
+      return include
     }
-    else if (typeof include === 'string') {
-      include = _.chain(include).replace(/ /g, '').split(',').value()
-    }
-    return include
+
+    // other params to support?
+    //    - filter
+
+    params.include = formatInclude(params.include)
+
+    return params
+  }
+
+  get params() {
+    return this.buildParams(this.options.params)
+  }
+
+  get include() {
+    return this.params.include
   }
 
   get currentUser() {
@@ -180,7 +225,7 @@ export default class JsonApi {
   }
 
   get requestParams() {
-    return _.merge(this.authorizationParams, (this.options.params || {}))
+    return _.merge(this.authorizationParams, this.params)
   }
 
   headers(method) {
@@ -234,9 +279,6 @@ export default class JsonApi {
     }
     else {
       throw error('associated records limited to one type of association', associationType)
-      // return new Promise(() => {
-      //   throw { 'associated records limited to one type of association': associationType }
-      // })
     }
   }
 
@@ -258,43 +300,38 @@ export default class JsonApi {
       return _
         .chain(records)
         .reduce((result, value, key) => {
-            result[key] = convertRelationship(value)
+            result[key] = convertRelationship(value.data)
             return result;
           }, {})
         .value()
     }
 
     function convertRelationship(value) {
-      if (value.data === undefined) {
+      if (value === undefined) {
         return undefined
       }
-      else if (_.isEmpty(value.data)) {
-        return [ { id: "0" } ]
+      else if (_.isArray(value)) {
+        return convertPluralRelationship(value)
       }
-      return _
-        .chain([ value.data ])
-        .flatten()
-        .filter(v => v)
-        .sort()
-        .map(v => {
-          return responseBody.included.find(o => {
-            return v.id === o.id && v.type === o.type
-          })
-        })
-        .map(relationshipRecord => {
-          return convertRecord(relationshipRecord)
-        })
-        .value()
+      else if (_.isObject(value)) {
+        return convertSingularRelationship(value)
+      }
     }
 
-    function isFalsey(value) {
-      if (!value) {
-        return true
-      }
-      if (typeof value === 'object') {
-        return _.isEmpty(value)
-      }
-      return !value
+    function convertSingularRelationship(value) {
+      let relationshipRecord = responseBody.included.find(v => {
+        return value.id === v.id && value.type === v.type
+      })
+      return convertRecord(relationshipRecord)
+    }
+
+    function convertPluralRelationship(value) {
+      return _
+        .chain(value)
+        .filter(v => v)
+        .sort()
+        .map(v => convertSingularRelationship(v))
+        .value()
     }
 
     let records = _.flattenDeep([responseBody.data])

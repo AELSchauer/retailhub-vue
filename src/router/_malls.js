@@ -11,5 +11,5 @@ export default [
     path: '/malls/:mall_id',
     name: 'MallShow',
     component: MallShow
-  }
+  },
 ]

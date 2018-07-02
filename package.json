@@ -26,6 +26,7 @@
     "lodash": "^4.17.10",
     "md5-hex": "^2.0.0",
     "npm": "^6.1.0",
+    "pluralize": "^7.0.0",
     "vue": "^2.5.2",
     "vue-axios": "^2.1.1",
     "vue-google-autocomplete": "^1.1.0",

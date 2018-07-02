@@ -1,17 +1,14 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Dashboard from '@/views/Dashboard'
 
+import Dashboard from '@/views/Dashboard'
 import Login from '@/views/Login'
 import Logout from '@/views/Logout'
 
-import SiteIndex from '@/views/Sites/Index'
-import SiteShow from '@/views/Sites/Show'
-
-import SitePageEdit from '@/views/Sites/Pages/Edit'
-
-import MallRoutes from '@/router/malls'
-import CompanyRoutes from '@/router/companies'
+import CompanyRoutes from '@/router/_companies'
+import DealRoutes    from '@/router/_deals'
+import MallRoutes    from '@/router/_malls'
+import SiteRoutes    from '@/router/_sites'
 
 Vue.use(Router)
 
@@ -29,26 +26,13 @@ export default new Router({
       component: Dashboard
     },
     {
-      path: '/sites',
-      name: 'SiteIndex',
-      component: SiteIndex
-    },
-    {
-      path: '/sites/:site_id',
-      name: 'SiteShow',
-      component: SiteShow
-    },
-    {
-      path: '/sites/:site_id/pages/:page_id',
-      name: 'SitePageEdit',
-      component: SitePageEdit
-    },
-    {
       path: '/logout',
       name: 'Logout',
       component: Logout
     }
   ]
+  .concat(DealRoutes)
   .concat(MallRoutes)
   .concat(CompanyRoutes)
+  .concat(SiteRoutes)
 })

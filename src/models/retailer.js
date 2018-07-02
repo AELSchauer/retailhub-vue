@@ -1,24 +1,26 @@
 // import { Model } from '@vuex-orm/core'
 import Model from '@/services/extended-vuex-orm-model'
-import Mall from './mall'
-import Changeset from './_changeset'
+import Deal from './deal'
+import Store from './store'
 
-export default class Company extends Model {
+export default class Retailer extends Model {
   // This is the name used as module name of the Vuex Store.
-  static entity = 'companies'
+  static entity = 'retailers'
 
   // List of all fields (schema) of the post model. `this.attr` is used
   // for the generic field type. The argument is the default value.
   static fields () {
     return {
       id:       this.attr(null),
+      type:     this.attr('retailers'),
       name:     this.attr(''),
-      seo_slug: this.attr(''),
 
-      malls: this.hasMany(Mall, 'company_id'),
+      deals:  this.hasMany(Deal, 'retailer_id'),
+      stores: this.hasMany(Store, 'retailer_id'),
 
       // meta
-      malls_queried: this.attr(false),
+      deals_queried:  this.attr(false),
+      stores_queried: this.attr(false),
     }
   }
 }

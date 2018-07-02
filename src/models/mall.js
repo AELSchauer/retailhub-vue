@@ -1,5 +1,6 @@
 import Model from '@/services/extended-vuex-orm-model'
 import Company from './company'
+import Store from './store'
 
 export default class Mall extends Model {
   // This is the name used as module name of the Vuex Store.
@@ -17,7 +18,12 @@ export default class Mall extends Model {
       
       company_id: this.attr(null),
 
-      company: this.belongsTo(Company, 'company_id')
+      company:  this.belongsTo(Company, 'company_id'),
+      stores:   this.hasMany(Store, 'mall_id'),
+
+      // meta
+      company_queried:  this.attr(false),
+      stores_queried:   this.attr(false),
     }
   }
 }
