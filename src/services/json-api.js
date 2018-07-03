@@ -109,10 +109,11 @@ export default class JsonApi {
         return _.every(this.include.split(','), i => {
           let includeResources = i.split('.')
           let includeQueried = `${includeResources.pop()}_queried`
+          let recordChain = _record;
           includeResources.forEach(resource => {
-            _record = _record[resource]
+            recordChain = recordChain[resource]
           })
-          return _record[includeQueried]
+          return recordChain[includeQueried]
         })
       }
 
