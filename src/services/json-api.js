@@ -17,9 +17,19 @@ export default class JsonApi {
     return this.request('findRecord', args, params)
   }
 
+  static peekRecord(args) {
+    let params = ['resource', 'id']
+    return this.request('peekRecord', args, params)
+  }
+
   static deleteAssociations(args) {
     let params = ['resource', 'id', 'associatedRecords']
     return this.request('deleteAssociations', args, params)
+  }
+
+  static createAssociations(args) {
+    let params = ['resource', 'id', 'associatedRecords']
+    return this.request('createAssociations', args, params)
   }
 
   static request(method, args, params) {
@@ -148,6 +158,38 @@ export default class JsonApi {
     })
   }
 
+  createAssociations() {
+    if (!this.associatedRecords.length) {
+      return new Promise(() => {
+        throw 'must include at least one associated record to add'
+      })
+    }
+
+    try {
+      return $http.request({
+        method: 'post',
+        url: this.url,
+        headers: this.headers('post'),
+        params: this.requestParams,
+        data: {
+          data: this.associatedRecords
+        }
+      })
+      .then((response) => {
+        if (response.status != 204) {
+          throw response
+        }
+
+        $store.dispatch(`entities/deals/insertOrUpdate`, {
+          data: [ _.set({ id: this.resourceId }, this.associationType, this.associatedRecords) ]
+        })
+      })
+    }
+    catch (e) {
+      return e
+    }
+  }
+
   deleteAssociations() {
     if (!this.associatedRecords.length) {
       return new Promise(() => {
@@ -169,17 +211,12 @@ export default class JsonApi {
         if (response.status != 204) {
           throw response
         }
-
-        this.associatedRecords.forEach(record => {
-          $store.dispatch(`entities/${this.associationType}/delete`, record.id)
-        })
       })
     }
     catch (e) {
       return e
     }
   }
-
 
   buildParams(params = {}) {
     function formatInclude(include = '') {
@@ -235,7 +272,7 @@ export default class JsonApi {
         'Accept': 'application/vnd.api+json'
       }
     }
-    else if (_.includes(['delete'], method)) {
+    else if (_.includes(['post', 'delete'], method)) {
       return {
         'Accept': 'application/vnd.api+json',
         'Content-Type': 'application/vnd.api+json'
@@ -257,7 +294,7 @@ export default class JsonApi {
         url = url + `/${this.resourceId}`
       }
 
-      if (this.associatedRecords && this.associationType.length) {
+      if (this.associationType.length) {
         url = url + `/relationships/${this.associationType}`
       }
 
@@ -269,6 +306,10 @@ export default class JsonApi {
   }
 
   get associationType() {
+    if (!this.associatedRecords) {
+      return []
+    }
+
     let associationType = _
       .chain(this.associatedRecords)
       .map(record => record.type )

@@ -27,10 +27,12 @@
               </td>
               <td>
                 <template v-if="store.isAssociated">
-                  <button @click="deleteAssociation(store)">Delete Association</button>
+                  <!-- <font-awesome-icon icon="minus-square"  @click="deleteAssociation(store)" /> -->
+                  <button @click="deleteAssociations(store.record)" class="add-remove">-</button>
                 </template>
                 <template v-else>
-                  add association button goes here
+                  <!-- <font-awesome-icon icon="plus-square" @click="createAssociation(store)" /> -->
+                  <button @click="createAssociations(store.record)" class="add-remove">+</button>
                 </template>
               </td>
             </tr>
@@ -66,7 +68,8 @@ export default {
 
       return stores
         .concat(this.model.retailer.stores)
-        .uniqBy('name')
+        .sortBy('name')
+        .sortedUniqBy('name')
         .map(store => {
           return {
             record: store,
@@ -110,7 +113,6 @@ export default {
         }
       })
       .then((record) => {
-        console.log('record', record)
         this.model = record
       })
       .catch((error) => {
@@ -121,7 +123,8 @@ export default {
         this.loading = false
       })
     },
-    deleteAssociation(record) {
+
+    deleteAssociations(record) {
       this.loading = true
       json_api.deleteAssociations({
         resource: 'deals',
@@ -130,8 +133,59 @@ export default {
           { type: record.type, id: record.id }
         ]
       })
+      .then(() => {
+        // This step is necessary because vuex-orm is buggy when deleting relationships.
+        // I'll look into refactoring this somehow if they can't fix it.
+
+        let jsonModel = this.model.$toJson()
+        jsonModel.stores = this.model.stores.filter(store => store.id != record.id)
+        this.$store.dispatch('entities/deleteAll')
+
+        let convertedData = {
+          data: [ jsonModel ]
+        }
+        this.$store.dispatch(`entities/deals/insertOrUpdate`, convertedData )
+      })
+      .then(() => {
+        return json_api.peekRecord({
+          resource: 'deals',
+          id:       this.deal_id,
+          options:  {
+            params: { include: 'retailer,stores,retailer.stores' }
+          }
+        })
+      })
       .then((record) => {
-        this.model = Deal.query().with('malls').find(this.deal_id) || {};
+        this.model = record
+      })
+      .catch((error) => {
+        console.error('request failed', error);
+        this.error = true;
+      })
+      .finally(() => this.loading = false)
+    },
+
+    createAssociations(record) {
+      this.loading = true
+      json_api.createAssociations({
+        resource: 'deals',
+        id: this.deal_id,
+        associatedRecords: [
+          { type: record.type, id: record.id }
+        ]
+      })
+      .then(() => {
+        return json_api.peekRecord({
+          resource: 'deals',
+          id:       this.deal_id,
+          options:  {
+            params: { include: 'retailer,stores,retailer.stores' }
+          }
+        })
+      })
+      .then((record) => {
+        console.log('peekRecord', record)
+        this.model = record
       })
       .catch((error) => {
         console.error('request failed', error);
@@ -150,5 +204,9 @@ h1, h2 {
 }
 a {
   color: #42b983;
+}
+.add-remove {
+  width: 30px;
+  text-align: center;
 }
 </style>

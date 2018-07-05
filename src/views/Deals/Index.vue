@@ -7,7 +7,7 @@
       <div v-if="loading">Loading...</div>
       <ul v-else>
         <li v-for="deal in model">
-          {{ deal.name }}
+          <router-link :to="{ name: 'DealShow', params: { deal_id: deal.id }}">{{ deal.title }}</router-link>
         </li>
       </ul>
     </section>
@@ -16,8 +16,9 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import Deal from '@/models/deal'
 import json_api from '@/services/json-api'
+
+import Deal from '@/models/deal'
 
 export default {
   name: 'DealIndex',
@@ -66,7 +67,9 @@ export default {
         console.error('request failed', error);
         this.error = true;
       })
-      .finally(() => this.loading = false)
+      .finally(() => {
+        this.loading = false
+      })
     },
   }
 }
