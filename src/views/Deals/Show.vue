@@ -134,19 +134,6 @@ export default {
         ]
       })
       .then(() => {
-        // This step is necessary because vuex-orm is buggy when deleting relationships.
-        // I'll look into refactoring this somehow if they can't fix it.
-
-        let jsonModel = this.model.$toJson()
-        jsonModel.stores = this.model.stores.filter(store => store.id != record.id)
-        this.$store.dispatch('entities/deleteAll')
-
-        let convertedData = {
-          data: [ jsonModel ]
-        }
-        this.$store.dispatch(`entities/deals/insertOrUpdate`, convertedData )
-      })
-      .then(() => {
         return json_api.peekRecord({
           resource: 'deals',
           id:       this.deal_id,
@@ -184,7 +171,6 @@ export default {
         })
       })
       .then((record) => {
-        console.log('peekRecord', record)
         this.model = record
       })
       .catch((error) => {

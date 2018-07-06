@@ -1,7 +1,7 @@
 import Model from '@/services/extended-vuex-orm-model'
 
 export default class DealStore extends Model {
-  static entity = 'dealStore'
+  static entity = 'deal-stores'
   static primaryKey = ['deal_id', 'store_id']
 
   static fields () {

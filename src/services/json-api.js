@@ -6,6 +6,8 @@ import $store from '@/store';
 
 import Company from '@/models/company'
 
+const singularize = pluralize.singular
+
 export default class JsonApi {
   static findAll(args) {
     let params = ['resource']
@@ -211,6 +213,18 @@ export default class JsonApi {
         if (response.status != 204) {
           throw response
         }
+
+        let joinTableResource = [ this.resource, this.associationType ].sort()
+        joinTableResource[0] = singularize(joinTableResource[0])
+        joinTableResource = joinTableResource.join('-')
+
+        this.associatedRecords.forEach(associatedRecord => {
+          let resource_id = `${singularize(this.resource)}_id`
+          let association_id = `${singularize(associatedRecord.type)}_id`
+          $store.dispatch(`entities/${joinTableResource}/delete`, (record) => {
+            return record[resource_id] === this.resourceId && record[association_id] === associatedRecord.id
+          })
+        })
       })
     }
     catch (e) {
