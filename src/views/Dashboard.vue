@@ -30,6 +30,10 @@ export default {
         {
           route: 'SiteIndex',
           text: 'Sites'
+        },
+        {
+          route: 'DealIndex',
+          text: 'Deals'
         }
       ]
     }
@@ -45,6 +49,9 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+body {
+  background: #fff;
+}
 h1, h2 {
   font-weight: normal;
 }

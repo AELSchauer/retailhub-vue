@@ -1,14 +1,15 @@
 <template>
-  <div class=login-wrapper border border-light>
-    <form class=form-signin @submit.prevent=login>
-      <h2 class=form-signin-heading>Please sign in</h2>
-      <div class=alert alert-danger v-if=error>{{ error }}</div>
-      <label for=inputEmail class=sr-only>Email address</label>
-      <input v-model=email type=email id=inputEmail class=form-control placeholder=Email address required autofocus>
-      <label for=inputPassword class=sr-only>Password</label>
-      <input v-model=password type=password id=inputPassword class=form-control placeholder=Password required>
-      <button class=btn btn-lg btn-primary btn-block type=submit>Sign in</button>
-    </form>
+  <div class="background">
+    <div class=login-wrapper border border-light>
+      <form class=form-signin @submit.prevent=login>
+        <label for=inputEmail class="sr-only ">Email address</label>
+        <input v-model=email type=email id=inputEmail class=form-control placeholder=Email address required autofocus>
+        <label for=inputPassword class=sr-only>Password</label>
+        <input v-model=password type=password id=inputPassword class=form-control placeholder=Password required>
+        <div class="alert alert-danger form-error" v-if=error>{{ error }}</div>
+        <button class="btn btn-lg btn-primary btn-block" type=submit>Sign in</button>
+      </form>
+    </div>
   </div>
 </template>
 
@@ -89,14 +90,17 @@ export default {
 </script>
 
 <style lang=css>
-body {
+.background {
+  width: 100%;
+  height: 100%;
   background: #605B56;
+  display: flex;
 }
-
 .login-wrapper {
   background: #fff;
   width: 70%;
   margin: 12% auto;
+  display: inline-block;
 }
 
 .form-signin {
@@ -107,6 +111,7 @@ body {
 .form-signin .form-signin-heading,
 .form-signin .checkbox {
   margin-bottom: 10px;
+  text-align: center;
 }
 .form-signin .checkbox {
   font-weight: normal;
@@ -131,5 +136,8 @@ body {
   margin-bottom: 10px;
   border-top-left-radius: 0;
   border-top-right-radius: 0;
+}
+.form-error {
+  text-align: center;
 }
 </style>

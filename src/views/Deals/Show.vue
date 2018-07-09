@@ -6,15 +6,21 @@
     <section v-else>
       <div v-if="loading">Loading...</div>
       <div v-else>
-        <h1>{{ model.title }}</h1>
+        <h2>details</h2>
+        <table>
+          <tr v-for="attribute in attributeManifest" class="attribute">
+            <td class="attribute-label">{{ attribute.label }}</td>
+            <td class="attribute-value">{{ model[attribute.name] }}</td>
+          </tr>
+        </table>
         <hr>
         <div class="retailer-section">
-          <h3>retailer</h3>
+          <h2>retailer</h2>
           {{ model.retailer.name }}
         </div>
         <hr>
         <div class="stores-section">
-          <h3>stores</h3>
+          <h2>stores</h2>
           <h4>current associations</h4>
           <table>
             <th>
@@ -77,6 +83,9 @@ export default {
           }
         })
         .value()
+    },
+    attributeManifest: function() {
+      return this.model.attributeManifest
     }
   },
   created() {
@@ -190,6 +199,9 @@ h1, h2 {
 }
 a {
   color: #42b983;
+}
+.attribute-label {
+  padding: 0 10px 0 0;
 }
 .add-remove {
   width: 30px;
