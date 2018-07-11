@@ -1,7 +1,6 @@
 // import { Model } from '@vuex-orm/core'
 import Model from '@/services/extended-vuex-orm-model'
 import Mall from './mall'
-import Changeset from './_changeset'
 
 export default class Company extends Model {
   // This is the name used as module name of the Vuex Store.

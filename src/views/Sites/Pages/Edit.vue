@@ -51,7 +51,6 @@
 import Vue from 'vue'
 import { mapGetters } from 'vuex'
 import draggable from 'vuedraggable'
-import changeset from '../../../models/_changeset'
 
 import Page from '../../../models/page'
 import BentoComponent from '../../../models/bento/component'

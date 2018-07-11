@@ -52,6 +52,7 @@
 <script>
 import { mapGetters } from 'vuex'
 import json_api from '@/services/json-api'
+import Changest from '@/services/changeset'
 
 import Deal from '@/models/deal'
 import Mall from '@/models/mall'
