@@ -1,4 +1,7 @@
+import moment from 'moment'
+
 import Model from '@/services/extended-vuex-orm-model'
+import Changeset from '@/services/changeset'
 
 import Mall from './mall'
 import DealStore from './deal-store'
@@ -8,7 +11,7 @@ import Store from './store'
 export default class Deal extends Model {
   static entity = 'deals'
 
-  static fields () {
+  static fields() {
     return {
       id:   this.attr(null),
       type: this.attr('deals'),
@@ -35,6 +38,20 @@ export default class Deal extends Model {
       // meta attributes
       retailer_queried: this.attr(false),
       stores_queried:   this.attr(false)
+    }
+  }
+
+  static mutators() {
+    return {
+      start_at(value) {
+        return moment(value, 'YYYY-MM-DD HH:mm:ss')
+      },
+      display_at(value) {
+        return moment(value, 'YYYY-MM-DD HH:mm:ss')
+      },
+      end_at(value) {
+        return moment(value, 'YYYY-MM-DD HH:mm:ss')
+      }
     }
   }
 }
