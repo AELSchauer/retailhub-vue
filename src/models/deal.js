@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import Model from '@/services/extended-vuex-orm-model'
 
 import Mall from './mall'
@@ -36,5 +37,31 @@ export default class Deal extends Model {
       retailer_queried: this.attr(false),
       stores_queried:   this.attr(false)
     }
+  }
+
+
+  get attributes() {
+    let self = this;
+    return this.constructor.attributeFieldNames().reduce((json, key) => {
+      return _.set(json, key, self[key])
+    }, {});
+  }
+
+  snapshot() {
+    console.log('this.attributes', this.attributes)
+    this.snapshot = _.cloneDeep(this.attributes);
+  }
+
+  get changes() {
+    let self = this
+    let snapshot = this.snapshot
+    let changes = {}
+    _.keys(snapshot).forEach((key) => {
+      if (self[key] != snapshot[key]) {
+        _.set(changes, key, self[key])
+      }
+    })
+
+    return changes
   }
 }

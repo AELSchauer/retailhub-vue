@@ -20,29 +20,11 @@ export default class ExtendedModel extends Model {
     }, {});
   }
 
+  static attributeFieldNames() {
+    return _.keys(this.attributeFields())
+  }
 
   static relationshipFieldNames() {
     return _.keys(this.relationshipFields())
-  }
-
-
-  get(attrName) {
-    if (_.includes(this.constructor.relationshipFieldNames(), attrName)) {
-      let klass = this.constructor.relationshipFields()[attrName].constructor.name
-      if (klass === 'HasMany' ) {
-        return this[attrName].filter(r => r.id != "0")
-      }
-      else if (klass === 'BelongsTo') {
-
-      }
-      else {
-        console.log('uh oh! this class format isn\'t defined!')
-        console.log('class name:', klass)
-        console.log('data:', this[attrName])
-      }
-    }
-    else {
-      return this[attrName]
-    }
   }
 }

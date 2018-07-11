@@ -16,7 +16,7 @@
               </label>
               <input
                 :value="model.title"
-                @input="set('title', $event.target.value)"
+                @input="input('title', $event.target.value)"
                 id="inputTitle"
                 class="form-control col-md-8"
                 required
@@ -29,7 +29,7 @@
               </label>
               <input
                 :value="model.seo_slug"
-                @input="set('seo_slug', $event.target.value)"
+                @input="input('seo_slug', $event.target.value)"
                 id="inputSeoSlug"
                 class="form-control col-md-8"
                 :disabled="calculate_seo_slug"
@@ -37,11 +37,152 @@
               >
               <input
                 :checked="calculate_seo_slug"
-                @input="set('calculate_seo_slug', $event.target.checked)"
+                @input="input('calculate_seo_slug', $event.target.checked)"
                 type="checkbox"
                 id="calculateSeoSlug"
                 class="form-control col-md-1"
               >
+            </div>
+            <div class="row">
+              <label for="inputSalesType" class="form-label col-md-2">
+                Sales Type
+              </label>
+              <select 
+                v-model="model.sales_type"
+                id="inputSalesType"
+                class="form-control col-md-8"
+                required
+              >
+                <option disabled>Please select one</option>
+                <option>Sales and Promos</option>
+                <option>New Arrivals</option>
+                <option>In-Store Events</option>
+                <option>Style Notes</option>
+              </select>
+            </div>
+            <div class="row">
+              <label for="inputDescription" class="form-label col-md-2">
+                Description
+              </label>
+              <textarea
+                v-model="model.description"
+                id="inputDescription"
+                class="form-control col-md-8"
+                required
+              ></textarea>
+            </div>
+            <div class="row">
+              <label for="inputFinePrintDescription" class="form-label col-md-2">
+                Fine Print
+              </label>
+              <textarea
+                v-model="model.fine_print_description"
+                id="inputFinePrintDescription"
+                class="form-control col-md-8"
+              ></textarea>
+            </div>
+            <div class="row">
+              <label for="inputWebsiteAddress" class="form-label col-md-2">
+                Website Address
+              </label>
+              <input
+                v-model="model.external_url"
+                type="url"
+                id="inputWebsiteAddress"
+                class="form-control col-md-8"
+              >
+            </div>
+            <div class="row">
+              <label for="inputIsLocal" class="form-label col-md-2">
+                Is Local?
+              </label>
+              <input
+                v-model="model.is_local"
+                type="checkbox"
+                id="inputIsLocal"
+                class="form-control col-md-1"
+              >
+            </div>
+            <div class="row">
+              <label for="inputIsFeatured" class="form-label col-md-2">
+                Is Featured?
+              </label>
+              <input
+                v-model="model.is_featured"
+                id="inputIsFeatured"
+                type="checkbox"
+                class="form-control col-md-1"
+              >
+            </div>
+            <div class="row">
+              <label for="inputIsLive" class="form-label col-md-2">
+                Is Live?
+              </label>
+              <input
+                v-model="model.is_live"
+                id="inputIsLive"
+                type="checkbox"
+                class="form-control col-md-1"
+              >
+            </div>
+            <div class="row">
+              <label for="inputStartAt" class="form-label col-md-2">
+                Start At Date
+              </label>
+              <input
+                v-model="model.start_at"
+                type="date"
+                :min="startAtMin"
+                :max="indefinitely"
+                id="inputStartAt"
+                class="form-control col-md-8"
+                required
+              >
+            </div>
+            <div class="row">
+              <label for="inputDisplayAt" class="form-label col-md-2">
+                Display At Date
+              </label>
+              <input
+                v-model="model.display_at"
+                type="date"
+                :min="displayAtMin"
+                :max="displayAtMax"
+                id="inputDisplayAt"
+                class="form-control col-md-8"
+                required
+              >
+            </div>
+            <div class="row">
+              <label for="inputEndAt" class="form-label col-md-2">
+                End At Date
+              </label>
+              <input
+                v-model="model.end_at"
+                type="date"
+                :min="endAtMin"
+                :max="indefinitely"
+                id="inputEndAt"
+                class="form-control col-md-8"
+                required
+              >
+            </div>
+            <div class="row">
+              <label for="inputEndAtText" class="form-label col-md-2">
+                End At Text
+              </label>
+              <select 
+                v-model="model.end_at_text"
+                type="radio" 
+                id="inputEndAtText"
+                class="form-control col-md-8"
+                required
+              >
+                <option disabled value="">Please select one</option>
+                <option for="0">Show Dates</option>
+                <option for="1">"Limited Time"</option>
+                <option for="2">"Ongoing"</option>
+              </select>
             </div>
           </div>
           <br>
@@ -55,12 +196,10 @@
 <script>
 import { mapGetters } from 'vuex'
 import json_api from '@/services/json-api'
-
-import Deal from '@/models/deal'
-import Mall from '@/models/mall'
+import Changeset from '@/services/changeset'
 
 export default {
-  name: 'DealShow',
+  name: 'DealEdit',
   data() {
     return {
       permissions: ['admin'],
@@ -111,6 +250,7 @@ export default {
       })
       .then((record) => {
         this.model = record
+        this.model.snapshot()
       })
       .catch((error) => {
         console.error('request failed', error);
@@ -133,12 +273,12 @@ export default {
       else if (attr === 'calculate_seo_slug') {
         this.calculate_seo_slug = value
         if (this.calculate_seo_slug) {
-          this.set('seo_slug', this.title)
+          this.set('seo_slug', this.model.title)
         }
       }
     },
-    createDeal() {
-      console.log('wooohoo', this)
+    updateDeal() {
+      console.log('wooohoo', this.model.changes)
     },
   }
 }
