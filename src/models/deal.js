@@ -1,6 +1,7 @@
 import _ from 'lodash'
-import Model from '@/services/extended-vuex-orm-model'
+import moment from 'moment'
 
+import Model from '@/services/extended-vuex-orm-model'
 import Mall from './mall'
 import DealStore from './deal-store'
 import Retailer from './retailer'
@@ -9,7 +10,7 @@ import Store from './store'
 export default class Deal extends Model {
   static entity = 'deals'
 
-  static fields () {
+  static fields() {
     return {
       id:   this.attr(null),
       type: this.attr('deals'),
@@ -39,6 +40,27 @@ export default class Deal extends Model {
     }
   }
 
+  static mutators() {
+    return {
+      start_at(value) {
+        return moment(value, 'YYYY-MM-DD HH:mm:ss')
+      },
+      display_at(value) {
+        return moment(value, 'YYYY-MM-DD HH:mm:ss')
+      },
+      end_at(value) {
+        return moment(value, 'YYYY-MM-DD HH:mm:ss')
+      },
+      end_at_text(value) {
+        if (moment(value).isValid()) {
+          return 'Show Dates'
+        }
+        else {
+          return value
+        }
+      }
+    }
+  }
 
   get attributes() {
     let self = this;
@@ -57,11 +79,24 @@ export default class Deal extends Model {
     let snapshot = this.snapshot
     let changes = {}
     _.keys(snapshot).forEach((key) => {
-      if (self[key] != snapshot[key]) {
-        _.set(changes, key, self[key])
+      let old_val = snapshot[key],
+          new_val = self[key]
+
+      if (old_val.constructor.name === 'Moment') {
+        old_val = this.formatDate(old_val)
+        new_val = this.formatDate(new_val)
+      }
+
+      if (new_val != old_val) {
+        _.set(changes, key, new_val)
       }
     })
 
     return changes
+  }
+
+
+  formatDate(date) {
+    return date.format('YYYY-MM-DD HH:mm')
   }
 }
