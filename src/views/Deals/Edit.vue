@@ -10,19 +10,12 @@
         <form @submit.prevent="updateDeal" autocomplete="off">
           <div class=alert alert-danger v-if=validationErrors>{{ validationErrors }}</div>
           <div class="container">
-            <div class="row">
-              <label for="inputTitle" class="form-label col-md-2">
-                Title
-              </label>
-              <input
-                :value="get('title')"
-                @input="set('title', $event.target.value)"
-                id="inputTitle"
-                class="form-control col-md-9"
-                required
-                autofocus
-              >
-            </div>
+            <form-input-text-box
+              attribute="title"
+              label="Title"
+              :options="{ type: 'text', required: true, autofocus: true }"
+              wrapperClass="row"
+            ></form-input-text-box>
             <div class="row">
               <label for="inputSeoSlug" class="form-label col-md-2">
                 SEO Slug
@@ -241,6 +234,8 @@ import json_api from '@/services/json-api'
 import Deal from '@/models/deal'
 import Mall from '@/models/mall'
 
+import FormInputTextBox from '@/components/form-inputs/text-box'
+
 export default {
   name: 'DealEdit',
   data() {
@@ -364,6 +359,7 @@ export default {
       })
     },
     get(attr) {
+      console.log('DealEdit get')
       if (false) {
         // placeholder
       }
@@ -372,6 +368,7 @@ export default {
       }
     },
     set(attr, newValue) {
+      console.log('DealEdit set', newValue)
       if (attr === 'title') {
         this.model.set('title', newValue)
         if (this.calculate_seo_slug) {
@@ -437,12 +434,15 @@ export default {
         this.loading = false
       })
     },
+  },
+  components: {
+    FormInputTextBox,
   }
 }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
+<style scoped lang=scss>
 h1, h2 {
   font-weight: normal;
 }

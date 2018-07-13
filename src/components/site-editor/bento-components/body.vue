@@ -41,7 +41,6 @@ export default {
     viewDetails: function() {
       this.bus.$emit('selectedComponent', this)
     },
-
   },
   components: {
     draggable
