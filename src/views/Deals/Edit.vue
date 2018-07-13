@@ -10,7 +10,7 @@
         <form @submit.prevent="updateDeal" autocomplete="off">
           <div class=alert alert-danger v-if=validationErrors>{{ validationErrors }}</div>
           <div class="container">
-            <form-input
+            <!-- <form-input
               attribute="title"
               label="Title"
               labelClass="col-md-2"
@@ -21,7 +21,7 @@
                 autofocus: true,
                 class: 'form-control col-md-9'
               }"
-            ></form-input>
+            ></form-input> -->
             <div class="row">
               <label for="inputSeoSlug" class="form-label col-md-2">
                 SEO Slug
@@ -31,12 +31,12 @@
                 @input="set('seo_slug', $event.target.value)"
                 id="inputSeoSlug"
                 class="form-control col-md-9"
-                :disabled="calculate_seo_slug"
+                :disabled="component_calculate_seo_slug"
                 required
               >
               <input
-                :checked="calculate_seo_slug"
-                @input="set('calculate_seo_slug', $event.target.checked)"
+                :checked="component_calculate_seo_slug"
+                @input="set('component_calculate_seo_slug', $event.target.checked)"
                 type="checkbox"
                 id="calculateSeoSlug"
                 class="form-control col-md-1"
@@ -83,7 +83,7 @@
                 class="form-control col-md-9"
               ></textarea>
             </div>
-            <form-input
+            <!-- <form-input
               attribute="external_url"
               label="Website Address"
               labelClass="col-md-2"
@@ -93,97 +93,82 @@
                 'class': 'form-control col-md-9'
               }"
             ></form-input>
-            <div class="row">
-              <label for="inputIsLocal" class="form-label col-md-2">
-                Is Local?
-              </label>
-              <input
-                v-model="model.is_local"
-                type="checkbox"
-                id="inputIsLocal"
-                class="form-control col-md-1"
-              >
-            </div>
-            <div class="row">
-              <label for="inputIsFeatured" class="form-label col-md-2">
-                Is Featured?
-              </label>
-              <input
-                v-model="model.is_featured"
-                id="inputIsFeatured"
-                type="checkbox"
-                class="form-control col-md-1"
-              >
-            </div>
-            <div class="row">
-              <label for="inputIsLive" class="form-label col-md-2">
-                Is Live?
-              </label>
-              <input
-                v-model="model.is_live"
-                id="inputIsLive"
-                type="checkbox"
-                class="form-control col-md-1"
-              >
-            </div>
-            <br>
-            <div class="row">
-              <label for="calculateDatesAllDay" class="form-label col-md-2">
-                All Day?
-              </label>
-              <input
-                :checked="calculate_dates_all_day"
-                @input="set('calculate_dates_all_day', $event.target.checked)"
-                type="checkbox"
-                id="calculateDatesAllDay"
-                class="form-control col-md-9"
-              >
-            </div>
-            <div class="row">
-              <label for="inputStartAt" class="form-label col-md-2">
-                Start Date
-              </label>
-              <input
-                :value="formatDate(model.get('start_at'))"
-                @input="model.set('start_at', $event.target.value)"
-                :type="datesData.type"
-                :min="startAtMin"
-                :max="indefinitely"
-                id="inputStartAt"
-                class="form-control col-md-9"
-                required
-              >
-            </div>
-            <div class="row">
-              <label for="inputDisplayAt" class="form-label col-md-2">
-                Display Date
-              </label>
-              <input
-                :value="formatDate(model.get('display_at'))"
-                @input="model.set('display_at', $event.target.value)"
-                :type="datesData.type"
-                :min="displayAtMin"
-                :max="displayAtMax"
-                id="inputDisplayAt"
-                class="form-control col-md-9"
-                required
-              >
-            </div>
-            <div class="row">
-              <label for="inputEndAt" class="form-label col-md-2">
-                End Date
-              </label>
-              <input
-                :value="formatDate(model.get('end_at'))"
-                @input="model.set('end_at', $event.target.value)"
-                :type="datesData.type"
-                :min="endAtMin"
-                :max="indefinitely"
-                id="inputEndAt"
-                class="form-control col-md-9"
-                required
-              >
-            </div>
+            <form-checkbox
+              attribute="is_local"
+              label="Is Local?"
+              labelClass="col-md-2"
+              rootClass="row"
+              :options="{ 
+                class: 'form-control col-md-1'
+              }"
+            ></form-checkbox>
+            <form-checkbox
+              attribute="is_featured"
+              label="Is Featured?"
+              labelClass="col-md-2"
+              rootClass="row"
+              :options="{ 
+                class: 'form-control col-md-1'
+              }"
+            ></form-checkbox>
+            <form-checkbox
+              attribute="is_live"
+              label="Is Live?"
+              labelClass="col-md-2"
+              rootClass="row"
+              :options="{ 
+                class: 'form-control col-md-1'
+              }"
+            ></form-checkbox> -->
+            <!-- <br>
+            <form-checkbox
+              attribute="component_calculate_dates_all_day"
+              label="All Day?"
+              labelClass="col-md-2"
+              rootClass="row"
+              :options="{ 
+                class: 'form-control col-md-1'
+              }"
+            ></form-checkbox>
+            <form-date-time
+              attribute="start_at"
+              label="Start Date"
+              labelClass="col-md-2"
+              rootClass="row"
+              :options="{ 
+                type: dateType,
+                class: 'form-control col-md-9',
+                min: startAtMin,
+                max: indefinitely,
+                required: true,
+              }"
+            ></form-date-time>
+            <form-date-time
+              attribute="end_at"
+              label="End Date"
+              labelClass="col-md-2"
+              rootClass="row"
+              :options="{ 
+                type: dateType,
+                class: 'form-control col-md-9',
+                min: endAtMin,
+                max: indefinitely,
+                required: true,
+              }"
+            ></form-date-time>
+            <form-date-time
+              attribute="display_at"
+              label="Display Date"
+              labelClass="col-md-2"
+              rootClass="row"
+              :options="{ 
+                type: dateType,
+                class: 'form-control col-md-9',
+                min: displayAtMin,
+                max: displayAtMax,
+                required: true,
+              }"
+            ></form-date-time> -->
             <!-- 
             The API doesn't currently support end_date_visibility or end_at_text
             in post or patch requests.
@@ -238,6 +223,8 @@ import json_api from '@/services/json-api'
 import Deal from '@/models/deal'
 import Mall from '@/models/mall'
 
+import FormCheckbox from '@/components/form-elements/checkbox'
+import FormDateTime from '@/components/form-elements/date-time'
 import FormInput from '@/components/form-elements/input'
 
 export default {
@@ -253,55 +240,43 @@ export default {
       dateAttributeNames: Deal.dateAttributeNames(),
       validationErrors:   null,
       
-      calculate_seo_slug:      true,
-      calculate_dates_all_day: true
+      component_calculate_seo_slug:      true,
+      component_calculate_dates_all_day: true
     }
   },
   computed: {
     ...mapGetters({ currentUser: 'currentUser' }),
     startAtMin: function() {
-      if (this.model.get('start_at')) {
-        return this.formatDate(this.model.get('start_at'))
+      let today = moment.utc()
+      let start_at = this.model.get('start_at')
+      if (start_at && start_at.isValid() && start_at < today) {
+        return start_at
       }
       else {
-        return this.formatDate(moment.utc())
+        return today
       }
     },
     displayAtMin: function() {
-      if (this.model.get('start_at')) {
-        return this.formatDate(this.model.get('start_at'))
-      }
-      else {
-        return this.startAtMin
-      }
+      let start_at = this.model.get('start_at')
+      return (start_at && start_at.isValid()) ? (start_at) : (this.startAtMin)
+    },
+    endAtMin: function() {
+      let date = (this.model.get('display_at') || this.model.get('start_at'));
+      return (date) ? (moment.utc(date).add(1, 'd')) : (moment.utc().add(1, 'd'))
     },
     displayAtMax: function() {
       if (this.model.get('end_at')) {
-        return this.formatDate(this.model.get('end_at'))
+        return moment.utc(this.model.get('end_at')).subtract(1, 'd')
       }
       else {
         return this.indefinitely
       }
     },
-    endAtMin: function() {
-      let date = (this.model.get('display_at') || this.model.get('start_at'));
-      if (date) {
-        return this.formatDate(moment.utc(date).add(1, 'days'))
-      }
-      else {
-        return this.formatDate(moment.utc().add(1, 'days'))
-      }
-    },
     indefinitely: function() {
-      return this.formatDate(moment.utc().add(10, 'years'))
+      return moment.utc().add(10, 'years')
     },
-    datesData: function() {
-      if (this.calculate_dates_all_day) {
-        return { format:'YYYY-MM-DD', type: 'date'}
-      }
-      else {
-        return { format:'YYYY-MM-DDTHH:mm', type: 'datetime-local' }
-      }
+    dateType: function() {
+      return (this.component_calculate_dates_all_day) ? ('date') : ('datetime-local');
     },
     changes: function() {
       return _.chain(this.model.changes)
@@ -346,7 +321,7 @@ export default {
         return this.model
       })
       .then((model) => {
-        this.calculate_dates_all_day = _
+        this.component_calculate_dates_all_day = _
           .every(this.dateAttributeNames, attrName => {
             return _.every(['hour', 'minute', 'second'], x => {
               return model[attrName].get(x) === 0
@@ -363,30 +338,29 @@ export default {
       })
     },
     get(attr) {
-      if (false) {
-        // placeholder
+      if (attr.indexOf('component_') === 0) {
+        return this[attr]
       }
       else {
         return this.model.get(attr)
       }
     },
     set(attr, newValue) {
-      console.log('DealEdit set', newValue)
       if (attr === 'title') {
         this.model.set('title', newValue)
-        if (this.calculate_seo_slug) {
+        if (this.component_calculate_seo_slug) {
           this.set('seo_slug', newValue);
         }
       }
-      else if (attr === 'calculate_seo_slug') {
-        this.calculate_seo_slug = newValue
-        if (this.calculate_seo_slug) {
+      else if (attr === 'component_calculate_seo_slug') {
+        this.component_calculate_seo_slug = newValue
+        if (this.component_calculate_seo_slug) {
           this.set('seo_slug', this.model.get('title'));
         }
       }
-      else if (attr === 'calculate_dates_all_day') {
-        this.calculate_dates_all_day = newValue
-        if (this.calculate_dates_all_day) {
+      else if (attr === 'component_calculate_dates_all_day') {
+        this.component_calculate_dates_all_day = newValue
+        if (this.component_calculate_dates_all_day) {
           let self = this
           this.dateAttributeNames.forEach(attr => {
             let date = self.model.get(attr)
@@ -398,9 +372,6 @@ export default {
       else {
         this.model.set(attr, newValue)
       }
-    },
-    formatDate(date) {
-      return date.format(this.datesData.format)
     },
     updateDeal() {
       this.loading = true;
@@ -421,7 +392,7 @@ export default {
         return this.model
       })
       .then((model) => {
-        this.calculate_dates_all_day = _
+        this.component_calculate_dates_all_day = _
           .every(this.dateAttributeNames, attrName => {
             return _.every(['hour', 'minute', 'second'], x => {
               return model[attrName].get(x) === 0
@@ -438,6 +409,8 @@ export default {
     },
   },
   components: {
+    FormCheckbox,
+    FormDateTime,
     FormInput,
   }
 }

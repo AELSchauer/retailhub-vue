@@ -9,8 +9,8 @@
       There was a problem rendering this input field
     </div>
     <input v-else
-      :value="get()"
-      @input="set($event.target.value)"
+      :checked="get()"
+      @input="set($event.target.checked)"
       v-bind="inputAttributes"
     >
   </div>
@@ -21,22 +21,15 @@ import _ from 'lodash'
 import formHelper from '@/helpers/form-elements'
 
 export default {
-  name: 'form-input',
+  name: 'form-checkbox',
   data() {
     return {
       error: false,
       loading: true,
-      // See this page for origins of this list:
-      // https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input
-      allowedTypes: [
-        'email', 'hidden', 'number', 'password', 'range', 
-        'tel', 'text', 'url'
-      ]
-      // radio, checkbox, date, and datetime-local types are not supported here because the way
-      // the data is processed means they should be separate components
     }
   },
   props: {
+    model:      Object,
     attribute:  String,
     label:      String,
     options:    Object,
@@ -48,10 +41,6 @@ export default {
       return 'input' + this.attribute.camelCase().capitalize()
     },
     inputAttributes: function() {
-      function customizer(objValue, srcValue) {
-        return [objValue].concat([srcValue]);
-      }
-
       let defaultOptions = {
         id: {
           value: this.inputId,
@@ -61,31 +50,29 @@ export default {
           value: 'form-input',
           action: 'merge',
         },
+        type: {
+          value: 'checkbox',
+          action: 'overwrite',
+        },
       }
 
       return formHelper.getInputAttributes(defaultOptions, this.options)
     }
   },
-  created() {
-    this.verifyType()
-  },
   methods: {
     get() {
-      console.log(this.$parent.get(this.attribute))
       return this.$parent.get(this.attribute)
     },
     set(newValue) {
       this.$parent.set(this.attribute, newValue)
     },
-    verifyType() {
-      if (!_.includes(this.allowedTypes, this.options.type)) {
-        console.error(`ERROR: The input type '${this.options.type}' is not supported. ` +
-          'It may be able to be invoked with another form component.')
-        this.error = true
-      }
-    },
-    _classMerger(a, b) {
-      return formHelper.stringMerger(a, b)
+    _classMerger(classA, classB) {
+      return _
+        .chain([ classA ])
+        .concat([ classB ])
+        .compact()
+        .join(' ')
+        .value()
     }
   },
 }

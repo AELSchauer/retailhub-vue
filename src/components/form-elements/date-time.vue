@@ -18,22 +18,18 @@
 
 <script>
 import _ from 'lodash'
+// import moment from 'moment'
 import formHelper from '@/helpers/form-elements'
 
 export default {
-  name: 'form-input',
+  name: 'form-date-time',
   data() {
     return {
       error: false,
       loading: true,
       // See this page for origins of this list:
       // https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input
-      allowedTypes: [
-        'email', 'hidden', 'number', 'password', 'range', 
-        'tel', 'text', 'url'
-      ]
-      // radio, checkbox, date, and datetime-local types are not supported here because the way
-      // the data is processed means they should be separate components
+      allowedTypes: [ 'date', 'datetime-local' ]
     }
   },
   props: {
@@ -63,7 +59,22 @@ export default {
         },
       }
 
+      if (this.options.min) {
+        this.options.min = this.options.min.format(this.inputFormat)
+      }
+      if (this.options.max) {
+        this.options.max = this.options.max.format(this.inputFormat)
+      }
+
       return formHelper.getInputAttributes(defaultOptions, this.options)
+    },
+    inputFormat: function() {
+      if (this.options.type === 'date') {
+        return 'YYYY-MM-DD';
+      }
+      else {
+        return 'YYYY-MM-DDTHH:mm'
+      }
     }
   },
   created() {
@@ -71,8 +82,7 @@ export default {
   },
   methods: {
     get() {
-      console.log(this.$parent.get(this.attribute))
-      return this.$parent.get(this.attribute)
+      return this.$parent.get(this.attribute).format(this.inputFormat)
     },
     set(newValue) {
       this.$parent.set(this.attribute, newValue)

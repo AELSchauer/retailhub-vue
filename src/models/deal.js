@@ -11,6 +11,7 @@ export default class Deal extends Model {
   static entity = 'deals'
 
   static fields() {
+    let today = moment.utc().startOf('day');
     return {
       id:   this.attr(null),
       type: this.attr('deals'),
@@ -24,9 +25,9 @@ export default class Deal extends Model {
       is_local:               this.attr(false),
       is_featured:            this.attr(false),
       is_live:                this.attr(''),
-      start_at:               this.attr(''),
-      display_at:             this.attr(''),
-      end_at:                 this.attr(''),
+      start_at:               this.attr(today),
+      display_at:             this.attr(today),
+      end_at:                 this.attr(today.add(1, 'd')),
       end_at_text:            this.attr(''),
 
       retailer_id:  this.attr(null),
