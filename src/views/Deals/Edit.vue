@@ -15,7 +15,7 @@
                 Title
               </label>
               <input
-                :value="model.title"
+                :value="get('title')"
                 @input="set('title', $event.target.value)"
                 id="inputTitle"
                 class="form-control col-md-9"
@@ -28,7 +28,7 @@
                 SEO Slug
               </label>
               <input
-                :value="model.seo_slug"
+                :value="get('seo_slug')"
                 @input="set('seo_slug', $event.target.value)"
                 id="inputSeoSlug"
                 class="form-control col-md-9"
@@ -48,7 +48,8 @@
                 Sales Type
               </label>
               <select 
-                v-model="model.sales_type"
+                :value="get('sales_type')"
+                @input="set('sales_type', $event.target.value)"
                 id="inputSalesType"
                 class="form-control col-md-9"
                 required
@@ -65,7 +66,8 @@
                 Description
               </label>
               <textarea
-                v-model="model.description"
+                :value="get('description')"
+                @input="set('description', $event.target.value)"
                 id="inputDescription"
                 class="form-control col-md-9"
                 required
@@ -76,7 +78,8 @@
                 Fine Print
               </label>
               <textarea
-                v-model="model.fine_print_description"
+                :value="get('fine_print_description')"
+                @input="set('fine_print_description', $event.target.value)"
                 id="inputFinePrintDescription"
                 class="form-control col-md-9"
               ></textarea>
@@ -86,7 +89,8 @@
                 Website Address
               </label>
               <input
-                v-model="model.external_url"
+                :value="get('external_url')"
+                @input="set('external_url', $event.target.value)"
                 type="url"
                 id="inputWebsiteAddress"
                 class="form-control col-md-9"
@@ -140,11 +144,11 @@
             </div>
             <div class="row">
               <label for="inputStartAt" class="form-label col-md-2">
-                Start At Date
+                Start Date
               </label>
               <input
-                :value="formatDate(model.start_at)"
-                @input="set('start_at', $event.target.value)"
+                :value="formatDate(model.get('start_at'))"
+                @input="model.set('start_at', $event.target.value)"
                 :type="datesData.type"
                 :min="startAtMin"
                 :max="indefinitely"
@@ -153,14 +157,13 @@
                 required
               >
             </div>
-
             <div class="row">
               <label for="inputDisplayAt" class="form-label col-md-2">
-                Display At Date
+                Display Date
               </label>
               <input
-                :value="formatDate(model.display_at)"
-                @input="set('display_at', $event.target.value)"
+                :value="formatDate(model.get('display_at'))"
+                @input="model.set('display_at', $event.target.value)"
                 :type="datesData.type"
                 :min="displayAtMin"
                 :max="displayAtMax"
@@ -171,11 +174,11 @@
             </div>
             <div class="row">
               <label for="inputEndAt" class="form-label col-md-2">
-                End At Date
+                End Date
               </label>
               <input
-                :value="formatDate(model.end_at)"
-                @input="set('end_at', $event.target.value)"
+                :value="formatDate(model.get('end_at'))"
+                @input="model.set('end_at', $event.target.value)"
                 :type="datesData.type"
                 :min="endAtMin"
                 :max="indefinitely"
@@ -184,22 +187,26 @@
                 required
               >
             </div>
-            <div class="row">
-              <label for="inputEndAtText" class="form-label col-md-2">
-                End At Text
+            <!-- 
+            The API doesn't currently support end_date_visibility or end_at_text
+            in post or patch requests.
+             -->
+            <!-- <div class="row">
+              <label for="EndAtText" class="form-label col-md-2">
+                End Date Text
               </label>
               <select 
-                v-model="model.end_at_text"
-                type="radio" 
-                id="inputEndAtText"
+                :value="get('end_at_text')"
+                @input="set('end_at_text', $event.target.value)"
+                id="EndAtText"
                 class="form-control col-md-9"
                 required
               >
-                <option for="Show Dates">Show Dates</option>
-                <option for="Limited Time">"Limited Time"</option>
-                <option for="Ongoing">"Ongoing"</option>
+                <option>Show Dates</option>
+                <option value="Limited Time">"Limited Time"</option>
+                <option value="Ongoing">"Ongoing"</option>
               </select>
-            </div>
+            </div> -->
           </div>
           <br>
           <div class="row">
@@ -213,9 +220,9 @@
               </button>
             </div>
             <div class="col-md-6 btn-row">
-              <button class="btn btn-lg btn-primary btn-block">
+              <!-- <button class="btn btn-lg btn-primary btn-block">
                 Cancel
-              </button>
+              </button> -->
             </div>
           </div>
         </form>
@@ -244,7 +251,7 @@ export default {
       error:       false,
       deal_id:     this.$route.params.deal_id,
 
-      dateAttributeNames: ['start_at', 'display_at', 'end_at'],
+      dateAttributeNames: Deal.dateAttributeNames(),
       validationErrors:   null,
       
       calculate_seo_slug:      true,
@@ -254,40 +261,40 @@ export default {
   computed: {
     ...mapGetters({ currentUser: 'currentUser' }),
     startAtMin: function() {
-      if (this.model.start_at) {
-        return this.formatDate(this.model.start_at)
+      if (this.model.get('start_at')) {
+        return this.formatDate(this.model.get('start_at'))
       }
       else {
-        return this.formatDate(moment())
+        return this.formatDate(moment.utc())
       }
     },
     displayAtMin: function() {
-      if (this.model.start_at) {
-        return this.formatDate(this.model.start_at)
+      if (this.model.get('start_at')) {
+        return this.formatDate(this.model.get('start_at'))
       }
       else {
         return this.startAtMin
       }
     },
     displayAtMax: function() {
-      if (this.model.end_at) {
-        return this.formatDate(this.model.end_at)
+      if (this.model.get('end_at')) {
+        return this.formatDate(this.model.get('end_at'))
       }
       else {
         return this.indefinitely
       }
     },
     endAtMin: function() {
-      let date = (this.model.display_at || this.model.start_at);
+      let date = (this.model.get('display_at') || this.model.get('start_at'));
       if (date) {
-        return this.formatDate(moment(date).add(1, 'days'))
+        return this.formatDate(moment.utc(date).add(1, 'days'))
       }
       else {
-        return this.formatDate(moment().add(1, 'days'))
+        return this.formatDate(moment.utc().add(1, 'days'))
       }
     },
     indefinitely: function() {
-      return this.formatDate(moment().add(10, 'years'))
+      return this.formatDate(moment.utc().add(10, 'years'))
     },
     datesData: function() {
       if (this.calculate_dates_all_day) {
@@ -356,35 +363,79 @@ export default {
         this.loading = false
       })
     },
+    get(attr) {
+      if (false) {
+        // placeholder
+      }
+      else {
+        return this.model.get(attr)
+      }
+    },
     set(attr, newValue) {
       if (attr === 'title') {
-        this.model.title = newValue
+        this.model.set('title', newValue)
         if (this.calculate_seo_slug) {
-          if (this.calculate_seo_slug) this.set('seo_slug', newValue);
+          this.set('seo_slug', newValue);
         }
-      }
-      else if (attr === 'seo_slug') {
-        this.model.seo_slug = newValue.slugify()
       }
       else if (attr === 'calculate_seo_slug') {
         this.calculate_seo_slug = newValue
-        if (this.calculate_seo_slug) this.set('seo_slug', this.title);
+        if (this.calculate_seo_slug) {
+          this.set('seo_slug', this.model.get('title'));
+        }
       }
       else if (attr === 'calculate_dates_all_day') {
         this.calculate_dates_all_day = newValue
-      }
-      else if (_.includes(this.dateAttributeNames, attr)) {
-        this.model[attr] = moment(newValue, this.datesData.format);
+        if (this.calculate_dates_all_day) {
+          let self = this
+          this.dateAttributeNames.forEach(attr => {
+            let date = self.model.get(attr)
+            date.set({ hour: 0, minute: 0, second: 0 })
+            self.model.set(attr, date)
+          })
+        }
       }
       else {
-        this.model[attr] = newValue
+        this.model.set(attr, newValue)
       }
     },
     formatDate(date) {
       return date.format(this.datesData.format)
     },
     updateDeal() {
-      console.log('wooohoo', this.model.changes)
+      this.loading = true;
+      json_api.updateRecord({
+        resource: 'deals',
+        id:       this.deal_id,
+        body: {
+          data: {
+            id: this.model.get('id'),
+            type: this.model.get('type'),
+            attributes: this.model.serializedChanges,
+          }
+        }
+      })
+      .then((record) => {
+        this.model = record
+        this.model.snapshot()
+        return this.model
+      })
+      .then((model) => {
+        this.calculate_dates_all_day = _
+          .every(this.dateAttributeNames, attrName => {
+            return _.every(['hour', 'minute', 'second'], x => {
+              return model[attrName].get(x) === 0
+            })
+          })
+
+      })
+      .catch((error) => {
+        console.error('request failed', error);
+        this.error = true;
+      })
+      .finally(() => {
+        this.loading = false
+      })
     },
   }
 }

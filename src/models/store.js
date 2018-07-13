@@ -22,9 +22,9 @@ export default class Store extends Model {
       retailer: this.belongsTo(Retailer, 'retailer_id'),
 
       // meta
-      deals_queried:    this.attr(false),
-      mall_queried:     this.attr(false),
-      retailer_queried: this.attr(false),
+      $deals_queried:    this.attr(false),
+      $mall_queried:     this.attr(false),
+      $retailer_queried: this.attr(false),
     }
   }
 }

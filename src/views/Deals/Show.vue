@@ -52,7 +52,6 @@
 <script>
 import { mapGetters } from 'vuex'
 import json_api from '@/services/json-api'
-import Changest from '@/services/changeset'
 
 import Deal from '@/models/deal'
 import Mall from '@/models/mall'
@@ -133,7 +132,6 @@ export default {
         this.loading = false
       })
     },
-
     deleteAssociations(record) {
       this.loading = true
       json_api.deleteAssociations({
@@ -161,7 +159,6 @@ export default {
       })
       .finally(() => this.loading = false)
     },
-
     createAssociations(record) {
       this.loading = true
       json_api.createAssociations({

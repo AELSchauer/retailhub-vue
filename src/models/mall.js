@@ -22,8 +22,8 @@ export default class Mall extends Model {
       stores:   this.hasMany(Store, 'mall_id'),
 
       // meta
-      company_queried:  this.attr(false),
-      stores_queried:   this.attr(false),
+      $company_queried:  this.attr(false),
+      $stores_queried:   this.attr(false),
     }
   }
 }

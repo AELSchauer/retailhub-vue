@@ -179,9 +179,9 @@
                 required
               >
                 <option disabled value="">Please select one</option>
-                <option for="0">Show Dates</option>
-                <option for="1">"Limited Time"</option>
-                <option for="2">"Ongoing"</option>
+                <option>Show Dates</option>
+                <option value="Limited Time">"Limited Time"</option>
+                <option value="Ongoing">"Ongoing"</option>
               </select>
             </div>
           </div>

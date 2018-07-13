@@ -34,6 +34,14 @@ export default class JsonApi {
     return this.request('createAssociations', args, params)
   }
 
+  static updateRecord(args) {
+    let params = [
+      'resource', 'id', 'body', 'body.data', 
+      'body.data.id', 'body.data.type', 'body.data.attributes'
+    ]
+    return this.request('updateRecord', args, params)
+  }
+
   static request(method, args, params) {
     let argChecker = new ArgumentsChecker(args, params)
     if (argChecker.noneMissing) {
@@ -51,13 +59,14 @@ export default class JsonApi {
     this.resource           = args.resource
     this.resourceId         = args.id
     this.associatedRecords  = args.associatedRecords
+    this.body               = args.body
     this.options            = args.options || {}
   }
 
   peekAll() {
     return new Promise((resolve) => {
       let getRecords = $store.getters[`entities/${this.resource}/query`]()
-      if (this.include.length) {
+      if (this.include && this.include.length) {
         this.include.split(',').forEach((resource) => {
           getRecords = getRecords.with(resource)
         })
@@ -70,7 +79,7 @@ export default class JsonApi {
   peekRecord() {
     return new Promise((resolve) => {
       let getRecord = $store.getters[`entities/${this.resource}/query`]()
-      if (this.include.length) {
+      if (this.include && this.include.length) {
         this.include.split(',').forEach((resource) => {
           getRecord = getRecord.with(resource)
         })
@@ -85,7 +94,7 @@ export default class JsonApi {
       let allRecordsHaveAllRelationships = (_records) => {
         return _.every(this.include.split(','), i => {
           let includeResources = i.split('.')
-          let includeQueried = `${includeResources.pop()}_queried`
+          let includeQueried = `$${includeResources.pop()}_queried`
           _.every(_records, record => {
             includeResources.forEach(resource => {
               record = record[resource]
@@ -120,7 +129,7 @@ export default class JsonApi {
       let recordHasAllRelationships = (_record) => {
         return _.every(this.include.split(','), i => {
           let includeResources = i.split('.')
-          let includeQueried = `${includeResources.pop()}_queried`
+          let includeQueried = `$${includeResources.pop()}_queried`
           let recordChain = _record;
           includeResources.forEach(resource => {
             recordChain = recordChain[resource]
@@ -144,7 +153,7 @@ export default class JsonApi {
         let convertedData = { data: this.convertJsonToRest(response.data) }
         this.include.split(',').forEach(i => {
           let includeResources = i.split('.')
-          let includeQueried = `${includeResources.pop()}_queried`
+          let includeQueried = `$${includeResources.pop()}_queried`
           convertedData.data.forEach(record => {
             includeResources.forEach(resource => {
               record = record[resource]
@@ -232,6 +241,25 @@ export default class JsonApi {
     }
   }
 
+
+  updateRecord() {
+    return $http.request({
+      method: 'patch',
+      url: this.url,
+      headers: this.headers('patch'),
+      params: this.requestParams,
+      data: this.body,
+    }).then((response) => {
+      if (response.status != 200) {
+        throw response
+      }
+      let convertedData = { data: this.convertJsonToRest(response.data) }
+      $store.dispatch(`entities/${this.resource}/${this.storeMethod}`, convertedData )
+    }).then(() => {
+      return this.peekRecord()
+    })
+  }
+
   buildParams(params = {}) {
     function formatInclude(include = '') {
       if (_.isArray(include)) {
@@ -247,7 +275,10 @@ export default class JsonApi {
     // other params to support?
     //    - filter
 
-    params.include = formatInclude(params.include)
+    let include = formatInclude(params.include)
+    if (!_.isEmpty(include)) {
+      params.include = include
+    }
 
     return params
   }
@@ -286,17 +317,11 @@ export default class JsonApi {
         'Accept': 'application/vnd.api+json'
       }
     }
-    else if (_.includes(['post', 'delete'], method)) {
+    else if (_.includes(['post', 'patch', 'delete'], method)) {
       return {
         'Accept': 'application/vnd.api+json',
         'Content-Type': 'application/vnd.api+json'
       }
-    }
-  }
-
-  get getHeaders() {
-    return {
-      'Accept': 'application/vnd.api+json'
     }
   }
 
