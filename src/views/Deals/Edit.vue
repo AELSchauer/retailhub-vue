@@ -10,12 +10,18 @@
         <form @submit.prevent="updateDeal" autocomplete="off">
           <div class=alert alert-danger v-if=validationErrors>{{ validationErrors }}</div>
           <div class="container">
-            <form-input-text-box
+            <form-input
               attribute="title"
               label="Title"
-              :options="{ type: 'text', required: true, autofocus: true }"
-              wrapperClass="row"
-            ></form-input-text-box>
+              labelClass="col-md-2"
+              rootClass="row"
+              :options="{ 
+                type: 'text', 
+                required: true, 
+                autofocus: true,
+                class: 'form-control col-md-9'
+              }"
+            ></form-input>
             <div class="row">
               <label for="inputSeoSlug" class="form-label col-md-2">
                 SEO Slug
@@ -77,18 +83,16 @@
                 class="form-control col-md-9"
               ></textarea>
             </div>
-            <div class="row">
-              <label for="inputWebsiteAddress" class="form-label col-md-2">
-                Website Address
-              </label>
-              <input
-                :value="get('external_url')"
-                @input="set('external_url', $event.target.value)"
-                type="url"
-                id="inputWebsiteAddress"
-                class="form-control col-md-9"
-              >
-            </div>
+            <form-input
+              attribute="external_url"
+              label="Website Address"
+              labelClass="col-md-2"
+              rootClass="row"
+              :options="{ 
+                'type': 'url', 
+                'class': 'form-control col-md-9'
+              }"
+            ></form-input>
             <div class="row">
               <label for="inputIsLocal" class="form-label col-md-2">
                 Is Local?
@@ -234,7 +238,7 @@ import json_api from '@/services/json-api'
 import Deal from '@/models/deal'
 import Mall from '@/models/mall'
 
-import FormInputTextBox from '@/components/form-inputs/text-box'
+import FormInput from '@/components/form-elements/input'
 
 export default {
   name: 'DealEdit',
@@ -359,7 +363,6 @@ export default {
       })
     },
     get(attr) {
-      console.log('DealEdit get')
       if (false) {
         // placeholder
       }
@@ -424,7 +427,6 @@ export default {
               return model[attrName].get(x) === 0
             })
           })
-
       })
       .catch((error) => {
         console.error('request failed', error);
@@ -436,28 +438,17 @@ export default {
     },
   },
   components: {
-    FormInputTextBox,
+    FormInput,
   }
 }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang=scss>
-h1, h2 {
-  font-weight: normal;
-}
-a {
-  color: #42b983;
-}
+@import "~@/styles/placeholders";
+
 .form-label {
-  align-self: center;
-  margin: 0;
-  padding: 0 10px 0 0;
-  text-align: right;
-}
-.form-input {
-  align-self: center;
-  margin: 0;
+  @extend %form-label;
 }
 .row {
   padding: 5px 0;
