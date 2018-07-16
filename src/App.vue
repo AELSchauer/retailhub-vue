@@ -2,6 +2,7 @@
   <div id="app">
     <template v-if="currentUser">
       <Navbar></Navbar>
+      <Breadcrumbs></Breadcrumbs>
     </template>
     <div class="container-fluid">
       <router-view></router-view>
@@ -12,6 +13,7 @@
 <script>
 import { mapGetters } from 'vuex'
 import Navbar from '@/components/Navbar'
+import Breadcrumbs from '@/components/Breadcrumbs'
 
 export default {
   name: 'app',
@@ -32,7 +34,8 @@ export default {
     }
   },
   components: {
-    Navbar
+    Navbar,
+    Breadcrumbs
   }
 }
 </script>

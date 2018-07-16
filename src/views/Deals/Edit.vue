@@ -212,18 +212,18 @@
               <button
                 class="btn btn-lg btn-primary btn-block"
                 type="submit"
-                :disabled="changes.isEmpty().value()"
+                :disabled="isChangesEmpty"
               >
                 Submit
               </button>
             </div>
             <div class="col-md-6 btn-row">
-              <button
-                @click="cancelAction()"
-                class="btn btn-lg btn-primary btn-block"
+              <router-link 
+                :to="{ name: 'DealShow', params: { deal_id: deal_id }}"
+                class='btn btn-lg btn-primary btn-block'
               >
                 Cancel
-              </button>
+              </router-link>
             </div>
           </div>
         </form>
@@ -251,12 +251,29 @@ import FormTextarea from '@/components/form-elements/textarea'
 export default {
   name: 'DealEdit',
   data() {
+    let id = this.$route.params.deal_id
+
     return {
       permissions: ['admin'],
-      model:       null,
-      loading:     true,
-      error:       false,
-      deal_id:     this.$route.params.deal_id,
+      breadcrumbs: [
+        {
+          name:   'DealIndex',
+          text:   'Deals',
+        },
+        {
+          name:   'DealShow',
+          params: { deal_id: id },
+          text:   id,
+        },
+        {
+          text:   'Edit',
+        }
+      ],
+
+      model:   null,
+      loading: true,
+      error:   false,
+      deal_id: id,
 
       dateAttributeNames: Deal.dateAttributeNames(),
       validationErrors:   null,
@@ -299,8 +316,8 @@ export default {
     dateType: function() {
       return (this.component_calculate_dates_all_day) ? ('date') : ('datetime-local');
     },
-    changes: function() {
-      return _.chain(this.model.changes)
+    isChangesEmpty: function() {
+      return _.isEmpty(this.model.changes)
     },
     doubleQuotes: function() {
       return String.fromCharCode(34);
@@ -309,6 +326,7 @@ export default {
   created() {
     this.checkCurrentLogin()
     this.checkCurrentPermissions()
+    this.$store.dispatch('breadcrumbs', this.breadcrumbs)
   },
   updated() {
     this.checkCurrentLogin()
@@ -316,6 +334,21 @@ export default {
   },
   mounted() {
     this.getModel()
+  },
+  beforeRouteLeave(to, from, next) {
+    if (this.isChangesEmpty) {
+      next()
+    }
+    else {
+      let confirm = window.confirm('Do you really want to leave? All unsaved changes will be lost.')
+      if (confirm) {
+        this.model.rollback()
+        next()
+      }
+      else {
+        next(false)
+      }
+    }
   },
   methods: {
     checkCurrentLogin() {
@@ -421,16 +454,13 @@ export default {
         this.loading = false
       })
     },
-    cancelAction() {
-      this.model.rollback()
-      this.$router.push('/deals/' + this.deal_id)
-    },
   },
   components: {
     FormCheckbox,
     FormDateTime,
     FormInput,
     FormSelect,
+    FormTextarea,
     FormTextarea,
   }
 }

@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <h1>{{ msg }}</h1>
+    <h1>{{ message }}</h1>
     <ul>
       <li v-for="link in linkList">
         <router-link :to="{ name: link.route }">{{ link.text }}</router-link>
@@ -35,15 +35,22 @@ export default {
           route: 'DealIndex',
           text: 'Deals'
         }
-      ]
+      ],
+      breadcrumbs: [],
     }
   },
   computed: {
     ...mapGetters({ currentUser: 'currentUser' }),
     linkList: function() {
       return _.sortBy(this.unsortedLinkList, link => link.text)
+    },
+    message: function() {
+      return `Welcome to RetailHub!`
     }
   },
+  created() {
+    this.$store.dispatch('breadcrumbs', this.breadcrumbs)
+  }
 }
 </script>
 

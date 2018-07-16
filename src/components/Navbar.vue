@@ -1,12 +1,32 @@
 <template>
-  <nav class="navbar navbar-dark bg-retailhub">
-    <a class="navbar-brand" href="/">RetailHub</a>
+<!--   <nav class="navbar navbar-expand-md navbar-dark bg-retailhub row">
+    <a class="navbar-brand col-md-1" href="/">RetailHub</a>
+    <router-link class="nav-item nav-link col-md-8" :to="{ name: 'Dashboard' }">Dashboard</router-link>
 
-    <span class="navbar-text">
-      {{ currentUser.email }}
+    <span class=" col-md-3 current-user">
+      <p class="navbar-text">{{ currentUser.email }}</p>
       <router-link to="/logout" class="btn btn-logout btn-sm">Logout</router-link>
     </span>
-  </nav>
+  </nav> -->
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <router-link to="/" class="navbar-brand">RetailHub</router-link>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav">
+      <li class="nav-item">
+        <router-link to="/dashboard" class="nav-link">Dashboard</router-link>
+      </li>
+    </ul>
+    <ul class="navbar-nav ml-auto">
+      <li class="nav-item">
+        <router-link to="/logout" class="btn btn-logout btn-sm">Logout</router-link>
+      </li>
+    </ul>
+  </div>
+</nav>
 </template>
 
 <script>
@@ -23,6 +43,10 @@ export default {
 <style lang="scss" scoped>
 .bg-retailhub {
   background: #605B56 !important;
+}
+
+.current-user {
+  text-align: right;
 }
 
 .btn-logout {

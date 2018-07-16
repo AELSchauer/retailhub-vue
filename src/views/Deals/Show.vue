@@ -23,21 +23,6 @@
             {{ get(attribute.name) }}
           </div>
         </div>
-<!--         <table>
-          <tr v-for="attribute in attributeManifest" class="attribute">
-            <td class="attribute-label">{{ attribute.label }}</td>
-            <td v-if="model[attribute.name].constructor.name === 'Moment'"
-              class="attribute-value"
-            >
-              {{ model[attribute.name].format('YYYY-MM-DD HH:mm:ss') }}
-            </td>
-            <td v-else
-              class="attribute-value"
-            >
-              {{ model[attribute.name] }}
-            </td>
-          </tr>
-        </table> -->
         <hr>
         <div class="retailer-section">
           <h2>retailer</h2>
@@ -84,12 +69,23 @@ import Mall from '@/models/mall'
 export default {
   name: 'DealShow',
   data() {
+    let id = this.$route.params.deal_id
+
     return {
       permissions: ['admin'],
-      model:       null,
-      loading:     true,
-      error:       false,
-      deal_id:     this.$route.params.deal_id,
+      breadcrumbs: [
+        {
+          name: 'DealIndex',
+          text: 'Deals',
+        },
+        {
+          text: id,
+        }
+      ],
+      model:   null,
+      loading: true,
+      error:   false,
+      deal_id: id,
     }
   },
   computed: {
@@ -116,6 +112,7 @@ export default {
   created() {
     this.checkCurrentLogin()
     this.checkCurrentPermissions()
+    this.$store.dispatch('breadcrumbs', this.breadcrumbs)
   },
   updated() {
     this.checkCurrentLogin()

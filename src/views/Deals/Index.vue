@@ -25,17 +25,22 @@ export default {
   data() {
     return {
       permissions: ['admin'],
-      model:       null,
-      loading:     true,
-      error:       false
+      breadcrumbs: [],
+      model:   null,
+      loading: true,
+      error:   false
     }
   },
+  // props: {
+  //   breadcrumbs: Object;
+  // },
   computed: {
     ...mapGetters({ currentUser: 'currentUser' }),
   },
   created() {
     this.checkCurrentLogin()
     this.checkCurrentPermissions()
+    this.$store.dispatch('breadcrumbs', this.breadcrumbs)
   },
   updated() {
     this.checkCurrentLogin()
