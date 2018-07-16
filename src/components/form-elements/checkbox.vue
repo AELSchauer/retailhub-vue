@@ -11,7 +11,7 @@
     <input v-else
       :checked="get()"
       @input="set($event.target.checked)"
-      v-bind="inputAttributes"
+      v-bind="inputProperties"
     >
   </div>
 </template>
@@ -32,7 +32,7 @@ export default {
     model:      Object,
     attribute:  String,
     label:      String,
-    options:    Object,
+    inputProps: Object,
     labelClass: String,
     rootClass:  String,
   },
@@ -40,8 +40,8 @@ export default {
     inputId: function() {
       return 'input' + this.attribute.camelCase().capitalize()
     },
-    inputAttributes: function() {
-      let defaultOptions = {
+    inputProperties: function() {
+      let defaultInputProps = {
         id: {
           value: this.inputId,
           action: 'overwrite',
@@ -56,7 +56,7 @@ export default {
         },
       }
 
-      return formHelper.getInputAttributes(defaultOptions, this.options)
+      return formHelper.getInputProperties(defaultInputProps, this.inputProps)
     }
   },
   methods: {

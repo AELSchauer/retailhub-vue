@@ -134,11 +134,11 @@ export default class JsonApi {
           includeResources.forEach(resource => {
             recordChain = recordChain[resource]
           })
-          return recordChain[includeQueried]
+          return recordChain && recordChain[includeQueried]
         })
       }
-
       if (record && recordHasAllRelationships(record)) {
+        // console.log('got record from store')
         return record
       }
       return $http.request({
@@ -147,6 +147,7 @@ export default class JsonApi {
         headers: this.headers('get'),
         params: this.requestParams
       }).then((response) => {
+        // console.log('got record from request')
         if (response.status != 200) {
           throw response
         }
@@ -241,7 +242,6 @@ export default class JsonApi {
     }
   }
 
-
   updateRecord() {
     return $http.request({
       method: 'patch',
@@ -253,10 +253,11 @@ export default class JsonApi {
       if (response.status != 200) {
         throw response
       }
-      let convertedData = { data: this.convertJsonToRest(response.data) }
-      $store.dispatch(`entities/${this.resource}/${this.storeMethod}`, convertedData )
-    }).then(() => {
-      return this.peekRecord()
+      let convertedData = this.convertJsonToRest(response.data)[0]
+      $store.dispatch(`entities/${this.resource}/update`, {
+        where: this.resourceId,
+        data: convertedData,
+      })
     })
   }
 

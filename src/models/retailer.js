@@ -19,8 +19,8 @@ export default class Retailer extends Model {
       stores: this.hasMany(Store, 'retailer_id'),
 
       // meta
-      deals_queried:  this.attr(false),
-      stores_queried: this.attr(false),
+      $deals_queried:  this.attr(false),
+      $stores_queried: this.attr(false),
     }
   }
 }

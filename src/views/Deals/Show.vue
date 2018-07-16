@@ -6,13 +6,38 @@
     <section v-else>
       <div v-if="loading">Loading...</div>
       <div v-else>
-        <h2>details</h2>
-        <table>
+        <span class="row">
+          <h2 class="section-title col-md-11">details</h2>
+          <router-link 
+            :to="{ name: 'DealEdit', params: { deal_id: model.id }}"
+            class='btn edit-button col-md-1'
+          >
+            Edit
+          </router-link>
+        </span>
+        <div v-for="attribute in attributeManifest" class="attribute row">
+          <div class="attribute-label col-md-2">
+            {{ attribute.label }}
+          </div>
+          <div class="attribute-value col-md-10">
+            {{ get(attribute.name) }}
+          </div>
+        </div>
+<!--         <table>
           <tr v-for="attribute in attributeManifest" class="attribute">
             <td class="attribute-label">{{ attribute.label }}</td>
-            <td class="attribute-value">{{ model[attribute.name] }}</td>
+            <td v-if="model[attribute.name].constructor.name === 'Moment'"
+              class="attribute-value"
+            >
+              {{ model[attribute.name].format('YYYY-MM-DD HH:mm:ss') }}
+            </td>
+            <td v-else
+              class="attribute-value"
+            >
+              {{ model[attribute.name] }}
+            </td>
           </tr>
-        </table>
+        </table> -->
         <hr>
         <div class="retailer-section">
           <h2>retailer</h2>
@@ -113,6 +138,15 @@ export default {
         this.$router.push('/dashboard?redirect=' + this.$route.path)
       }
     },
+    get(attrName) {
+      let attribute = this.model.get(attrName)
+      if (attribute.constructor.name === 'Moment') {
+        return attribute.format('YYYY-MM-DD HH:mm:ss')
+      }
+      else {
+        return attribute
+      }
+    },
     getModel() {
       json_api.findRecord({
         resource: 'deals',
@@ -195,8 +229,16 @@ export default {
 h1, h2 {
   font-weight: normal;
 }
-a {
-  color: #42b983;
+.container {
+  margin-top: 10px;
+}
+.section-title {
+  display: inline-block;
+  margin: 0;
+}
+.btn {
+  background-color: #42b983;
+  color: #fff;
 }
 .attribute-label {
   padding: 0 10px 0 0;

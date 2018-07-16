@@ -24,7 +24,7 @@ export default class Deal extends Model {
       external_url:           this.attr(''),
       is_local:               this.attr(false),
       is_featured:            this.attr(false),
-      is_live:                this.attr(''),
+      is_live:                this.attr(false),
       start_at:               this.attr(today),
       display_at:             this.attr(today),
       end_at:                 this.attr(today.add(1, 'd')),
@@ -105,6 +105,13 @@ export default class Deal extends Model {
     this.snapshot = _.cloneDeep(this.attributes);
   }
 
+  rollback() {
+    let self = this
+    _.keys(this.snapshot).forEach(k => {
+      self[k] = self.snapshot[k]
+    })
+  }
+
   get changes() {
     let self = this
     let snapshot = this.snapshot
@@ -118,7 +125,7 @@ export default class Deal extends Model {
           if(val) {
             val = moment.utc(val)
             if (val.isValid()) {
-              val = self.formatDate(val)
+              val = val.format('YYYY-MM-DD HH:mm')
             }
           }
           return val
@@ -148,7 +155,52 @@ export default class Deal extends Model {
     return changes
   }
 
-  formatDate(date) {
-    return date.format('YYYY-MM-DD HH:mm')
+  get attributeManifest() {
+    function dealLabelMap(attrName) {
+      let labelMap = {
+        external_url: 'Website Address',
+        fine_print_description: 'Fine Print',
+        sales_type: 'Sale Type',
+        end_at_text: 'End Date Text',
+      }
+
+      return labelMap[attrName] || attrName.startCase()
+    }
+
+    function defaultLabelRemove(attrName) {
+      return attrName.indexOf('$') < 0 && 
+        attrName.indexOf('id') < 0 &&
+        attrName != 'type'
+    }
+
+    function defaultLabelMap(attrName) {
+      if (attrName.indexOf('is_') === 0 ) {
+        return attrName.replace('is_','').startCase() + '?'
+      }
+      else if (attrName.indexOf('_at') > -1 && self[attrName].constructor.name === 'Moment') {
+        return attrName.replace('_at', '_date').startCase()
+      }
+      else if (attrName === 'seo_slug') {
+        return "SEO Title"
+      }
+      else {
+        return null
+      }
+    }
+
+    let self = this;
+    return _
+      .chain(this.attributes)
+      .keys()
+      .remove(attrName => {
+        return defaultLabelRemove(attrName)
+      })
+      .map(attrName => {
+        return {
+          name: attrName,
+          label: defaultLabelMap(attrName) || dealLabelMap(attrName)
+        }
+      })
+      .value()
   }
 }

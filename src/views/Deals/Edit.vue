@@ -7,88 +7,92 @@
       <div v-if="loading">Loading...</div>
       <div v-else>
         <h2>details</h2>
-        <form @submit.prevent="updateDeal" autocomplete="off">
+        <form @submit.prevent="updateAction()" autocomplete="off">
           <div class=alert alert-danger v-if=validationErrors>{{ validationErrors }}</div>
           <div class="container">
-            <!-- <form-input
+            <form-input
               attribute="title"
               label="Title"
               labelClass="col-md-2"
               rootClass="row"
-              :options="{ 
-                type: 'text', 
-                required: true, 
+              :inputProps="{ 
+                type: 'text',
+                required: true,
                 autofocus: true,
+                class: 'form-control col-md-9',
+              }"
+            ></form-input>
+            <form-input
+              attribute="seo_slug"
+              label="SEO Title"
+              labelClass="col-md-2"
+              rootClass="row"
+              :inputProps="{ 
+                type: 'text',
+                required: true,
+                disabled: component_calculate_seo_slug,
+                class: 'form-control col-md-9',
+              }"
+              :toggle="{
+                attribute: 'component_calculate_seo_slug',
+                class: 'col-md-1',
+              }"
+            ></form-input>
+            <form-select
+              attribute="sales_type"
+              label="Sale Type"
+              labelClass="col-md-2"
+              rootClass="row"
+              :inputProps="{ 
+                required: true,
+                class: 'form-control col-md-9',
+              }"
+              :selectOptions="[
+                {
+                  text: 'Please select one',
+                  value:'',
+                  disabled: true,
+                },
+                {
+                  text: 'Sales and Promos',
+                },
+                {
+                  text: 'New Arrivals',
+                },
+                {
+                  text: 'In-Store Event',
+                },
+                {
+                  text: 'Style Notes',
+                },
+              ]"
+            ></form-select>
+            <form-textarea
+              attribute="description"
+              label="Description"
+              labelClass="col-md-2"
+              rootClass="row"
+              :inputProps="{ 
+                required: true, 
                 class: 'form-control col-md-9'
               }"
-            ></form-input> -->
-            <div class="row">
-              <label for="inputSeoSlug" class="form-label col-md-2">
-                SEO Slug
-              </label>
-              <input
-                :value="get('seo_slug')"
-                @input="set('seo_slug', $event.target.value)"
-                id="inputSeoSlug"
-                class="form-control col-md-9"
-                :disabled="component_calculate_seo_slug"
-                required
-              >
-              <input
-                :checked="component_calculate_seo_slug"
-                @input="set('component_calculate_seo_slug', $event.target.checked)"
-                type="checkbox"
-                id="calculateSeoSlug"
-                class="form-control col-md-1"
-              >
-            </div>
-            <div class="row">
-              <label for="inputSalesType" class="form-label col-md-2">
-                Sales Type
-              </label>
-              <select 
-                :value="get('sales_type')"
-                @input="set('sales_type', $event.target.value)"
-                id="inputSalesType"
-                class="form-control col-md-9"
-                required
-              >
-                <option disabled value="">Please select one</option>
-                <option>Sales and Promos</option>
-                <option>New Arrivals</option>
-                <option>In-Store Event</option>
-                <option>Style Notes</option>
-              </select>
-            </div>
-            <div class="row">
-              <label for="inputDescription" class="form-label col-md-2">
-                Description
-              </label>
-              <textarea
-                :value="get('description')"
-                @input="set('description', $event.target.value)"
-                id="inputDescription"
-                class="form-control col-md-9"
-                required
-              ></textarea>
-            </div>
-            <div class="row">
-              <label for="inputFinePrintDescription" class="form-label col-md-2">
-                Fine Print
-              </label>
-              <textarea
-                :value="get('fine_print_description')"
-                @input="set('fine_print_description', $event.target.value)"
-                id="inputFinePrintDescription"
-                class="form-control col-md-9"
-              ></textarea>
-            </div>
-            <!-- <form-input
+            ></form-textarea>
+            <form-textarea
+              attribute="fine_print_description"
+              label="Fine Print"
+              labelClass="col-md-2"
+              rootClass="row"
+              :inputProps="{ 
+                required: true, 
+                class: 'form-control col-md-9'
+              }"
+            ></form-textarea>
+            <form-input
               attribute="external_url"
               label="Website Address"
               labelClass="col-md-2"
               rootClass="row"
-              :options="{ 
+              :inputProps="{ 
                 'type': 'url', 
                 'class': 'form-control col-md-9'
               }"
@@ -98,7 +102,7 @@
               label="Is Local?"
               labelClass="col-md-2"
               rootClass="row"
-              :options="{ 
+              :inputProps="{ 
                 class: 'form-control col-md-1'
               }"
             ></form-checkbox>
@@ -107,7 +111,7 @@
               label="Is Featured?"
               labelClass="col-md-2"
               rootClass="row"
-              :options="{ 
+              :inputProps="{ 
                 class: 'form-control col-md-1'
               }"
             ></form-checkbox>
@@ -116,17 +120,17 @@
               label="Is Live?"
               labelClass="col-md-2"
               rootClass="row"
-              :options="{ 
+              :inputProps="{ 
                 class: 'form-control col-md-1'
               }"
-            ></form-checkbox> -->
-            <!-- <br>
+            ></form-checkbox>
+            <br>
             <form-checkbox
               attribute="component_calculate_dates_all_day"
               label="All Day?"
               labelClass="col-md-2"
               rootClass="row"
-              :options="{ 
+              :inputProps="{ 
                 class: 'form-control col-md-1'
               }"
             ></form-checkbox>
@@ -135,7 +139,7 @@
               label="Start Date"
               labelClass="col-md-2"
               rootClass="row"
-              :options="{ 
+              :inputProps="{ 
                 type: dateType,
                 class: 'form-control col-md-9',
                 min: startAtMin,
@@ -148,7 +152,7 @@
               label="End Date"
               labelClass="col-md-2"
               rootClass="row"
-              :options="{ 
+              :inputProps="{ 
                 type: dateType,
                 class: 'form-control col-md-9',
                 min: endAtMin,
@@ -161,34 +165,46 @@
               label="Display Date"
               labelClass="col-md-2"
               rootClass="row"
-              :options="{ 
+              :inputProps="{ 
                 type: dateType,
                 class: 'form-control col-md-9',
                 min: displayAtMin,
                 max: displayAtMax,
                 required: true,
               }"
-            ></form-date-time> -->
+            ></form-date-time>
             <!-- 
             The API doesn't currently support end_date_visibility or end_at_text
             in post or patch requests.
              -->
-            <!-- <div class="row">
-              <label for="EndAtText" class="form-label col-md-2">
-                End Date Text
-              </label>
-              <select 
-                :value="get('end_at_text')"
-                @input="set('end_at_text', $event.target.value)"
-                id="EndAtText"
-                class="form-control col-md-9"
-                required
-              >
-                <option>Show Dates</option>
-                <option value="Limited Time">"Limited Time"</option>
-                <option value="Ongoing">"Ongoing"</option>
-              </select>
-            </div> -->
+            <!-- <form-select
+              attribute="end_at_text"
+              label="End Date Text"
+              labelClass="col-md-2"
+              rootClass="row"
+              :inputProps="{ 
+                required: true,
+                class: 'form-control col-md-9',
+              }"
+              :selectOptions="[
+                {
+                  text: 'Please select one',
+                  value:'',
+                  disabled: true,
+                },
+                {
+                  text: 'Show Dates',
+                },
+                {
+                  text: `${doubleQuotes}Limited Time${doubleQuotes}`,
+                  value: 'Limited Time',
+                },
+                {
+                  text: `${doubleQuotes}Ongoing${doubleQuotes}`,
+                  value: 'Ongoing',
+                },
+              ]"
+            ></form-select> -->
           </div>
           <br>
           <div class="row">
@@ -202,9 +218,12 @@
               </button>
             </div>
             <div class="col-md-6 btn-row">
-              <!-- <button class="btn btn-lg btn-primary btn-block">
+              <button
+                @click="cancelAction()"
+                class="btn btn-lg btn-primary btn-block"
+              >
                 Cancel
-              </button> -->
+              </button>
             </div>
           </div>
         </form>
@@ -226,6 +245,8 @@ import Mall from '@/models/mall'
 import FormCheckbox from '@/components/form-elements/checkbox'
 import FormDateTime from '@/components/form-elements/date-time'
 import FormInput from '@/components/form-elements/input'
+import FormSelect from '@/components/form-elements/select'
+import FormTextarea from '@/components/form-elements/textarea'
 
 export default {
   name: 'DealEdit',
@@ -281,6 +302,9 @@ export default {
     changes: function() {
       return _.chain(this.model.changes)
     },
+    doubleQuotes: function() {
+      return String.fromCharCode(34);
+    }
   },
   created() {
     this.checkCurrentLogin()
@@ -373,7 +397,7 @@ export default {
         this.model.set(attr, newValue)
       }
     },
-    updateDeal() {
+    updateAction() {
       this.loading = true;
       json_api.updateRecord({
         resource: 'deals',
@@ -386,18 +410,8 @@ export default {
           }
         }
       })
-      .then((record) => {
-        this.model = record
-        this.model.snapshot()
-        return this.model
-      })
-      .then((model) => {
-        this.component_calculate_dates_all_day = _
-          .every(this.dateAttributeNames, attrName => {
-            return _.every(['hour', 'minute', 'second'], x => {
-              return model[attrName].get(x) === 0
-            })
-          })
+      .then(() => {
+        this.$router.push('/deals/' + this.deal_id)
       })
       .catch((error) => {
         console.error('request failed', error);
@@ -407,11 +421,17 @@ export default {
         this.loading = false
       })
     },
+    cancelAction() {
+      this.model.rollback()
+      this.$router.push('/deals/' + this.deal_id)
+    },
   },
   components: {
     FormCheckbox,
     FormDateTime,
     FormInput,
+    FormSelect,
+    FormTextarea,
   }
 }
 </script>

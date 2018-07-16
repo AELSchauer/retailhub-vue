@@ -8,36 +8,40 @@
     <div v-if="error" class="input-error">
       There was a problem rendering this input field
     </div>
-    <input v-else
+    <select 
       :value="get()"
       @input="set($event.target.value)"
       v-bind="inputProperties"
     >
+      <option v-for="option in selectOptions"
+        :disabled="option.disabled"
+        :value="option.value || option.text"
+      >
+        {{ option.text }}
+      </option>
+    </select>
   </div>
 </template>
 
 <script>
 import _ from 'lodash'
-// import moment from 'moment'
 import formHelper from '@/helpers/form-elements'
 
 export default {
-  name: 'form-date-time',
+  name: 'form-select',
   data() {
     return {
       error: false,
       loading: true,
-      // See this page for origins of this list:
-      // https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input
-      allowedTypes: [ 'date', 'datetime-local' ]
     }
   },
   props: {
-    attribute:  String,
-    label:      String,
-    inputProps: Object,
-    labelClass: String,
-    rootClass:  String,
+    attribute:     String,
+    label:         String,
+    inputProps:    Object,
+    labelClass:    String,
+    rootClass:     String,
+    selectOptions: Array,
   },
   computed: {
     inputId: function() {
@@ -55,40 +59,15 @@ export default {
         },
       }
 
-      if (this.inputProps.min) {
-        this.inputProps.min = this.inputProps.min.format(this.inputFormat)
-      }
-      if (this.inputProps.max) {
-        this.inputProps.max = this.inputProps.max.format(this.inputFormat)
-      }
-
       return formHelper.getInputProperties(defaultInputProps, this.inputProps)
-    },
-    inputFormat: function() {
-      if (this.inputProps.type === 'date') {
-        return 'YYYY-MM-DD';
-      }
-      else {
-        return 'YYYY-MM-DDTHH:mm'
-      }
     }
-  },
-  created() {
-    this.verifyType()
   },
   methods: {
     get() {
-      return this.$parent.get(this.attribute).format(this.inputFormat)
+      return this.$parent.get(this.attribute)
     },
     set(newValue) {
       this.$parent.set(this.attribute, newValue)
-    },
-    verifyType() {
-      if (!_.includes(this.allowedTypes, this.inputProps.type)) {
-        console.error(`ERROR: The input type '${this.inputProps.type}' is not supported. ` +
-          'It may be able to be invoked with another form component.')
-        this.error = true
-      }
     },
     _classMerger(a, b) {
       return formHelper.stringMerger(a, b)

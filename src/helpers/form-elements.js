@@ -17,7 +17,7 @@ function stringMerger(stringA, stringB) {
 }
 
 export default {
-  getInputAttributes(defaultOptions, overrideOptions) {
+  getInputProperties(defaultOptions, overrideOptions) {
     return _
       .chain(defaultOptions)
       .reduce((result, v, k) => {

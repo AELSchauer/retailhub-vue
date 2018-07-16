@@ -11,7 +11,13 @@
     <input v-else
       :value="get()"
       @input="set($event.target.value)"
-      v-bind="inputAttributes"
+      v-bind="inputProperties"
+    >
+    <input v-if="toggle"
+      type="checkbox"
+      :checked="getToggle()"
+      @input="setToggle($event.target.checked)"
+      :class="_classMerger('form-input', this.toggle.class)"
     >
   </div>
 </template>
@@ -19,6 +25,7 @@
 <script>
 import _ from 'lodash'
 import formHelper from '@/helpers/form-elements'
+import FormCheckbox from '@/components/form-elements/checkbox'
 
 export default {
   name: 'form-input',
@@ -39,20 +46,17 @@ export default {
   props: {
     attribute:  String,
     label:      String,
-    options:    Object,
+    inputProps: Object,
     labelClass: String,
     rootClass:  String,
+    toggle:     Object,
   },
   computed: {
     inputId: function() {
       return 'input' + this.attribute.camelCase().capitalize()
     },
-    inputAttributes: function() {
-      function customizer(objValue, srcValue) {
-        return [objValue].concat([srcValue]);
-      }
-
-      let defaultOptions = {
+    inputProperties: function() {
+      let defaultInputProps = {
         id: {
           value: this.inputId,
           action: 'overwrite',
@@ -63,7 +67,7 @@ export default {
         },
       }
 
-      return formHelper.getInputAttributes(defaultOptions, this.options)
+      return formHelper.getInputProperties(defaultInputProps, this.inputProps)
     }
   },
   created() {
@@ -71,15 +75,20 @@ export default {
   },
   methods: {
     get() {
-      console.log(this.$parent.get(this.attribute))
       return this.$parent.get(this.attribute)
     },
     set(newValue) {
       this.$parent.set(this.attribute, newValue)
     },
+    getToggle() {
+      return this.$parent.get(this.toggle.attribute)
+    },
+    setToggle(newValue) {
+      this.$parent.set(this.toggle.attribute, newValue)
+    },
     verifyType() {
-      if (!_.includes(this.allowedTypes, this.options.type)) {
-        console.error(`ERROR: The input type '${this.options.type}' is not supported. ` +
+      if (!_.includes(this.allowedTypes, this.inputProps.type)) {
+        console.error(`ERROR: The input type '${this.inputProps.type}' is not supported. ` +
           'It may be able to be invoked with another form component.')
         this.error = true
       }
@@ -87,6 +96,9 @@ export default {
     _classMerger(a, b) {
       return formHelper.stringMerger(a, b)
     }
+  },
+  components: {
+    FormCheckbox,
   },
 }
 </script>
