@@ -6,7 +6,7 @@
     <section v-else>
       <div v-if="loading">Loading...</div>
       <ul v-else>
-        <li v-for="site in sites">
+        <li v-for="site in model">
           <router-link :to="{ name: 'SiteShow', params: { site_id: site.id }}">{{ site.name }}</router-link>
         </li>
       </ul>
@@ -16,14 +16,17 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import Site from '../../models/site'
+import json_api from '@/services/json-api'
+
+import Site from '@/models/site'
 
 export default {
   name: 'SiteIndex',
   data() {
     return {
       permissions: ['admin'],
-      sites:       null,
+      breadcrumbs: [],
+      model:       null,
       loading:     true,
       error:       false
     }
@@ -34,6 +37,7 @@ export default {
   created() {
     this.checkCurrentLogin()
     this.checkCurrentPermissions()
+    this.$store.dispatch('breadcrumbs', this.breadcrumbs)
   },
   updated() {
     this.checkCurrentLogin()
@@ -41,7 +45,7 @@ export default {
 
   },
   mounted() {
-    this.getSites()
+    this.getModel()
   },
   methods: {
     checkCurrentLogin() {
@@ -57,55 +61,26 @@ export default {
         this.$router.push('/dashboard?redirect=' + this.$route.path)
       }
     },
-    getSites() {
-      let time = Math.round(Date.now() / 1000);
-      let token = this.currentUser.authenticationToken(time)
-      this.$http.request({
-        method: 'get',
-        url: '/sites',
-        headers: {
-          'Accept': 'application/vnd.api+json',
-        },
-        params: {
-          auth_id:        this.currentUser.id,
-          auth_timestamp: time,
-          auth_token:     token
-        }
+    getModel() {
+      json_api.findAll({ resource: 'sites' })
+      .then((records) => {
+        this.model = records;
       })
-      .then((request) => {
-        if (request.status === 200) {
-          this.requestSucceeded(request)
-        }
-        else {
-          this.requestFailed(request)
-        }
+      .catch((error) => {
+        console.error('request failed', error);
+        this.error = true;
       })
-      .catch((error) => this.requestFailed(error))
-      .finally(() => this.loading = false)
+      .finally(() => {
+        this.loading = false
+      })
     },
-    requestSucceeded(req) {
-      this.sites = req.data.data.map(site => new Site(site));
-    },
-    requestFailed(req) {
-      console.error('request failed', req);
-      this.error = true;
-    }
   }
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 h1, h2 {
   font-weight: normal;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
 }
 a {
   color: #42b983;

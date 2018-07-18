@@ -26,14 +26,11 @@ export default {
     return {
       permissions: ['admin'],
       breadcrumbs: [],
-      model:   null,
-      loading: true,
-      error:   false
+      model:       null,
+      loading:     true,
+      error:       false
     }
   },
-  // props: {
-  //   breadcrumbs: Object;
-  // },
   computed: {
     ...mapGetters({ currentUser: 'currentUser' }),
   },
@@ -65,8 +62,8 @@ export default {
     },
     getModel() {
       json_api.findAll({ resource: 'deals' })
-      .then((request) => {
-        this.model = Deal.all() || [];
+      .then((records) => {
+        this.model = records;
       })
       .catch((error) => {
         console.error('request failed', error);
@@ -80,7 +77,6 @@ export default {
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 h1, h2 {
   font-weight: normal;

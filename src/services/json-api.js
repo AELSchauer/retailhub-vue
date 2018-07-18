@@ -92,7 +92,7 @@ export default class JsonApi {
   findAll() {
     return this.peekAll().then((records) => {
       let allRecordsHaveAllRelationships = (_records) => {
-        return _.every(this.include.split(','), i => {
+        return _.every((this.include || '').split(','), i => {
           let includeResources = i.split('.')
           let includeQueried = `$${includeResources.pop()}_queried`
           _.every(_records, record => {
@@ -127,7 +127,7 @@ export default class JsonApi {
   findRecord() {
     return this.peekRecord().then((record) => {
       let recordHasAllRelationships = (_record) => {
-        return _.every(this.include.split(','), i => {
+        return _.every((this.include || '').split(','), i => {
           let includeResources = i.split('.')
           let includeQueried = `$${includeResources.pop()}_queried`
           let recordChain = _record;
@@ -138,7 +138,6 @@ export default class JsonApi {
         })
       }
       if (record && recordHasAllRelationships(record)) {
-        // console.log('got record from store')
         return record
       }
       return $http.request({
@@ -147,7 +146,6 @@ export default class JsonApi {
         headers: this.headers('get'),
         params: this.requestParams
       }).then((response) => {
-        // console.log('got record from request')
         if (response.status != 200) {
           throw response
         }

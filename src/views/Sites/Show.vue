@@ -6,17 +6,42 @@
     <section v-else>
       <div v-if="loading">Loading...</div>
       <div v-else>
-        <div>
-          Name: {{ site.name }}
-          Canonical Domain: {{ site.canonDomain }}
-          Live: {{ site.isLive }}
-          Published At: {{ site.publishedAt }}
+        <span class="row">
+          <h2 class="section-title col-md-11">details</h2>
+          <router-link 
+            :to="{ name: 'DealEdit', params: { deal_id: model.id }}"
+            class='btn edit-button col-md-1'
+          >
+            Edit
+          </router-link>
+        </span>
+        <div v-for="attribute in attributeManifest" class="attribute row">
+          <div class="attribute-label col-md-2">
+            {{ attribute.label }}
+          </div>
+          <div class="attribute-value col-md-10">
+            {{ get(attribute.name) }}
+          </div>
         </div>
-        <ul>
-          <li v-for="page in pages">
-            <router-link :to="{ name: 'SitePageEdit', params: { site_id: site.id, page_id: page.id }}">{{ page.path }}</router-link>
-          </li>
-        </ul>
+        <hr>
+        <div class="pages-section">
+          <h2>pages</h2>
+          <h4>current associations</h4>
+          <table>
+            <th>
+              <td>path</td>
+              <td></td>
+            </th>
+            <tr v-for="page in model.pages">
+              <td>
+                {{ page.path }}
+              </td>
+              <td>
+                <em>button goes here</em>
+              </td>
+            </tr>
+          </table>
+        </div>
       </div>
     </section>
   </div>
@@ -24,16 +49,32 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import json_api from '@/services/json-api'
+
 import Site from '../../models/site'
+// import Deal from '@/models/deal'
+// import Mall from '@/models/mall'
 
 export default {
   name: 'SiteShow',
   data() {
+    let id = this.$route.params.site_id
+
     return {
       permissions: ['admin'],
-      site:        null,
-      loading:     true,
-      error:       false
+      breadcrumbs: [
+        {
+          name: 'SiteIndex',
+          text: 'Sites',
+        },
+        {
+          text: id,
+        }
+      ],
+      model:   null,
+      loading: true,
+      error:   false,
+      site_id: id,
     }
   },
   computed: {
@@ -48,7 +89,7 @@ export default {
     this.checkCurrentPermissions()
   },
   mounted() {
-    this.getSite()
+    this.getModel()
   },
   methods: {
     checkCurrentLogin() {
@@ -64,45 +105,25 @@ export default {
         this.$router.push('/dashboard?redirect=' + this.$route.path)
       }
     },
-    getSite() {
-      let time = Math.round(Date.now() / 1000);
-      let token = this.currentUser.authenticationToken(time)
-      this.$http.request({
-        method: 'get',
-        url: `/sites/${this.$route.params.site_id}`,
-        headers: {
-          'Accept': 'application/vnd.api+json',
-        },
-        params: {
-          auth_id:        this.currentUser.id,
-          auth_timestamp: time,
-          auth_token:     token,
-          include:        'pages'
+    getModel() {
+      json_api.findRecord({
+        resource: 'sites',
+        id:       this.site_id,
+        options:  {
+          params: { include: 'pages' }
         }
       })
-      .then((request) => {
-        if (request.status === 200) {
-          this.requestSucceeded(request)
-        }
-        else {
-          this.requestFailed(request)
-        }
+      .then((record) => {
+        this.model = record
       })
-      .catch((error) => this.requestFailed(error))
-      .finally(() => this.loading = false)
+      .catch((error) => {
+        console.error('request failed', error);
+        this.error = true;
+      })
+      .finally(() => {
+        this.loading = false
+      })
     },
-    requestSucceeded(req) {
-      this.site = new Site({
-        id:         req.data.data.id,
-        attributes: req.data.data.attributes,
-        included:   req.data.included,
-      })
-      this.pages = this.site.pages
-    },
-    requestFailed(req) {
-      console.error('request failed', req);
-      this.error = true;
-    }
   }
 }
 </script>
