@@ -4,9 +4,10 @@ import Company    from '@/models/company'
 import Deal       from '@/models/deal'
 import DealStore  from '@/models/deal-store'
 import Mall       from '@/models/mall'
+import Page       from '@/models/page'
 import Retailer   from '@/models/retailer'
-import Store      from '@/models/store'
 import Site       from '@/models/site'
+import Store      from '@/models/store'
 
 const database = new Database()
 
@@ -14,8 +15,9 @@ database.register(Company,    {})
 database.register(Deal,       {})
 database.register(DealStore,  {})
 database.register(Mall,       {})
+database.register(Page,       {})
 database.register(Retailer,   {})
-database.register(Store,      {})
 database.register(Site,       {})
+database.register(Store,      {})
 
 export default database

@@ -6,38 +6,48 @@
     <section v-else>
       <div v-if="loading">Loading...</div>
       <div v-else>
-        <span class="row">
-          <h2 class="section-title col-md-11">details</h2>
-          <router-link 
-            :to="{ name: 'DealEdit', params: { deal_id: model.id }}"
-            class='btn edit-button col-md-1'
-          >
-            Edit
-          </router-link>
-        </span>
-        <div v-for="attribute in attributeManifest" class="attribute row">
-          <div class="attribute-label col-md-2">
-            {{ attribute.label }}
+        <div v-if="editName" class="row">
+          <span class="col-md-10">Input goes here</span>
+          <div class="col-md-1">
+            <button class="btn" disabled="">save</button>
           </div>
-          <div class="attribute-value col-md-10">
-            {{ get(attribute.name) }}
+          <div class="col-md-1">
+            <button class="btn" @click="toggleEditName()">cancel</button>
+          </div>
+        </div>
+        <div v-else class="row">
+          <h2 class="section-title col-md-11">{{ get('name') }}</h2>
+          <div class="col-md-1">
+            <button class="btn" @click="toggleEditName()">edit</button>
           </div>
         </div>
         <hr>
         <div class="pages-section">
           <h2>pages</h2>
-          <h4>current associations</h4>
           <table>
             <th>
               <td>path</td>
               <td></td>
             </th>
             <tr v-for="page in model.pages">
-              <td>
+              <td class="page-name">
                 {{ page.path }}
               </td>
-              <td>
-                <em>button goes here</em>
+              <td class="page-actions">
+                <router-link 
+                  :to="{
+                    name: 'SitePageEdit',
+                    params: {
+                      page_id: page.id,
+                      page_name: page.path,
+                      site_name: model.name,
+                    }
+                  }"
+                  class='btn edit-button col-md-1'
+                >
+                  Edit
+                </router-link>
+                <em>buttons go here</em>
               </td>
             </tr>
           </table>
@@ -51,9 +61,8 @@
 import { mapGetters } from 'vuex'
 import json_api from '@/services/json-api'
 
-import Site from '../../models/site'
-// import Deal from '@/models/deal'
-// import Mall from '@/models/mall'
+import Site from '@/models/site'
+import Page from '@/models/page'
 
 export default {
   name: 'SiteShow',
@@ -71,14 +80,25 @@ export default {
           text: id,
         }
       ],
-      model:   null,
-      loading: true,
-      error:   false,
-      site_id: id,
+      model:    null,
+      editName: false,
+      loading:  true,
+      error:    false,
+      site_id:  id,
     }
   },
   computed: {
     ...mapGetters({ currentUser: 'currentUser' }),
+    attributeManifest: function() {
+      let manifest = this.model.attributeManifest
+      if (this.model.published_at.isValid()) {
+        manifest.push({
+          label: 'Published Date',
+          name:  'published_at'
+        })
+      }
+      return manifest
+    },
   },
   created() {
     this.checkCurrentLogin()
@@ -124,6 +144,19 @@ export default {
         this.loading = false
       })
     },
+    get(attrName) {
+      let attribute = this.model.get(attrName)
+      console.log('attribute', attrName, attribute)
+      if (attribute.constructor.name === 'Moment') {
+        return attribute.format('YYYY-MM-DD HH:mm:ss')
+      }
+      else {
+        return attribute
+      }
+    },
+    toggleEditName() {
+      this.editName = !this.editName
+    }
   }
 }
 </script>
@@ -142,7 +175,12 @@ li {
   margin: 0 10px;
   text-align: left;
 }
-a {
-  color: #42b983;
+.btn {
+  background-color: #42b983;
+  color: #fff;
+  width: 100%;
+}
+.page-name {
+  padding: 0 10px 0 0;
 }
 </style>

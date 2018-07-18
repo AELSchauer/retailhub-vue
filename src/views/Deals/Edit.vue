@@ -272,6 +272,7 @@ export default {
 
       model:   null,
       loading: true,
+      saved:   false,
       error:   false,
       deal_id: id,
 
@@ -336,7 +337,7 @@ export default {
     this.getModel()
   },
   beforeRouteLeave(to, from, next) {
-    if (this.isChangesEmpty) {
+    if (this.isChangesEmpty || this.saved) {
       next()
     }
     else {
@@ -444,6 +445,7 @@ export default {
         }
       })
       .then(() => {
+        this.saved = true
         this.$router.push('/deals/' + this.deal_id)
       })
       .catch((error) => {

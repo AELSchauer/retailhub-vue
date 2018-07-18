@@ -65,6 +65,7 @@ export default class JsonApi {
 
   peekAll() {
     return new Promise((resolve) => {
+      console.log($store.getters[`entities/${this.resource}/all`]())
       let getRecords = $store.getters[`entities/${this.resource}/query`]()
       if (this.include && this.include.length) {
         this.include.split(',').forEach((resource) => {

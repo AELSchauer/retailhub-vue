@@ -1,5 +1,5 @@
 import Model from '@/services/extended-vuex-orm-model'
-import Site from './site'
+import Site from './page'
 
 export default class Page extends Model {
   static entity = 'pages'
@@ -13,10 +13,18 @@ export default class Page extends Model {
       
       site_id: this.attr(null),
 
-      site: this.belongsTo(Site, 'site_id'),
+      site:  this.belongsTo(Site, 'site_id'),
 
       // meta
-      $sites_queried: this.attr(false),
+      $site_queried: this.attr(false),
     }
+  }
+
+  get body() {
+    return this.properties.body
+  }
+
+  get variables() {
+    return this.properties.variables
   }
 }

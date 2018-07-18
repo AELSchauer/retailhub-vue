@@ -15,7 +15,7 @@
             Edit
           </router-link>
         </span>
-        <div v-for="attribute in attributeManifest" class="attribute row">
+        <div v-for="attribute in model.attributeManifest" class="attribute row">
           <div class="attribute-label col-md-2">
             {{ attribute.label }}
           </div>
@@ -107,7 +107,7 @@ export default {
     },
     attributeManifest: function() {
       return this.model.attributeManifest
-    }
+    },
   },
   created() {
     this.checkCurrentLogin()
@@ -135,15 +135,6 @@ export default {
         this.$router.push('/dashboard?redirect=' + this.$route.path)
       }
     },
-    get(attrName) {
-      let attribute = this.model.get(attrName)
-      if (attribute.constructor.name === 'Moment') {
-        return attribute.format('YYYY-MM-DD HH:mm:ss')
-      }
-      else {
-        return attribute
-      }
-    },
     getModel() {
       json_api.findRecord({
         resource: 'deals',
@@ -162,6 +153,15 @@ export default {
       .finally(() => {
         this.loading = false
       })
+    },
+    get(attrName) {
+      let attribute = this.model.get(attrName)
+      if (attribute.constructor.name === 'Moment') {
+        return attribute.format('YYYY-MM-DD HH:mm:ss')
+      }
+      else {
+        return attribute
+      }
     },
     deleteAssociations(record) {
       this.loading = true

@@ -8,14 +8,14 @@
   <div v-else class="row">
     <div class="component-tree container col-md-8">
       <draggable
-        v-model="body"
+        v-model="model.body"
         class="children-list"
         element="ol"
         :options="{group:'body'}"
         @start="drag=true"
         @end="drag=false"
       >
-        <template v-for="bentoComponent in body">
+        <template v-for="bentoComponent in model.body">
           <bento-base-component-body
             :key="bentoComponent.id"
             :model="bentoComponent"
@@ -51,9 +51,10 @@
 import Vue from 'vue'
 import { mapGetters } from 'vuex'
 import draggable from 'vuedraggable'
+import json_api from '@/services/json-api'
 
-import Page from '../../../models/page'
-import BentoComponent from '../../../models/bento/component'
+import Page from '@/models/page'
+import BentoComponent from '@/models/bento/component'
 import BentoBaseComponentAttributes from '@/components/site-editor/bento-components/attributes'
 import BentoBaseComponentBody from '@/components/site-editor/bento-components/body'
 
@@ -61,14 +62,49 @@ import BentoBaseComponentBody from '@/components/site-editor/bento-components/bo
 export default {
   name: 'SitePageEdit',
   data() {
+    let page_id = this.$route.params.page_id
+    let page_name = this.$route.params.page_name
+    let site_name = this.$route.params.site_name
+    let breadcrumbs
+
+    if (site_name && page_name) {
+      breadcrumbs = [
+        {
+          name: 'SiteIndex',
+          text: 'Sites',
+        },
+        {
+          name: 'SiteShow',
+          text: site_name,
+        },
+        {
+          text: 'Pages',
+        },
+        {
+          text: page_name,
+        }
+      ]
+    }
+    else {
+      breadcrumbs = [
+        {
+          name: 'PageIndex',
+          text: 'Pages',
+        },
+        {
+          text: page_id
+        },
+      ]
+    }
+
     return {
       permissions: ['admin'],
-      error:       false,
-      loading:     true,
-
-      body: null,
-      page: null,
-      bus:  new Vue(),
+      breadcrumbs: breadcrumbs,
+      error:   false,
+      loading: true,
+      page_id: page_id,
+      page:    null,
+      bus:     new Vue(),
 
       detailComponent: { model: new BentoComponent() }
     }
@@ -85,7 +121,7 @@ export default {
     this.checkCurrentPermissions()
   },
   mounted() {
-    this.getPage()
+    this.getModel()
     this.bus.$on('selectedComponent', (component) => {
       this.viewComponentDetails(component)
     })
@@ -110,45 +146,26 @@ export default {
         this.$router.push('/dashboard?redirect=' + this.$route.path)
       }
     },
-    getPage() {
-      let time = Math.round(Date.now() / 1000);
-      let token = this.currentUser.authenticationToken(time)
-      this.$http.request({
-        method: 'get',
-        url: `/pages/${this.$route.params.page_id}`,
-        headers: {
-          'Accept': 'application/vnd.api+json',
-        },
-        params: {
-          auth_id:        this.currentUser.id,
-          auth_timestamp: time,
-          auth_token:     token,
-          include:        'site'
+    getModel() {
+      json_api.findRecord({
+        resource: 'pages',
+        id:       this.page_id,
+        options:  {
+          params: { include: 'site' }
         }
       })
-      .then((request) => {
-        if (request.status === 200) {
-          this.requestSucceeded(request)
-        }
-        else {
-          this.requestFailed(request)
-        }
+      .then((record) => {
+        console.log('record', record)
+        this.model = record
       })
-      .catch((error) => this.requestFailed(error))
-      .finally(() => this.loading = false)
+      .catch((error) => {
+        console.error('request failed', error);
+        this.error = true;
+      })
+      .finally(() => {
+        this.loading = false
+      })
     },
-    requestSucceeded(req) {
-      this.page = new Page({
-        id:         req.data.data.id,
-        attributes: req.data.data.attributes,
-        included:   req.data.included,
-      })
-      this.body = this.page.body
-    },
-    requestFailed(req) {
-      console.error('request failed', req);
-      this.error = true;
-    }
   },
   components: {
     BentoBaseComponentAttributes,
