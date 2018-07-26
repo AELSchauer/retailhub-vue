@@ -1,6 +1,6 @@
 <template>
   <div :class="_classMerger('input-wrapper', this.rootClass)">
-    <label v-if="label"
+    <label v-if="labelProperties"
       :for="inputId" 
       :class="_classMerger('form-label', this.labelClass)">
       {{ label }}
@@ -59,7 +59,7 @@ export default {
         },
       }
 
-      return formHelper.getInputProperties(defaultInputProps, this.inputProps)
+      return formHelper.getElementProperties(defaultInputProps, this.inputProps)
     }
   },
   methods: {

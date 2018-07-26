@@ -51,7 +51,7 @@ export default {
         },
       }
 
-      return formHelper.getInputProperties(defaultInputProps, this.inputProps)
+      return formHelper.getElementProperties(defaultInputProps, this.inputProps)
     }
   },
   methods: {

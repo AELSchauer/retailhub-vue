@@ -1,14 +1,14 @@
 <template>
   <div class="container">
-    <div class="attribute-list">
-      <template v-for="attr in model.manifestAttributes">
+    <table class="attribute-list">
+      <template v-for="attr in manifestAttributes">
         <component
           :is=attr.vuePath
-          :changeset=model.attributes
+          :model=model.attributes
           :attribute=attr
         ></component>
       </template>
-    </div>
+    </table>
   </div>
 </template>
 
@@ -22,6 +22,11 @@ export default {
   name: 'bento-base-component-attributes',
   data() {
     return {}
+  },
+  computed: {
+    manifestAttributes: function() {
+      return this.model.bentoManifest.attributes()
+    }
   },
   props: {
     model: Object

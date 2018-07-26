@@ -37,6 +37,10 @@ export default class Site extends Model {
     return ['published_at']
   }
 
+  get partials() {
+    return this.properties.partials
+  }
+
   get(attr) {
     if (this[attr] === null) {
       return this.constructor.fields()[attr].value

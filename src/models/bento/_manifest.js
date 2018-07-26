@@ -1,44 +1,97 @@
 import _ from 'lodash'
 const _wrappers = [ 'address', 'div', 'footer', 'header', 'span'];
 const _textWrappers = [ 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p'];
+const Attribute = class {
+  constructor(name, data) {
+    this.name = name,
+    this.data = data
+  }
+
+  get manifest() {
+    return this.data
+  }
+
+  get vuePath() {
+    return `bento-${this.data.type}-attribute`
+  }
+}
 
 export default class Manifest {
-  static find(attrName, attrType) {
+  static find(...args) {
     try {
-      if (attrType === 'component') {
-        return new Manifest(attrName).build()
-      }
-      else {
-        return new Manifest(attrType).build()
-      }
-    } catch (error) {
+      return this._retrieve(args).find()
+    }
+    catch (error) {
       return {}
     }
   }
 
+  static build(...args) {
+    try {
+      return this._retrieve(args)
+    }
+    catch (error) {
+      return {}
+    }
+  }
+
+  static _retrieve([attrName, attrType]) {
+    if (attrType === 'component') {
+      return new Manifest(attrName)
+    }
+    else {
+      return new Manifest(attrType)
+    }
+  }
+
   constructor (attrName) {
-    this.attrName  = attrName;
+    this.attrName = `$${attrName}`;
   }
 
-  build() {
-    return (_.get(this, this.attrName) || {})
+  find() {
+    return this[this.attrName] || {};
   }
 
-  get container() {
+  get standardComponents() {
+    return _
+      .chain(Object.getOwnPropertyNames(this.__proto__))
+      .filter(prop => {
+        return prop != '$partial' && prop[0] === '$'
+      })
+      .map(prop => prop.slice(1))
+      .value()
+  }
+
+  allowedComponentChildren() {
+    return _
+      .chain(this.find().allowedChildren)
+      .filter(child => {
+        return child != '$partial'
+      })
+      .map(child => {
+        console.log('child', child)
+        return Manifest.find(child, 'component')
+      })
+      .value();
+  }
+
+  isAllowedPartialsChildren() {
+    return _.indexOf(this.find().allowedChildren, '$partial') > -1;
+  }
+
+  attributes() {
+    let woot = _.toPairs(this.find().attributes).map(([attrName, attrData]) => {
+      return new Attribute(attrName, attrData)
+    })
+    console.log('woot', woot)
+    return woot
+  }
+
+  get $container() {
     return {
-      allows_children: true,
-      allowed_children: [
-        // 'carousel',
-        'container',
-        'deals',
-        'directory',
-        'if',
-        'image',
-        'link-to',
-        'nav-menu',
-        'share-icons',
-        'text',
-      ],
+      name: 'container',
+      allowsChildren: true,
+      allowedChildren: this.standardComponents,
       attributes: {
         classes: {
           type: 'text',
@@ -57,13 +110,14 @@ export default class Manifest {
           default: 'false',
         }
       },
-      icon: 'fa-window-maximize',
+      icon: 'window-maximize',
     }
   }
 
-  get deals() {
+  get $deals() {
     return {
-      allows_children: false,
+      name: 'deals',
+      allowsChildren: false,
       attributes:      {
         classes: {
           type: 'text',
@@ -74,13 +128,14 @@ export default class Manifest {
           required: true,
         },
       },
-      icon: 'fa-shopping-cart',
+      icon: 'shopping-cart',
     }
   }
 
-  get image() {
+  get $image() {
     return {
-      allows_children: false,
+      name: 'image',
+      allowsChildren: false,
       attributes: {
         classes: {
           type: 'text',
@@ -95,20 +150,21 @@ export default class Manifest {
           recommended: true,
         },
       },
-      icon: 'fa-image',
+      icon: 'image',
     }
   }
 
-  get partial() {
+  get $partial() {
     return {
       attributes: null,
-      icon: 'fa-chevron-right',
+      icon: 'chevron-right',
     }
   }
 
-  get text() {
+  get $text() {
     return {
-      attributes:      {
+      name: 'text',
+      attributes: {
         classes: {
           type: 'text',
           required: false,
@@ -124,7 +180,7 @@ export default class Manifest {
           required: true,
         },
       },
-      icon: 'fa-quote-right',
+      icon: 'quote-right',
     }
   }
 }

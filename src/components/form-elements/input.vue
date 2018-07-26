@@ -1,24 +1,25 @@
 <template>
-  <div :class="_classMerger('input-wrapper', this.rootClass)">
-    <label v-if="label"
+  <div :class="rootProperties.class">
+    <label v-if="labelProps"
       :for="inputId" 
-      :class="_classMerger('form-label', this.labelClass)">
-      {{ label }}
+      @click="labelClick"
+      :class="labelProperties.class">
+      {{ labelProperties.content }}
     </label>
     <div v-if="error" class="input-error">
       There was a problem rendering this input field
     </div>
-    <input v-else
+    <template v-else>
+    <input
       :value="get()"
       @input="set($event.target.value)"
-      v-bind="inputProperties"
-    >
+      v-bind="inputProperties">
     <input v-if="toggle"
       type="checkbox"
       :checked="getToggle()"
       @input="setToggle($event.target.checked)"
-      :class="_classMerger('form-input', this.toggle.class)"
-    >
+      :class="_classMerger('form-input', this.toggle.class)">
+    </template>
   </div>
 </template>
 
@@ -47,6 +48,8 @@ export default {
     attribute:  String,
     label:      String,
     inputProps: Object,
+    labelProps: Object,
+    rootProps:  Object,
     labelClass: String,
     rootClass:  String,
     toggle:     Object,
@@ -67,8 +70,33 @@ export default {
         },
       }
 
-      return formHelper.getInputProperties(defaultInputProps, this.inputProps)
-    }
+      return formHelper.getElementProperties(defaultInputProps, this.inputProps)
+    },
+    rootProperties: function() {
+      let defaultRootProps = {
+        class: {
+          value: 'input-wrapper',
+          action: 'merge',
+        },
+      }
+
+      return formHelper.getElementProperties(defaultRootProps, this.rootProps)
+    },
+    labelProperties: function() {
+      let defaultLabelProps = {
+        class: {
+          value: 'form-label',
+          action: 'merge',
+        },
+      }
+
+      let properties = formHelper.getElementProperties(defaultLabelProps, this.labelProps)
+      delete properties.click
+
+      console.log('labelProperties', properties)
+
+      return properties
+    },
   },
   created() {
     this.verifyType()
@@ -85,6 +113,11 @@ export default {
     },
     setToggle(newValue) {
       this.$parent.set(this.toggle.attribute, newValue)
+    },
+    labelClick() {
+      if (this.labelProps.click) {
+        this.$parent[this.labelProps.click]
+      }
     },
     verifyType() {
       if (!_.includes(this.allowedTypes, this.inputProps.type)) {
@@ -108,5 +141,12 @@ export default {
 
 .form-label {
   @extend %form-label;
+}
+.attribute-wrapper {
+  padding: 0;
+}
+.attribute-label {
+  padding: 0 15px;
+  text-align: left;
 }
 </style>

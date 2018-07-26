@@ -62,7 +62,7 @@ export default {
         this.inputProps.max = this.inputProps.max.format(this.inputFormat)
       }
 
-      return formHelper.getInputProperties(defaultInputProps, this.inputProps)
+      return formHelper.getElementProperties(defaultInputProps, this.inputProps)
     },
     inputFormat: function() {
       if (this.inputProps.type === 'date') {

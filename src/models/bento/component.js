@@ -1,28 +1,14 @@
 import _ from 'lodash'
-import Manifest from './_manifest'
-
-let Attribute = class {
-  constructor(name, data) {
-    this.name = name,
-    this.data = data
-  }
-
-  get manifest() {
-    return this.data
-  }
-
-  get vuePath() {
-    return `bento-${this.data.type}-attribute`
-  }
-}
+import BentoManifest from './_manifest'
 
 export default class BentoComponent {
-  constructor(json={}) {
-    this.name       = json.name;
-    this.type       = json.type;
-    this.meta       = (json.meta || {});
-    this.attributes = (json.attributes || {});
-    this.children   = (json.children || []).map(component => {
+
+  constructor({name, type, meta={}, attributes={}, children=[]}={}) {
+    this.name       = name;
+    this.type       = type;
+    this.meta       = (meta || {});
+    this.attributes = (attributes || {});
+    this.children   = (children || []).map(component => {
                         return new BentoComponent(component)
                       });
   }
@@ -36,14 +22,7 @@ export default class BentoComponent {
     }
   }
 
-  get manifest() {
-    return Manifest.find(this.name, this.type)
-  }
-
-  get manifestAttributes() {
-    let manifestAttributes = (this.manifest.attributes || {});
-    return Object.entries(manifestAttributes).map((kv) => {
-      return new Attribute(kv[0], kv[1])
-    })
+  get bentoManifest() {
+    return BentoManifest.build(this.name, this.type)
   }
 }

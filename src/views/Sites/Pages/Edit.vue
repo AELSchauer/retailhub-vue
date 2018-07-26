@@ -6,42 +6,62 @@
     Loading...
   </div>
   <div v-else class="row">
-    <div class="component-tree container col-md-8">
-      <draggable
-        v-model="model.body"
-        class="children-list"
-        element="ol"
-        :options="{group:'body'}"
-        @start="drag=true"
-        @end="drag=false"
-      >
-        <template v-for="bentoComponent in model.body">
-          <bento-base-component-body
-            :key="bentoComponent.id"
-            :model="bentoComponent"
-            :bus="bus"
-          ></bento-base-component-body>
-        </template>
-      </draggable>
+    <div class="component-tree container col-md-6">
+      <div class="row">
+        <div class="col-md-12">
+          <div class="add-child btn-sm float-right" @click="showAddChildMenu(model)">+</div>
+          <modal name="add-child-menu">
+            <template v-for="(components, category) in allowedChildren">
+              <h4>{{category}}</h4>
+              <ul class="allowed-children-list">
+                <li v-for="component in components"
+                  @click="addChild(component.name, category)"
+                >
+                  <font-awesome-icon :icon="component.icon" />
+                  {{component.name}}
+                </li>
+              </ul>
+            </template>
+          </modal>
+        </div>
+      </div>
+      <div class="row">
+        <draggable
+          v-model="model.body"
+          class="children-list col-md-12"
+          :options="{group:'body'}"
+          @start="drag=true"
+          @end="drag=false"
+        >
+          <template v-for="bentoComponent in model.body">
+            <bento-base-component-body
+              :key="bentoComponent.id"
+              :model="bentoComponent"
+              :bus="bus"
+            ></bento-base-component-body>
+          </template>
+        </draggable>
+      </div>
+      <div @click="consoleLogBody">See Body JSON</div>
     </div>
-    <div class="component-details-aside container col-md-4">
+    <div class="component-details-aside container col-md-6">
       <div class="row">
         <span class="col-md-11 component-name">
-          {{ detailComponent.model.name }}
+          {{ detailComponent.name }}
         </span>
         <span class="col-md-1">
           <button @click="closeComponentDetails" class="close-component-details">x</button>
         </span>
       </div>
-      <template v-if="detailComponent.model.name">
+      <template v-if="detailComponent.name">
         <hr>
         attributes:
         <bento-base-component-attributes
-          :model="detailComponent.model"
+          :model="detailComponent"
         ></bento-base-component-attributes>
         <hr>
-        meta:
-        {{ detailComponent.model.meta }}
+        styling:
+        {{ model.styling }}
       </template>
     </div>
   </div>
@@ -55,6 +75,7 @@ import json_api from '@/services/json-api'
 
 import Page from '@/models/page'
 import BentoComponent from '@/models/bento/component'
+
 import BentoBaseComponentAttributes from '@/components/site-editor/bento-components/attributes'
 import BentoBaseComponentBody from '@/components/site-editor/bento-components/body'
 
@@ -100,6 +121,8 @@ export default {
     return {
       permissions: ['admin'],
       breadcrumbs: breadcrumbs,
+      allowedChildren: [],
+      componentAddingChild: null,
       error:   false,
       loading: true,
       page_id: page_id,
@@ -110,7 +133,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters({ currentUser: 'currentUser' })
+    ...mapGetters({ currentUser: 'currentUser' }),
   },
   created() {
     this.checkCurrentLogin()
@@ -122,8 +145,14 @@ export default {
   },
   mounted() {
     this.getModel()
-    this.bus.$on('selectedComponent', (component) => {
-      this.viewComponentDetails(component)
+    this.bus.$on('selectComponent', (component) => {
+      this.viewComponentDetails(component.model)
+    })
+    this.bus.$on('showAddChildMenu', (component) => {
+      this.showAddChildMenu(component.model)
+    })
+    this.bus.$on('addChild', (name, type) => {
+      this.addChild(name, type)
     })
   },
   methods: {
@@ -155,7 +184,6 @@ export default {
         }
       })
       .then((record) => {
-        console.log('record', record)
         this.model = record
       })
       .catch((error) => {
@@ -166,6 +194,51 @@ export default {
         this.loading = false
       })
     },
+    showAddChildMenu(component) {
+      function allowedChildren(component, site) {
+        let manifest = component.bentoManifest;
+        let children = {
+          components: component.bentoManifest.allowedComponentChildren(),
+        }
+        console.log('children', children)
+
+        if (manifest.isAllowedPartialsChildren) {
+          let sitePartials = (site.partials || [])
+
+          children.partials = sitePartials.map(partial => {
+            return _
+              .chain(manifest.$partial)
+              .cloneDeep()
+              .set('name', partial.name)
+              .value()
+          })
+        }
+
+        return children
+      }
+
+      this.componentAddingChild = component
+      this.allowedChildren = allowedChildren(component, this.model.site)
+      this.$modal.show('add-child-menu');
+    },
+    addChild(name, type) {
+      let children = this.componentAddingChild.children
+      children.push({ name: name, type: type })
+      this.componentAddingChild.children = children
+      // if (component.constructor.name === 'BentoComponent') {
+      //   console.log('wut')
+      // }
+      // else if (component.constructor.name === 'Page') {
+      //   let body = this.model.properties.body
+      //   // let newComponent = new BentoComponent({ name: name, type: type })
+      //   body.push({ name: name, type: type })
+      //   this.model.properties.body = body
+      // }
+      this.$modal.show('add-child-menu');
+    },
+    consoleLogBody() {
+      this.model.getJsonBody()
+    }
   },
   components: {
     BentoBaseComponentAttributes,
@@ -176,8 +249,7 @@ export default {
 </script>
 
 
-<style scoped>
-@import './src/styles/variables.scss'
+<style scoped lang="scss">
 h1, h2 {
   font-weight: normal;
 }
@@ -186,15 +258,18 @@ ul {
 }
 li {
   display: list-item;
+  padding-right: 0px;
 }
 a {
   color: #42b983;
 }
 .component-tree {
   background: #d2d4c8;
+  padding: 10px;
 }
 .component-details-aside {
   background: #889696;
+  padding: 10px;
 }
 .component-name {
   font-weight: 600;
@@ -204,5 +279,16 @@ a {
 }
 .children-list {
   min-height: 10px;
+}
+.allowed-children-list {
+  padding: 0 0 0 10px;
+  list-style: none;
+}
+.allowed-children-list > li {
+  margin: 5px 0px;
+
+  &:hover {
+    color: #42b983;
+  }
 }
 </style>

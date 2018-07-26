@@ -1,11 +1,17 @@
 <template>
-  <li class="container">
-    {{ model.name }}
-    <button @click="viewDetails">Details</button>
+  <div class="container">
+    <div class="child-actions row">
+      <div class="child-name">{{model.name}}</div>
+      <div class="action-buttons float-right row">
+        <div @click="viewDetails" class="btn-sm">details</div>
+        <div v-if="allowsChildren"
+          @click="showAddChildMenu"
+          class="btn-sm">+</div>
+      </div>
+    </div>
     <draggable
       v-model="model.children"
       class="children-list"
-      element="ol"
       :options="{group:'children'}"
       @start="drag=true"
       @end="drag=false"
@@ -18,7 +24,7 @@
         ></bento-base-component-body>
       </template>
     </draggable>
-  </li>
+  </div>
 </template>
 
 <script>
@@ -35,11 +41,19 @@ export default {
     bus:   Object
   },
   computed: {
-    // placeholder: function() {},
+    allowsChildren: function() {
+      return this.model.bentoManifest.find().allowsChildren
+    }
   },
   methods: {
-    viewDetails: function() {
-      this.bus.$emit('selectedComponent', this)
+    viewDetails() {
+      this.bus.$emit('selectComponent', this)
+    },
+    showAddChildMenu() {
+      this.bus.$emit('showAddChildMenu', this)
+    },
+    removeChild() {
+      this.bus.$emit('removeChild', this)
     },
   },
   components: {
@@ -50,12 +64,30 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-button {
-  background: #605B56 !important;
-  height: 30px;
-  width: 65px;
+.container {
+  padding-right: 0px;
 }
 .children-list {
   min-height: 10px;
+}
+.child-actions {
+  height: 30px;
+  margin: 5px 0px;
+  display: flex;
+  justify-content: space-between;
+
+  .child-name {
+    vertical-align: middle;
+  }
+  .action-buttons > * {
+    height: 30px;
+    margin: 0px 2px;
+    background: #605B56 !important;
+    color: #fff;
+  }
+
+  &:hover {
+    background: #605B56;
+  }
 }
 </style>

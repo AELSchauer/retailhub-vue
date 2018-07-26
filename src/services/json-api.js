@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import pluralize from 'pluralize'
 
-import $http from '@/backend/vue-axios/axios';
+import $http from '@/config/axios';
 import $store from '@/store';
 
 import Company from '@/models/company'
