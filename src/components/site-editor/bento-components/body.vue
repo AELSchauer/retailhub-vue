@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
   <div class="container">
     <div class="child-actions row">
       <div class="child-name">{{model.name}} {{path}}</div>
@@ -9,23 +9,56 @@
           class="btn-sm">+</div>
       </div>
     </div>
-    <draggable
-      v-model="model.children"
-      class="children-list"
-      :options="{group:'children'}"
-      @start="drag=true"
-      @end="drag=false"
-    >
-      <template v-for="(child, index) in model.children">
+    <template v-for="(child, index) in model.children">
+      <bento-base-component-body
+        :key="model.id"
+        :model="child"
+        :bus="bus"
+        :index="index"
+      ></bento-base-component-body>
+    </template>
+  </div>
+</template> -->
+
+<template>
+  <li class="component-wrapper">
+    <div class="component-data">
+<!--       <td class="component-title" :class="'indent-' + ((path.length - 1) / 2)">{{model.name}} {{path}}</td>
+      <td class="details-button-wrapper">
+        <div @click="viewDetails" class="btn-sm">details</div>
+      </td>
+      <td class="add-button-wrapper">
+        <div v-if="allowsChildren"
+          @click="showAddChildMenu"
+          class="btn-sm"
+        >
+          <font-awesome-icon :icon="['fas', 'plus-square']"/>
+        </div>
+        <div v-else class="empty">.</div>
+      </td> -->
+      <div class="component-title">{{model.name}} {{path}}</div>
+      <div class="component-button-wrapper">
+        <div @click="viewDetails" class="btn btn-sm details-button">details</div>
+        <div v-if="allowsChildren"
+          @click="showAddChildMenu"
+          class="btn btn-sm add-button"
+        >
+          <font-awesome-icon :icon="['fas', 'plus-square']"/>
+        </div>
+        <div v-else class="empty">.</div>
+      </div>
+    </div>
+    <ul v-if="model.children">
+      <template v-for="(bentoComponent, index) in model.children">
         <bento-base-component-body
-          :key="model.id"
-          :model="child"
+          :key="bentoComponent.id"
+          :model="bentoComponent"
           :bus="bus"
-          :index="index"
+          :index='index'
         ></bento-base-component-body>
       </template>
-    </draggable>
-  </div>
+    </ul>
+  </li>
 </template>
 
 <script>
@@ -47,7 +80,7 @@ export default {
       return this.model.bentoManifest.find().allowsChildren
     },
     path: function() {
-      let parentPath = this.$parent.$parent.path
+      let parentPath = this.$parent.path
       if (parentPath) {
         return parentPath.concat(['children', this.index])
       }
@@ -76,6 +109,31 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.component-wrapper {
+  list-style: none;
+}
+.component-data {
+  display: inline-block;
+  width: 100%;
+
+  * {
+    display: inline-block;;
+  }
+}
+.component-title {
+}
+.component-button-wrapper {
+  float: right;
+}
+.add-button, .empty {
+  width: 29px;
+}
+
+.empty {
+  visibility: hidden;
+}
+
+
 .container {
   padding-right: 0px;
 }

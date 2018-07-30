@@ -6,45 +6,34 @@
     Loading...
   </div>
   <div v-else class="row">
-    <div class="component-tree container col-md-6">
-      <div class="row">
-        <div class="col-md-12">
-          <div class="add-child btn-sm float-right" @click="showAddChildMenu(model)">+</div>
-          <modal name="add-child-menu">
-            <template v-for="(components, category) in allowedChildren">
-              <h4>{{category}}</h4>
-              <ul class="allowed-children-list">
-                <li v-for="component in components"
-                  @click="addChild(component.name, category)"
-                >
-                  <font-awesome-icon :icon="component.icon" />
-                  {{component.name}}
-                </li>
-              </ul>
-            </template>
-          </modal>
+    <modal name="add-child-menu">
+      <template v-for="(components, category) in allowedChildren">
+        <h4>{{category}}</h4>
+        <ul class="allowed-children-list">
+          <li v-for="component in components"
+            @click="addChild(component.name, category)"
+          >
+            <font-awesome-icon :icon="component.icon" />
+            {{component.name}}
+          </li>
+        </ul>
+      </template>
+    </modal>
+    <ul class="component-tree col-md-6">
+      <li>
+        <div class="add-child btn-sm float-right" @click="showAddChildMenu()">
+          <font-awesome-icon :icon="['fas', 'plus-square']"/>
         </div>
-      </div>
-      <div class="row">
-        <draggable
-          v-model="model.body"
-          class="children-list col-md-12"
-          :options="{group:'body'}"
-          @start="drag=true"
-          @end="drag=false"
-        >
-          <template v-for="(bentoComponent, index) in model.children">
-            <bento-base-component-body
-              :key="bentoComponent.id"
-              :model="bentoComponent"
-              :bus="bus"
-              :index='[index]'
-            ></bento-base-component-body>
-          </template>
-        </draggable>
-      </div>
-      <div @click="consoleLogBody">See Body JSON</div>
-    </div>
+      </li>
+      <template v-for="(bentoComponent, index) in model.children">
+        <bento-base-component-body
+          :key="bentoComponent.id"
+          :model="bentoComponent"
+          :bus="bus"
+          :index='index'
+        ></bento-base-component-body>
+      </template>
+    </ul>
     <div class="component-details-aside container col-md-6">
       <div class="row">
         <span class="col-md-11 component-name">
@@ -196,9 +185,9 @@ export default {
         this.loading = false
       })
     },
-    showAddChildMenu(componentPath) {
+    showAddChildMenu(componentPath="") {
       this.pathForComponentAddingChild = componentPath;
-      let component = _.get(this.model.children, componentPath)
+      let component = _.get(this.model.children, componentPath) || this.model
 
       function allowedChildren(component, site) {
         let manifest = component.bentoManifest;
@@ -227,8 +216,14 @@ export default {
     },
     addChild(name, type) {
       let children = this.model.children
-      let component = _.get(children, this.pathForComponentAddingChild)
-      component.children.push(new BentoComponent({ name: name, type: pluralize.singular(type) }))
+
+      if (this.pathForComponentAddingChild.length) {
+        let component = _.get(children, this.pathForComponentAddingChild)
+        component.children.push(new BentoComponent({ name: name, type: pluralize.singular(type) }))
+      }
+      else {
+        children.push(new BentoComponent({ name: name, type: pluralize.singular(type) }))
+      }
 
       this.model.children = children
       this.$modal.hide('add-child-menu');
@@ -263,6 +258,11 @@ a {
 .component-tree {
   background: #d2d4c8;
   padding: 10px;
+  margin: 0;
+
+  .row {
+    width: 100%;
+  }
 }
 .component-details-aside {
   background: #889696;

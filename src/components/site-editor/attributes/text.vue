@@ -98,8 +98,8 @@ th, td {
   padding-left: 10px
 }
 .attribute-label, .attribute-buttons {
-    width:1%;
-    white-space:nowrap;
+  width: 1%;
+  white-space: nowrap;
 }
 .attribute-input input {
   width: 100%;
