@@ -28,9 +28,7 @@ export default class Page extends Model {
   }
 
   get body() {
-    return this.properties.body.map(component => {
-      return new BentoComponent(component)
-    })
+    return this.properties.body
   }
 
   set body(newValue) {
@@ -38,7 +36,9 @@ export default class Page extends Model {
   }
 
   get children() {
-    return this.body
+    return this.body.map(component => {
+      return new BentoComponent(component)
+    })
   }
 
   set children(newValue) {
@@ -54,6 +54,7 @@ export default class Page extends Model {
   }
 
   get bentoManifest() {
+    console.log('wtf bentoManifest')
     return BentoManifest.build('container', 'component')
   }
 }

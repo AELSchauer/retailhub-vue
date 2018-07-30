@@ -33,11 +33,12 @@
           @start="drag=true"
           @end="drag=false"
         >
-          <template v-for="bentoComponent in model.body">
+          <template v-for="(bentoComponent, index) in model.children">
             <bento-base-component-body
               :key="bentoComponent.id"
               :model="bentoComponent"
               :bus="bus"
+              :index='[index]'
             ></bento-base-component-body>
           </template>
         </draggable>
@@ -71,6 +72,7 @@
 import Vue from 'vue'
 import { mapGetters } from 'vuex'
 import draggable from 'vuedraggable'
+import pluralize from 'pluralize'
 import json_api from '@/services/json-api'
 
 import Page from '@/models/page'
@@ -122,7 +124,7 @@ export default {
       permissions: ['admin'],
       breadcrumbs: breadcrumbs,
       allowedChildren: [],
-      componentAddingChild: null,
+      pathForComponentAddingChild: null,
       error:   false,
       loading: true,
       page_id: page_id,
@@ -149,7 +151,7 @@ export default {
       this.viewComponentDetails(component.model)
     })
     this.bus.$on('showAddChildMenu', (component) => {
-      this.showAddChildMenu(component.model)
+      this.showAddChildMenu(component.path)
     })
     this.bus.$on('addChild', (name, type) => {
       this.addChild(name, type)
@@ -194,7 +196,10 @@ export default {
         this.loading = false
       })
     },
-    showAddChildMenu(component) {
+    showAddChildMenu(componentPath) {
+      this.pathForComponentAddingChild = componentPath;
+      let component = _.get(this.model.children, componentPath)
+
       function allowedChildren(component, site) {
         let manifest = component.bentoManifest;
         let children = {
@@ -217,24 +222,16 @@ export default {
         return children
       }
 
-      this.componentAddingChild = component
       this.allowedChildren = allowedChildren(component, this.model.site)
       this.$modal.show('add-child-menu');
     },
     addChild(name, type) {
-      let children = this.componentAddingChild.children
-      children.push({ name: name, type: type })
-      this.componentAddingChild.children = children
-      // if (component.constructor.name === 'BentoComponent') {
-      //   console.log('wut')
-      // }
-      // else if (component.constructor.name === 'Page') {
-      //   let body = this.model.properties.body
-      //   // let newComponent = new BentoComponent({ name: name, type: type })
-      //   body.push({ name: name, type: type })
-      //   this.model.properties.body = body
-      // }
-      this.$modal.show('add-child-menu');
+      let children = this.model.children
+      let component = _.get(children, this.pathForComponentAddingChild)
+      component.children.push(new BentoComponent({ name: name, type: pluralize.singular(type) }))
+
+      this.model.children = children
+      this.$modal.hide('add-child-menu');
     },
     consoleLogBody() {
       this.model.getJsonBody()

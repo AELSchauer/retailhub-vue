@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <div class="child-actions row">
-      <div class="child-name">{{model.name}}</div>
+      <div class="child-name">{{model.name}} {{path}}</div>
       <div class="action-buttons float-right row">
         <div @click="viewDetails" class="btn-sm">details</div>
         <div v-if="allowsChildren"
@@ -16,11 +16,12 @@
       @start="drag=true"
       @end="drag=false"
     >
-      <template v-for="child in model.children">
+      <template v-for="(child, index) in model.children">
         <bento-base-component-body
           :key="model.id"
           :model="child"
           :bus="bus"
+          :index="index"
         ></bento-base-component-body>
       </template>
     </draggable>
@@ -38,11 +39,21 @@ export default {
   },
   props: {
     model: Object,
-    bus:   Object
+    bus:   Object,
+    index: Number,
   },
   computed: {
     allowsChildren: function() {
       return this.model.bentoManifest.find().allowsChildren
+    },
+    path: function() {
+      let parentPath = this.$parent.$parent.path
+      if (parentPath) {
+        return parentPath.concat(['children', this.index])
+      }
+      else {
+        return [this.index]
+      }
     }
   },
   methods: {
@@ -50,6 +61,7 @@ export default {
       this.bus.$emit('selectComponent', this)
     },
     showAddChildMenu() {
+      console.log('this.path', this.path)
       this.bus.$emit('showAddChildMenu', this)
     },
     removeChild() {
