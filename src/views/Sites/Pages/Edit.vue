@@ -145,6 +145,9 @@ export default {
     this.bus.$on('addChild', (name, type) => {
       this.addChild(name, type)
     })
+    this.bus.$on('removeComponent', (component) => {
+      this.removeComponent(component.path)
+    })
   },
   methods: {
     viewComponentDetails: function(component) {
@@ -227,6 +230,24 @@ export default {
 
       this.model.children = children
       this.$modal.hide('add-child-menu');
+    },
+    removeComponent(path) {
+      let children = this.model.children
+      let componentHasChildren = _.get(children, path).children.length
+
+      let confirm = window.confirm(`This item${(componentHasChildren) ? (' and all its children ') : (' ')}will be permanently deleted. Continue?`)
+      if (confirm) {
+        let index = path.splice(path.length-1)[0]
+
+        if (path.length) {
+          _.get(children, path).splice(index)
+        }
+        else {
+          children.splice(index)
+        }
+
+        this.model.children = children
+      }
     },
     consoleLogBody() {
       this.model.getJsonBody()

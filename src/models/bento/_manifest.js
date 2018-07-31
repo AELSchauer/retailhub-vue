@@ -80,11 +80,9 @@ export default class Manifest {
   }
 
   attributes() {
-    let woot = _.toPairs(this.find().attributes).map(([attrName, attrData]) => {
+    return _.toPairs(this.find().attributes).map(([attrName, attrData]) => {
       return new Attribute(attrName, attrData)
     })
-    console.log('woot', woot)
-    return woot
   }
 
   get $container() {
