@@ -70,9 +70,6 @@ import Page from '@/models/page'
 import BentoComponent from '@/models/bento/component'
 
 import BentoBaseComponentAttributes from '@/components/site-editor/bento-components/attributes'
-// import BentoComponentTree from '@/components/site-editor/bento-components/component-tree'
-// Pane: () => import('./Pane.vue'),
-
 
 export default {
   name: 'SitePageEdit',
@@ -148,7 +145,6 @@ export default {
       this.viewComponentDetails(component.model)
     })
     this.bus.$on('showAddComponentMenu', (component) => {
-      console.log('showAddComponentMenu', component)
       this.showAddComponentMenu(component.path)
     })
     this.bus.$on('addComponent', (name, type) => {
@@ -161,7 +157,7 @@ export default {
       this.componentToGraft = component;
       this.graftMode = action;
     })
-    this.bus.$on('pasteComponent', (newIndex, newParentPath=[]) => {
+    this.bus.$on('pasteComponent', (newIndex, newParentPath) => {
       this.commitGraft(newIndex, newParentPath)
     })
   },
@@ -245,24 +241,21 @@ export default {
       this.$modal.hide('add-child-menu');
     },
     removeComponent(path) {
-      let children = this.model.children
-      let componentHasChildren = _.get(children, path).children.length
+      console.log('path', path)
+      let page = { children: _.cloneDeep(this.model.children) }
+      let node = _.get(page, path)
 
-      let confirm = window.confirm(`This item${(componentHasChildren) ? (' and all its children ') : (' ')}will be permanently deleted. Continue?`)
+      let confirm = window.confirm(`This item${(node.children.length) ? (' and all its children ') : (' ')}will be PERMANENTLY deleted. Continue?`)
       if (confirm) {
-        let index = path.splice(path.length-1)[0]
+        let branch = _.get(page, path.slice(0, path.length-1))
+        let index = _.last(path)
 
-        if (path.length) {
-          _.get(children, path).splice(index)
-        }
-        else {
-          children.splice(index)
-        }
+        branch.splice(index)
 
-        this.model.children = children
+        this.model.children = page.children
       }
     },
-    commitGraft(newIndex, newParentPath) {
+    commitGraft(newIndex, newParentPath=[]) {
       let page = { children: _.cloneDeep(this.model.children) }
 
       let oldPath = this.componentToGraft.path
@@ -301,7 +294,7 @@ export default {
   },
   components: {
     BentoBaseComponentAttributes,
-    // BentoComponentTree,
+    // Import this differently because these components are circular.
     BentoComponentTree: () => import('@/components/site-editor/bento-components/component-tree.vue'),
   }
 }

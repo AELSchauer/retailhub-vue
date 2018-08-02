@@ -190,7 +190,7 @@ export default class Manifest {
           whitelist: [].concat(_wrappers).concat(_textWrappers),
         },
         content: {
-          type: 'rich-text',
+          type: 'text',
           required: true,
         },
       },
