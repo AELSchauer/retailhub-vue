@@ -36,12 +36,7 @@ export default class Manifest {
   }
 
   static _retrieve([attrName, attrType]) {
-    if (attrType === 'component') {
-      return new Manifest(attrName)
-    }
-    else {
-      return new Manifest(attrType)
-    }
+    return (attrType === 'component') ? (new Manifest(attrName)) : new Manifest(attrType)
   }
 
   constructor (attrName) {
@@ -50,16 +45,6 @@ export default class Manifest {
 
   find() {
     return this[this.attrName] || {};
-  }
-
-  get standardComponents() {
-    return _
-      .chain(Object.getOwnPropertyNames(this.__proto__))
-      .filter(prop => {
-        return prop != '$partial' && prop[0] === '$'
-      })
-      .map(prop => prop.slice(1))
-      .value()
   }
 
   allowedComponentChildren() {
@@ -87,8 +72,9 @@ export default class Manifest {
   get $container() {
     return {
       name: 'container',
+      icon: 'window-maximize',
       allowsChildren: true,
-      allowedChildren: this.standardComponents,
+      allowedChildren: this.standardComponents.concat('$partial'),
       attributes: {
         classes: {
           type: 'text',
@@ -107,15 +93,22 @@ export default class Manifest {
           default: 'false',
         }
       },
-      icon: 'window-maximize',
     }
   }
+
+  get 'meta-container'() {
+    return {
+      standardComponent: true,
+    }
+  }
+
 
   get $deals() {
     return {
       name: 'deals',
+      icon: 'shopping-cart',
       allowsChildren: false,
-      attributes:      {
+      attributes: {
         classes: {
           type: 'text',
           required: false,
@@ -125,30 +118,44 @@ export default class Manifest {
           required: true,
         },
       },
-      icon: 'shopping-cart',
     }
   }
+
+  get 'meta-deals'() {
+    return {
+      standardComponent: true,
+    }
+  }
+
 
   get $if() {
     return {
       name: 'if',
-      allowsChildren:   true,
+      icon: 'balance-scale',
+      allowsChildren: true,
       childrenRequired: true,
       allowedChildren: this.standardComponents,
       attributes: {
         operator: {
-          type:      'drop-down',
-          required:  true,
+          type: 'drop-down',
+          required: true,
           whitelist: [ 'present', 'not-present' ],
         },
       },
-      icon: 'balance-scale',
     }
   }
+
+  get 'meta-if'() {
+    return {
+      standardComponent: true,
+    }
+  }
+
 
   get $image() {
     return {
       name: 'image',
+      icon: 'image',
       allowsChildren: false,
       attributes: {
         classes: {
@@ -164,20 +171,116 @@ export default class Manifest {
           recommended: true,
         },
       },
-      icon: 'image',
+    }
+  }
+
+  get 'meta-image'() {
+    return {
+      standardComponent: true,
+    }
+  }
+
+  get '_link-to'() {
+    return {
+      icon: 'link',
+      allowsChildren: true,
+      childrenRequired: true,
+      attributes: {
+        classes: {
+          type: 'text',
+          required: false,
+        },
+        href: {
+          type: 'text',
+          required: false,
+        },
+        id: {
+          type: 'text',
+          required: false,
+        },
+      },
+    }
+  }
+  get '$link-to'() {
+    return _
+    .chain({
+      name: 'link',
+      allowedChildren: [
+        'container',
+        'image',
+        'text',
+      ],
+    })
+    .merge(this['_link-to'])
+    .value()
+  }
+
+  get 'meta-link-to'() {
+    return {
+      standardComponent: true,
+    }
+  }
+
+  get '$nav-link'() {
+    return _
+    .chain({
+      name: 'nav link',
+      allowedChildren: [
+        'image',
+        'text',
+      ],
+    })
+    .merge(this['_link-to'])
+    .value()
+  }
+
+  get 'meta-nav-link'() {
+    return {
+      standardComponent: false,
+    }
+  }
+
+  get '$nav-menu'() {
+    return {
+      name: 'nav menu',
+      icon: 'bars',
+      allowsChildren: true,
+      childrenRequired: true,
+      allowedChildren: [
+        'nav-link',
+      ],
+      attributes: {
+        classes: {
+          type: 'text',
+          required: false,
+        },
+        hamburger: {
+          type: 'drop-down',
+          required: true,
+          default: 'false',
+          whitelist: [ 'true', 'false' ],
+        },
+      },
+    }
+  }
+
+  get 'meta-nav-menu'() {
+    return {
+      standardComponent: true,
     }
   }
 
   get $partial() {
     return {
-      attributes: null,
       icon: 'chevron-right',
+      attributes: null,
     }
   }
 
   get $text() {
     return {
       name: 'text',
+      icon: 'quote-right',
       attributes: {
         classes: {
           type: 'text',
@@ -194,7 +297,31 @@ export default class Manifest {
           required: true,
         },
       },
-      icon: 'quote-right',
     }
+  }
+
+  get 'meta-text'() {
+    return {
+      standardComponent: true,
+    }
+  }
+
+
+  allComponentNames() {
+    return _
+      .chain(Object.getOwnPropertyNames(this.__proto__))
+      .filter(prop => {
+        return prop != '$partial' && prop[0] === '$'
+      })
+      .map(prop => prop.slice(1))
+      .value()
+  }
+
+  get standardComponents() {
+    let self = this;
+    return this.allComponentNames().filter(name => {
+      let metaName = 'meta-' + name
+      return self[metaName] && self[metaName].standardComponent
+    })
   }
 }

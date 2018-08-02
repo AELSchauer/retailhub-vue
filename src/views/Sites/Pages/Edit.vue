@@ -201,7 +201,6 @@ export default {
       })
     },
     showAddComponentMenu(componentPath="") {
-      console.log('componentPath', componentPath)
       this.pathForComponentAddingChild = componentPath;
       let component = _.get(this.model, componentPath) || this.model;
 
@@ -210,7 +209,6 @@ export default {
         let children = {
           components: component.bentoManifest.allowedComponentChildren(),
         }
-        console.log('children', children)
 
         if (manifest.isAllowedPartialsChildren) {
           let sitePartials = (site.partials || [])
@@ -241,7 +239,6 @@ export default {
       this.$modal.hide('add-child-menu');
     },
     removeComponent(path) {
-      console.log('path', path)
       let page = { children: _.cloneDeep(this.model.children) }
       let node = _.get(page, path)
 

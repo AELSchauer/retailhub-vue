@@ -105,6 +105,44 @@ export default {
           return false
         }
 
+        // Can't paste item if parent doesn't allow that type of component as a child.
+
+
+        // function allowedChildren(component, site) {
+        //   let manifest = component.bentoManifest;
+        //   let children = {
+        //     components: component.bentoManifest.allowedComponentChildren(),
+        //   }
+
+        //   if (manifest.isAllowedPartialsChildren) {
+        //     let sitePartials = (site.partials || [])
+
+        //     children.partials = sitePartials.map(partial => {
+        //       return _
+        //         .chain(manifest.$partial)
+        //         .cloneDeep()
+        //         .set('name', partial.name)
+        //         .value()
+        //     })
+        //   }
+
+        //   return children
+        // }
+        let manifest = this.$parent.model.bentoManifest
+        if (this.componentToGraft.model.type === 'partial') {
+          return manifest.isAllowedPartialsChildren()
+        }
+        else {
+          let allowedChildren = this.$parent.model.bentoManifest.allowedComponentChildren()
+          return _
+            .chain(allowedChildren)
+            .map(name => {
+              return name
+            })
+            .includes(this.componentToGraft.model.name)
+            .value()
+        }
+
         return true
       }
     },

@@ -4,7 +4,7 @@ import BentoManifest from './_manifest'
 export default class BentoComponent {
 
   constructor({name, type, meta={}, attributes={}, children=[]}={}) {
-    this.name       = name;
+    this.name       = (name || '').replace(/ /g, '-');
     this.type       = type;
     this.meta       = (meta || {});
     this.attributes = (attributes || {});
