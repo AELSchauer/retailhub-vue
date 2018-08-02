@@ -16,7 +16,7 @@
 import BentoDropDownAttribute from '@/components/site-editor/attributes/drop-down'
 import BentoRichTextAttribute from '@/components/site-editor/attributes/rich-text'
 import BentoTextAttribute from '@/components/site-editor/attributes/text'
-import BentoTokenAttribute from '@/components/site-editor/attributes/token'
+import BentoQueryAttribute from '@/components/site-editor/attributes/query'
 
 export default {
   name: 'bento-base-component-attributes',
@@ -35,7 +35,7 @@ export default {
     BentoDropDownAttribute,
     BentoRichTextAttribute,
     BentoTextAttribute,
-    BentoTokenAttribute
+    BentoQueryAttribute
   }
 }
 </script>

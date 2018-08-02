@@ -69,7 +69,6 @@ export default class Manifest {
         return child != '$partial'
       })
       .map(child => {
-        console.log('child', child)
         return Manifest.find(child, 'component')
       })
       .value();
@@ -122,11 +121,28 @@ export default class Manifest {
           required: false,
         },
         deals: {
-          type: 'token',
+          type: 'query',
           required: true,
         },
       },
       icon: 'shopping-cart',
+    }
+  }
+
+  get $if() {
+    return {
+      name: 'if',
+      allowsChildren:   true,
+      childrenRequired: true,
+      allowedChildren: this.standardComponents,
+      attributes: {
+        operator: {
+          type:      'drop-down',
+          required:  true,
+          whitelist: [ 'present', 'not-present' ],
+        },
+      },
+      icon: 'balance-scale',
     }
   }
 

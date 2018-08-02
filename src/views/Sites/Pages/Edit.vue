@@ -19,21 +19,24 @@
         </ul>
       </template>
     </modal>
-    <ul class="component-tree col-md-6">
-      <li>
-        <div class="add-child btn-sm float-right" @click="showAddChildMenu()">
+    <div class="component-tree col-md-6">
+      <div class="float-right">
+        <div
+          class="action-button btn btn-sm"
+          :class="{ 'paste-mode-disabled': !pasteModeEnabled }"
+        >
+          <font-awesome-icon :icon="['fas', 'times']" @click="cancelCopyCutPaste"/>
+        </div>
+        <div class="action-button empty btn btn-sm">.</div>
+        <div class="action-button add-child btn btn-sm" @click="showAddChildMenu()">
           <font-awesome-icon :icon="['fas', 'plus-square']"/>
         </div>
-      </li>
-      <template v-for="(bentoComponent, index) in model.children">
-        <bento-base-component-body
-          :key="bentoComponent.id"
-          :model="bentoComponent"
-          :bus="bus"
-          :index='index'
-        ></bento-base-component-body>
-      </template>
-    </ul>
+      </div>
+      <bento-component-tree
+        :model="model"
+        :bus="bus"
+      ></bento-component-tree>
+    </div>
     <div class="component-details-aside container col-md-6">
       <div class="row">
         <span class="col-md-11 component-name">
@@ -60,7 +63,6 @@
 <script>
 import Vue from 'vue'
 import { mapGetters } from 'vuex'
-import draggable from 'vuedraggable'
 import pluralize from 'pluralize'
 import json_api from '@/services/json-api'
 
@@ -68,7 +70,8 @@ import Page from '@/models/page'
 import BentoComponent from '@/models/bento/component'
 
 import BentoBaseComponentAttributes from '@/components/site-editor/bento-components/attributes'
-import BentoBaseComponentBody from '@/components/site-editor/bento-components/body'
+// import BentoComponentTree from '@/components/site-editor/bento-components/component-tree'
+// Pane: () => import('./Pane.vue'),
 
 
 export default {
@@ -114,6 +117,8 @@ export default {
       breadcrumbs: breadcrumbs,
       allowedChildren: [],
       pathForComponentAddingChild: null,
+      componentToCopyOrCut: null,
+      copyCutPasteMode: false,
       error:   false,
       loading: true,
       page_id: page_id,
@@ -125,6 +130,9 @@ export default {
   },
   computed: {
     ...mapGetters({ currentUser: 'currentUser' }),
+    pasteModeEnabled: function() {
+      return !!this.copyCutPasteMode;
+    }
   },
   created() {
     this.checkCurrentLogin()
@@ -147,6 +155,39 @@ export default {
     })
     this.bus.$on('removeComponent', (component) => {
       this.removeComponent(component.path)
+    })
+    this.bus.$on('copyOrCutComponent', (component, action) => {
+      this.componentToCopyOrCut = component;
+      this.copyCutPasteMode = action;
+    })
+    this.bus.$on('pasteComponent', (newIndex, newParentPath=[]) => {
+      let page = { children: _.cloneDeep(this.model.children) }
+
+      let oldPath = this.componentToCopyOrCut.path
+      let oldIndex = _.last(oldPath)
+      
+      let oldBranchPath = oldPath.slice(0, oldPath.length-1)
+      let newBranchPath = newParentPath.concat(['children'])
+
+      let newBranch =  _.get(page.children, newBranchPath) || page.children
+      let oldBranch =  _.get(page.children, oldBranchPath) || page.children
+      let node
+
+      if (this.copyCutPasteMode === 'cut') {
+        node = oldBranch.splice(oldIndex, 1)
+      }
+      else if (this.copyCutPasteMode === 'copy') {
+        node = [ oldBranch[oldIndex] ]
+      }
+
+      let before = newBranch.slice(0, newIndex)
+      let after = newBranch.slice(newIndex)
+      newBranch = before.concat(node).concat(after)
+
+      _.set(page, ['children'].concat(newBranchPath), newBranch)
+
+      this.model.children = page.children
+      this.copyCutPasteMode = false;
     })
   },
   methods: {
@@ -249,14 +290,18 @@ export default {
         this.model.children = children
       }
     },
+    cancelCopyCutPaste() {
+      this.copyCutPasteMode = false;
+      this.bus.$emit('pasteComponent', null)
+    },
     consoleLogBody() {
       this.model.getJsonBody()
     }
   },
   components: {
     BentoBaseComponentAttributes,
-    BentoBaseComponentBody,
-    draggable
+    // BentoComponentTree,
+    BentoComponentTree: () => import('@/components/site-editor/bento-components/component-tree.vue'),
   }
 }
 </script>
@@ -308,5 +353,11 @@ a {
   &:hover {
     color: #42b983;
   }
+}
+.action-button {
+  width: 29px;
+}
+.empty, .paste-mode-disabled {
+  visibility: hidden;
 }
 </style>

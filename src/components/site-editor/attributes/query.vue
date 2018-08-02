@@ -23,57 +23,9 @@
           <div>
             <label>args</label>
             <table>
-              <tr v-for="(arg, i) in changeset.args" class="arg-row">
-                <td>{{arg.name}}</td>
-                <td v-if="arg.name === 'filter'">
-                  <tr v-for="(opt, j) in arg.opts" class="opt-row">
-                    <td><input type="text" v-model="opt.attr"></td>
-                    <td>=</td>
-                    <td><input type="text" v-model="opt.value"></td>
-                    <td v-if="!(j === 0 && arg.opts.length === 1)">
-                      <font-awesome-icon
-                        @click="removeOpt(arg, j)"
-                        :icon="['fas', 'minus-square']"
-                      />
-                    </td>
-                    <td v-if="(j + 1) === arg.opts.length">
-                      <font-awesome-icon
-                        @click="addOpt(arg, 'sort')"
-                        :icon="['fas', 'plus-square']"
-                      />
-                    </td>
-                  </tr>
-                </td>
-                <td v-else-if="arg.name === 'sort'">
-                  <tr v-for="(opt, j) in arg.opts" class="opt-row">
-                    <td><input type="text" v-model="opt.attr"></td>
-                    <td>
-                      <select v-model="opt.order">
-                        <option>asc</option>
-                        <option>desc</option>
-                      </select>
-                    </td>
-                    <td v-if="!(j === 0 && arg.opts.length === 1)">
-                      <font-awesome-icon
-                        @click="removeOpt(arg, j)"
-                        :icon="['fas', 'minus-square']"
-                      />
-                    </td>
-                    <td v-if="(j + 1) === arg.opts.length">
-                      <font-awesome-icon
-                        @click="addOpt(arg, 'sort')"
-                        :icon="['fas', 'plus-square']"
-                      />
-                    </td>
-                  </tr>
-                </td>
-                <td>
-                  <font-awesome-icon
-                    @click="removeArg(i)"
-                    :icon="['fas', 'minus-square']"
-                  />
-                </td>
-              </tr>
+              <template v-for="(arg, i) in changeset.args">
+                <component :is="`bento-query-args-${arg.name}`" :arg="arg"></component>
+              </template>
             </table>
             <select value="" @input="addArg($event.target.value)">
               <option></option>
@@ -94,10 +46,12 @@
 <script>
 import _ from 'lodash'
 import TokenConverter from '@/helpers/token-converter'
-import FormInput from '@/components/form-elements/input'
+
+import BentoQueryArgsFilter from './query-args/filter'
+import BentoQueryArgsSort from './query-args/sort'
 
 export default {
-  name: 'bento-token-attribute',
+  name: 'bento-query-attribute',
   data() {
     return {
       isShowingAttributeInput: false,
@@ -178,24 +132,23 @@ export default {
       }
     },
     addArg(name) {
+      let args = this.changeset.args
       if (name === 'filter') {
-        this.changeset.args.push({ name: name, attr: 'attr', value: 'value' })
+        args.push({ name: name, attr: 'attr', value: 'value' })
       }
       else if (name === 'sort') {
-        this.changeset.args.push({ name: name, opts: [{ attr: 'attr', order: 'asc' }] })
+        args.push({ name: name, opts: [{ attr: 'attr', order: 'asc' }] })
       }
+
+      this.changeset.args = args
+      console.log('changeset 2', this.changeset)
     },
     removeArg(index) {
       let args = this.changeset.args
       this.changeset.args = args.slice(0, index).concat(args.slice(index+1, args.length))
     },
-    addOpt(arg, name) {
-      if (name === 'filter') {
-        arg.opts.push({ attr: 'attr', value: 'value' })
-      }
-      else if (name === 'sort') {
-        arg.opts.push({ attr: 'attr', order: 'asc' })
-      }
+    addOpt(arg, opt) {
+      arg.opts.push(opt)
     },
     removeOpt(arg, index) {
       let opts = arg.opts
@@ -235,7 +188,8 @@ export default {
     },
   },
   components: {
-    FormInput,
+    BentoQueryArgsFilter,
+    BentoQueryArgsSort,
   },
 }
 </script>
