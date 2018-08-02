@@ -5,14 +5,14 @@
       <div class="component-button-wrapper">
         <div @click="viewDetails" class="btn btn-sm details-button">details</div>
         <div v-if="!pasteModeEnabled"
-          @click="copyOrCutComponent('copy')"
+          @click="graftComponent('copy')"
           class="btn btn-sm action-button copy-button"
         >
           <font-awesome-icon :icon="['fa', 'copy']"/>
         </div>
         <div v-else class="empty">.</div>
         <div v-if="!pasteModeEnabled"
-          @click="copyOrCutComponent('cut')"
+          @click="graftComponent('cut')"
           class="btn btn-sm action-button cut-button"
         >
           <font-awesome-icon :icon="['fa', 'cut']"/>
@@ -70,11 +70,11 @@ export default {
       }
     },
     canPaste: function() {
-      let component = this.componentToCopyOrCut;
+      let component = this.componentToGraft;
     }
   },
   created() {
-    this.bus.$on('copyOrCutComponent', (component, action) => {
+    this.bus.$on('graftComponent', (component, action) => {
       this.pasteModeEnabled = true;
     })
     this.bus.$on('pasteComponent', () => {
@@ -91,8 +91,8 @@ export default {
     removeComponent() {
       this.bus.$emit('removeComponent', this)
     },
-    copyOrCutComponent(action) {
-      this.bus.$emit('copyOrCutComponent', this, action)
+    graftComponent(action) {
+      this.bus.$emit('graftComponent', this, action)
     },
   },
   components: {

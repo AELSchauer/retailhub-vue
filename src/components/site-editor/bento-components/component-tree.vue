@@ -1,6 +1,6 @@
 <template>
   <ul>
-    <li v-if="showPasteOption(-1)" class="paste-placeholder component-wrapper">
+    <li v-if="showPastePlaceholder(-1)" class="paste-placeholder component-wrapper">
       <div class="component-data">
         <div class="component-title">paste here</div>
         <div class="component-button-wrapper">
@@ -21,7 +21,7 @@
         :bus="bus"
         :index="index"
       ></bento-component-node>
-      <li v-if="showPasteOption(index)" class="paste-placeholder component-wrapper">
+      <li v-if="showPastePlaceholder(index)" class="paste-placeholder component-wrapper">
         <div class="component-data">
           <div class="component-title">paste here</div>
           <div class="component-button-wrapper">
@@ -45,8 +45,8 @@ export default {
   name: 'bento-component-tree',
   data() {
     return {
-      copyCutPasteMode: false,
-      componentToCopyOrCut: null,
+      graftMode: false,
+      componentToGraft: null,
     }
   },
   props: {
@@ -60,27 +60,24 @@ export default {
     },
   },
   created() {
-    this.bus.$on('copyOrCutComponent', (component, action) => {
-      this.componentToCopyOrCut = component;
+    this.bus.$on('graftComponent', (component, action) => {
+      this.componentToGraft = component;
     })
     this.bus.$on('pasteComponent', () => {
-      this.componentToCopyOrCut = null;
+      this.componentToGraft = null;
     })
   },
   methods: {
     pasteComponent(newIndex) {
-      console.log('newIndex', newIndex)
-      console.log('this.$parent.path', this.$parent.path)
-      console.log('this.componentToCopyOrCut.path', this.componentToCopyOrCut.path)
       this.bus.$emit('pasteComponent', newIndex + 1, this.$parent.path)
     },
-    showPasteOption(index) {
+    showPastePlaceholder(index) {
       // Only show if mode is enabled.
-      if (!this.componentToCopyOrCut) {
+      if (!this.componentToGraft) {
         return false
       }
 
-      let component = this.componentToCopyOrCut;
+      let component = this.componentToGraft;
 
       if (component) {
         // Can't paste item to the same index of the current parent.

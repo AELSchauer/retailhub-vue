@@ -25,7 +25,7 @@
           class="action-button btn btn-sm"
           :class="{ 'paste-mode-disabled': !pasteModeEnabled }"
         >
-          <font-awesome-icon :icon="['fas', 'times']" @click="cancelCopyCutPaste"/>
+          <font-awesome-icon :icon="['fas', 'times']" @click="cancelGraft"/>
         </div>
         <div class="action-button empty btn btn-sm">.</div>
         <div class="action-button add-child btn btn-sm" @click="showAddChildMenu()">
@@ -117,8 +117,8 @@ export default {
       breadcrumbs: breadcrumbs,
       allowedChildren: [],
       pathForComponentAddingChild: null,
-      componentToCopyOrCut: null,
-      copyCutPasteMode: false,
+      componentToGraft: null,
+      graftMode: false,
       error:   false,
       loading: true,
       page_id: page_id,
@@ -131,7 +131,7 @@ export default {
   computed: {
     ...mapGetters({ currentUser: 'currentUser' }),
     pasteModeEnabled: function() {
-      return !!this.copyCutPasteMode;
+      return !!this.graftMode;
     }
   },
   created() {
@@ -156,38 +156,12 @@ export default {
     this.bus.$on('removeComponent', (component) => {
       this.removeComponent(component.path)
     })
-    this.bus.$on('copyOrCutComponent', (component, action) => {
-      this.componentToCopyOrCut = component;
-      this.copyCutPasteMode = action;
+    this.bus.$on('graftComponent', (component, action) => {
+      this.componentToGraft = component;
+      this.graftMode = action;
     })
     this.bus.$on('pasteComponent', (newIndex, newParentPath=[]) => {
-      let page = { children: _.cloneDeep(this.model.children) }
-
-      let oldPath = this.componentToCopyOrCut.path
-      let oldIndex = _.last(oldPath)
-      
-      let oldBranchPath = oldPath.slice(0, oldPath.length-1)
-      let newBranchPath = newParentPath.concat(['children'])
-
-      let newBranch =  _.get(page.children, newBranchPath) || page.children
-      let oldBranch =  _.get(page.children, oldBranchPath) || page.children
-      let node
-
-      if (this.copyCutPasteMode === 'cut') {
-        node = oldBranch.splice(oldIndex, 1)
-      }
-      else if (this.copyCutPasteMode === 'copy') {
-        node = [ oldBranch[oldIndex] ]
-      }
-
-      let before = newBranch.slice(0, newIndex)
-      let after = newBranch.slice(newIndex)
-      newBranch = before.concat(node).concat(after)
-
-      _.set(page, ['children'].concat(newBranchPath), newBranch)
-
-      this.model.children = page.children
-      this.copyCutPasteMode = false;
+      this.commitGraft(newIndex, newParentPath)
     })
   },
   methods: {
@@ -290,8 +264,37 @@ export default {
         this.model.children = children
       }
     },
-    cancelCopyCutPaste() {
-      this.copyCutPasteMode = false;
+    commitGraft(newIndex, newParentPath) {
+      let page = { children: _.cloneDeep(this.model.children) }
+
+      let oldPath = this.componentToGraft.path
+      let oldIndex = _.last(oldPath)
+
+      let oldBranchPath = oldPath.slice(0, oldPath.length-1)
+      let newBranchPath = newParentPath.concat(['children'])
+
+      let oldBranch =  _.get(page.children, oldBranchPath) || page.children
+      let newBranch =  _.get(page.children, newBranchPath) || page.children
+      let node
+
+      if (this.graftMode === 'cut') {
+        node = oldBranch.splice(oldIndex, 1)
+      }
+      else if (this.graftMode === 'copy') {
+        node = [ oldBranch[oldIndex] ]
+      }
+
+      let before = newBranch.slice(0, newIndex)
+      let after = newBranch.slice(newIndex)
+      newBranch = before.concat(node).concat(after)
+
+      _.set(page, newBranchPath, newBranch)
+
+      this.model.children = page.children
+      this.graftMode = false;
+    },
+    cancelGraft() {
+      this.graftMode = false;
       this.bus.$emit('pasteComponent', null)
     },
     consoleLogBody() {
