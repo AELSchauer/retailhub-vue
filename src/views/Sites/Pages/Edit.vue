@@ -11,7 +11,7 @@
         <h4>{{category}}</h4>
         <ul class="allowed-children-list">
           <li v-for="component in components"
-            @click="addChild(component.name, category)"
+            @click="addComponent(component.name, category)"
           >
             <font-awesome-icon :icon="component.icon" />
             {{component.name}}
@@ -28,7 +28,7 @@
           <font-awesome-icon :icon="['fas', 'times']" @click="cancelGraft"/>
         </div>
         <div class="action-button empty btn btn-sm">.</div>
-        <div class="action-button add-child btn btn-sm" @click="showAddChildMenu()">
+        <div class="action-button add-child btn btn-sm" @click="showAddComponentMenu()">
           <font-awesome-icon :icon="['fas', 'plus-square']"/>
         </div>
       </div>
@@ -147,11 +147,12 @@ export default {
     this.bus.$on('selectComponent', (component) => {
       this.viewComponentDetails(component.model)
     })
-    this.bus.$on('showAddChildMenu', (component) => {
-      this.showAddChildMenu(component.path)
+    this.bus.$on('showAddComponentMenu', (component) => {
+      console.log('showAddComponentMenu', component)
+      this.showAddComponentMenu(component.path)
     })
-    this.bus.$on('addChild', (name, type) => {
-      this.addChild(name, type)
+    this.bus.$on('addComponent', (name, type) => {
+      this.addComponent(name, type)
     })
     this.bus.$on('removeComponent', (component) => {
       this.removeComponent(component.path)
@@ -203,9 +204,10 @@ export default {
         this.loading = false
       })
     },
-    showAddChildMenu(componentPath="") {
+    showAddComponentMenu(componentPath="") {
+      console.log('componentPath', componentPath)
       this.pathForComponentAddingChild = componentPath;
-      let component = _.get(this.model.children, componentPath) || this.model
+      let component = _.get(this.model, componentPath) || this.model;
 
       function allowedChildren(component, site) {
         let manifest = component.bentoManifest;
@@ -232,18 +234,14 @@ export default {
       this.allowedChildren = allowedChildren(component, this.model.site)
       this.$modal.show('add-child-menu');
     },
-    addChild(name, type) {
-      let children = this.model.children
+    addComponent(name, type) {
+      let page = { children: _.cloneDeep(this.model.children) }
+      let branchPath = this.pathForComponentAddingChild.concat(['children'])
+      let branch = _.get(page, branchPath)
 
-      if (this.pathForComponentAddingChild.length) {
-        let component = _.get(children, this.pathForComponentAddingChild)
-        component.children.push(new BentoComponent({ name: name, type: pluralize.singular(type) }))
-      }
-      else {
-        children.push(new BentoComponent({ name: name, type: pluralize.singular(type) }))
-      }
+      branch.push(new BentoComponent({ name: name, type: pluralize.singular(type) }))
 
-      this.model.children = children
+      this.model.children = page.children
       this.$modal.hide('add-child-menu');
     },
     removeComponent(path) {
@@ -273,8 +271,8 @@ export default {
       let oldBranchPath = oldPath.slice(0, oldPath.length-1)
       let newBranchPath = newParentPath.concat(['children'])
 
-      let oldBranch =  _.get(page.children, oldBranchPath) || page.children
-      let newBranch =  _.get(page.children, newBranchPath) || page.children
+      let oldBranch =  _.get(page, oldBranchPath) || page;
+      let newBranch =  _.get(page, newBranchPath) || page;
       let node
 
       if (this.graftMode === 'cut') {

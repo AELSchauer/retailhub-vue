@@ -25,7 +25,7 @@
           <font-awesome-icon :icon="['fas', 'minus-square']"/>
         </div>
         <div v-if="allowsChildren"
-          @click="showAddChildMenu"
+          @click="showAddComponentMenu"
           class="btn btn-sm action-button add-button"
         >
           <font-awesome-icon :icon="['fas', 'plus-square']"/>
@@ -61,13 +61,8 @@ export default {
       return this.model.bentoManifest.find().allowsChildren
     },
     path: function() {
-      let parentPath = this.$parent.$parent.path
-      if (parentPath) {
-        return parentPath.concat(['children', this.index])
-      }
-      else {
-        return [this.index]
-      }
+      let parentPath = this.$parent.$parent.path || [];
+      return parentPath.concat([ 'children', this.index ])
     },
     canPaste: function() {
       let component = this.componentToGraft;
@@ -85,8 +80,8 @@ export default {
     viewDetails() {
       this.bus.$emit('selectComponent', this)
     },
-    showAddChildMenu() {
-      this.bus.$emit('showAddChildMenu', this)
+    showAddComponentMenu() {
+      this.bus.$emit('showAddComponentMenu', this)
     },
     removeComponent() {
       this.bus.$emit('removeComponent', this)
