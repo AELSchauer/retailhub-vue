@@ -11,7 +11,7 @@ export default class Page extends Model {
       id:         this.attr(null),
       type:       this.attr('pages'),
       path:       this.attr(''),
-      properties: this.attr(''),
+      properties: this.attr({}),
       
       site_id: this.attr(null),
 
@@ -22,11 +22,20 @@ export default class Page extends Model {
     }
   }
 
+  serializedChanges() {
+    return { properties: this.properties }
+  }
+
   getJsonBody() {
     return JSON.stringify(this.properties.body)
   }
 
+  getJsonVariables() {
+    return JSON.stringify(this.properties.variables)
+  }
+
   get body() {
+    console.log('wut', this.properties.body.constructor.name)
     return this.properties.body
   }
 

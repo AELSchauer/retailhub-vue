@@ -37,6 +37,7 @@
         :bus="bus"
       ></bento-component-tree>
       <button @click="consoleLogBody">view json</button>
+      <div @click="saveModel" class="btn btn-primary">save</div>
     </div>
     <div class="component-details-aside container col-md-6">
       <div class="row">
@@ -75,6 +76,7 @@ import BentoBaseComponentAttributes from '@/components/site-editor/bento-compone
 export default {
   name: 'SitePageEdit',
   data() {
+    let site_id = this.$route.params.site_id
     let page_id = this.$route.params.page_id
     let page_name = this.$route.params.page_name
     let site_name = this.$route.params.site_name
@@ -120,6 +122,7 @@ export default {
       error:   false,
       loading: true,
       page_id: page_id,
+      site_id: site_id,
       page:    null,
       bus:     new Vue(),
 
@@ -159,7 +162,6 @@ export default {
       this.graftMode = action;
     })
     this.bus.$on('pasteComponent', (newIndex, newParentPath) => {
-      console.log('newIndex', newIndex)
       if (newIndex != undefined) {
         this.commitGraft(newIndex, newParentPath)
       }
@@ -273,9 +275,6 @@ export default {
       let newBranch =  _.get(page, newBranchPath) || page;
       let node
 
-      console.log('oldBranch 1', oldBranch)
-      console.log('newBranch 1', newBranch)
-
       if (this.graftMode === 'cut') {
         node = oldBranch.splice(oldIndex, 1)
       }
@@ -289,9 +288,6 @@ export default {
 
       _.set(page, newBranchPath, newBranch)
 
-      console.log('oldBranch 2', oldBranch)
-      console.log('newBranch 2', newBranch)
-
       this.model.children = page.children
       this.graftMode = false;
     },
@@ -301,7 +297,32 @@ export default {
     },
     consoleLogBody() {
       console.log(this.model.getJsonBody())
-    }
+    },
+    saveModel() {
+      this.loading = true;
+      json_api.updateRecord({
+        resource: 'pages',
+        id:       this.page_id,
+        body: {
+          data: {
+            id: this.model.id,
+            type: this.model.type,
+            attributes: this.model.serializedChanges(),
+          }
+        }
+      })
+      .then(() => {
+        this.saved = true
+        this.$router.push('/sites/' + this.site_id +'/pages/' + this.page_id)
+      })
+      .catch((error) => {
+        console.error('request failed', error);
+        this.error = true;
+      })
+      .finally(() => {
+        this.loading = false
+      })
+    },
   },
   components: {
     BentoBaseComponentAttributes,
