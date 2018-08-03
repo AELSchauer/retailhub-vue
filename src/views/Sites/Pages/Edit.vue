@@ -158,7 +158,14 @@ export default {
       this.graftMode = action;
     })
     this.bus.$on('pasteComponent', (newIndex, newParentPath) => {
-      this.commitGraft(newIndex, newParentPath)
+      console.log('newIndex', newIndex)
+      if (newIndex) {
+        this.commitGraft(newIndex, newParentPath)
+      }
+      else {
+        this.componentToGraft = null;
+        this.graftMode = false
+      }
     })
   },
   methods: {
@@ -286,7 +293,7 @@ export default {
     },
     cancelGraft() {
       this.graftMode = false;
-      this.bus.$emit('pasteComponent', null)
+      this.bus.$emit('pasteComponent')
     },
     consoleLogBody() {
       this.model.getJsonBody()
