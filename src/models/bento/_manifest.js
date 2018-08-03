@@ -224,7 +224,7 @@ export default class Manifest {
   get '$nav-link'() {
     return _
     .chain({
-      name: 'nav link',
+      name: 'nav-link',
       allowedChildren: [
         'image',
         'text',
@@ -242,7 +242,7 @@ export default class Manifest {
 
   get '$nav-menu'() {
     return {
-      name: 'nav menu',
+      name: 'nav-menu',
       icon: 'bars',
       allowsChildren: true,
       childrenRequired: true,

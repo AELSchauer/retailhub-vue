@@ -23,7 +23,6 @@ export default class Page extends Model {
   }
 
   getJsonBody() {
-    console.log(JSON.stringify(this.properties.body))
     return JSON.stringify(this.properties.body)
   }
 
@@ -54,7 +53,6 @@ export default class Page extends Model {
   }
 
   get bentoManifest() {
-    console.log('wtf bentoManifest')
     return BentoManifest.build('container', 'component')
   }
 }

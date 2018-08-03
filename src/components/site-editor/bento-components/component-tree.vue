@@ -62,6 +62,7 @@ export default {
   created() {
     this.bus.$on('graftComponent', (component, action) => {
       this.componentToGraft = component;
+      this.graftMode = action;
     })
     this.bus.$on('pasteComponent', () => {
       this.componentToGraft = null;
@@ -80,15 +81,14 @@ export default {
       let component = this.componentToGraft;
 
       if (component) {
-        // Can't paste item to the same index of the current parent.
-        if (this.model === component.$parent.model) {
+        // If cutting component, can't paste the component to be at the same position.
+        if (this.graftMode === 'cut' && this.model === component.$parent.model) {
           if (component.$parent.model.children.length === 1) {
             return false
           }
           else if (_.last(component.path) === index || _.last(component.path) === (index + 1)) {
             return false
           }
-
           return true
         }
 
@@ -105,29 +105,7 @@ export default {
           return false
         }
 
-        // Can't paste item if parent doesn't allow that type of component as a child.
-
-
-        // function allowedChildren(component, site) {
-        //   let manifest = component.bentoManifest;
-        //   let children = {
-        //     components: component.bentoManifest.allowedComponentChildren(),
-        //   }
-
-        //   if (manifest.isAllowedPartialsChildren) {
-        //     let sitePartials = (site.partials || [])
-
-        //     children.partials = sitePartials.map(partial => {
-        //       return _
-        //         .chain(manifest.$partial)
-        //         .cloneDeep()
-        //         .set('name', partial.name)
-        //         .value()
-        //     })
-        //   }
-
-        //   return children
-        // }
+        // Can't paste item if parent doesn't allow that component as a child.
         let manifest = this.$parent.model.bentoManifest
         if (this.componentToGraft.model.type === 'partial') {
           return manifest.isAllowedPartialsChildren()
@@ -136,8 +114,8 @@ export default {
           let allowedChildren = this.$parent.model.bentoManifest.allowedComponentChildren()
           return _
             .chain(allowedChildren)
-            .map(name => {
-              return name
+            .map(child => {
+              return child.name
             })
             .includes(this.componentToGraft.model.name)
             .value()

@@ -36,6 +36,7 @@
         :model="model"
         :bus="bus"
       ></bento-component-tree>
+      <button @click="consoleLogBody">view json</button>
     </div>
     <div class="component-details-aside container col-md-6">
       <div class="row">
@@ -159,7 +160,7 @@ export default {
     })
     this.bus.$on('pasteComponent', (newIndex, newParentPath) => {
       console.log('newIndex', newIndex)
-      if (newIndex) {
+      if (newIndex != undefined) {
         this.commitGraft(newIndex, newParentPath)
       }
       else {
@@ -254,7 +255,7 @@ export default {
         let branch = _.get(page, path.slice(0, path.length-1))
         let index = _.last(path)
 
-        branch.splice(index)
+        branch.splice(index, 1)
 
         this.model.children = page.children
       }
@@ -272,6 +273,9 @@ export default {
       let newBranch =  _.get(page, newBranchPath) || page;
       let node
 
+      console.log('oldBranch 1', oldBranch)
+      console.log('newBranch 1', newBranch)
+
       if (this.graftMode === 'cut') {
         node = oldBranch.splice(oldIndex, 1)
       }
@@ -285,6 +289,9 @@ export default {
 
       _.set(page, newBranchPath, newBranch)
 
+      console.log('oldBranch 2', oldBranch)
+      console.log('newBranch 2', newBranch)
+
       this.model.children = page.children
       this.graftMode = false;
     },
@@ -293,7 +300,7 @@ export default {
       this.bus.$emit('pasteComponent')
     },
     consoleLogBody() {
-      this.model.getJsonBody()
+      console.log(this.model.getJsonBody())
     }
   },
   components: {
