@@ -3,6 +3,8 @@ import Site from './page'
 import BentoComponent from './bento/component'
 import BentoManifest from './bento/_manifest'
 
+const requiredPages = [ '/', '/:four_oh_four*' ]
+
 export default class Page extends Model {
   static entity = 'pages'
 
@@ -35,7 +37,6 @@ export default class Page extends Model {
   }
 
   get body() {
-    console.log('wut', this.properties.body.constructor.name)
     return this.properties.body
   }
 
@@ -45,7 +46,7 @@ export default class Page extends Model {
 
   get children() {
     return this.body.map(component => {
-      return new BentoComponent(component)
+      return new BentoComponent(component, 'page')
     })
   }
 
@@ -63,5 +64,9 @@ export default class Page extends Model {
 
   get bentoManifest() {
     return BentoManifest.build('container', 'component')
+  }
+
+  get isRequiredPage() {
+    return _.includes(requiredPages, this.path)
   }
 }

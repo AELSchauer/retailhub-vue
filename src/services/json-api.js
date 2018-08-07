@@ -151,16 +151,18 @@ export default class JsonApi {
           throw response
         }
         let convertedData = { data: this.convertJsonToRest(response.data) }
-        this.include.split(',').forEach(i => {
-          let includeResources = i.split('.')
-          let includeQueried = `$${includeResources.pop()}_queried`
-          convertedData.data.forEach(record => {
-            includeResources.forEach(resource => {
-              record = record[resource]
+        if (this.include) {
+          this.include.split(',').forEach(i => {
+            let includeResources = i.split('.')
+            let includeQueried = `$${includeResources.pop()}_queried`
+            convertedData.data.forEach(record => {
+              includeResources.forEach(resource => {
+                record = record[resource]
+              })
+              record[includeQueried] = true
             })
-            record[includeQueried] = true
           })
-        })
+        }
 
         $store.dispatch(`entities/${this.resource}/${this.storeMethod}`, convertedData )
       }).then(() => {
@@ -242,6 +244,7 @@ export default class JsonApi {
   }
 
   updateRecord() {
+    console.log('this', this)
     return $http.request({
       method: 'patch',
       url: this.url,

@@ -3,6 +3,7 @@ import moment from 'moment'
 
 import Model from '@/services/extended-vuex-orm-model'
 import Page from './page'
+import BentoPartial from './bento/partial'
 
 export default class Site extends Model {
   static entity = 'sites'
@@ -14,9 +15,8 @@ export default class Site extends Model {
       name:                  this.attr(''),
       is_published:          this.attr(false),
       published_at:          this.attr(''),
-      canonical_domain_name: this.attr(''),
       is_live:               this.attr(false),
-      properties:            this.attr(''),
+      properties:            this.attr({}),
       
       pages: this.hasMany(Page, 'site_id'),
 
@@ -37,8 +37,23 @@ export default class Site extends Model {
     return ['published_at']
   }
 
+  serializedProperties() {
+    let properties = this.properties
+    properties.partials = properties.partials.map(partial => partial.toJSON())
+    return { properties: properties }
+  }
+
   get partials() {
-    return this.properties.partials
+    return this.properties.partials.map(partial => {
+      if (partial.constructor.name === 'Object') {
+        return new BentoPartial(partial)
+      }
+      return partial
+    })
+  }
+
+  set partials(newValue) {
+    this.properties.partials = newValue
   }
 
   get(attr) {

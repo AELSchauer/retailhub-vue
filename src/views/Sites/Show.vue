@@ -9,17 +9,38 @@
         <div v-if="editName" class="row">
           <span class="col-md-10">Input goes here</span>
           <div class="col-md-1">
-            <button class="btn" disabled="">save</button>
+            <div class="btn button-custom" disabled="">save</div>
           </div>
           <div class="col-md-1">
-            <button class="btn" @click="toggleEditName()">cancel</button>
+            <div class="btn button-custom" @click="toggleEditName()">cancel</div>
           </div>
         </div>
         <div v-else class="row">
           <h2 class="section-title col-md-11">{{ get('name') }}</h2>
           <div class="col-md-1">
-            <button class="btn" @click="toggleEditName()">edit</button>
+            <div class="btn button-custom" @click="toggleEditName()">edit</div>
           </div>
+        </div>
+        <hr>
+        <div class="partials-section">
+          <h2>partials</h2>
+          <ul>
+            <li v-for="partial in model.partials">
+              <router-link 
+                :to="{
+                  name: 'SitePartialEdit',
+                  params: {
+                    site_id: model.id,
+                  },
+                  query: {
+                    names: partial.name
+                  }
+                }"
+              >
+                {{ partial.name }}
+              </router-link>
+            </li>
+          </ul>
         </div>
         <hr>
         <div class="pages-section">
@@ -29,27 +50,12 @@
               <td>path</td>
               <td></td>
             </th>
-            <tr v-for="page in model.pages">
-              <td class="page-name">
-                {{ page.path }}
-              </td>
-              <td class="page-actions">
-                <router-link 
-                  :to="{
-                    name: 'SitePageEdit',
-                    params: {
-                      page_id: page.id,
-                      page_name: page.path,
-                      site_name: model.name,
-                    }
-                  }"
-                  class='btn edit-button col-md-1'
-                >
-                  Edit
-                </router-link>
-                <em>buttons go here</em>
-              </td>
-            </tr>
+            <template v-for="page in model.pages">
+              <site-page-details
+                :model="page"
+                :site="model"
+              ></site-page-details>
+            </template>
           </table>
         </div>
       </div>
@@ -63,6 +69,8 @@ import json_api from '@/services/json-api'
 
 import Site from '@/models/site'
 import Page from '@/models/page'
+
+import SitePageDetails from '@/components/sites/page-details'
 
 export default {
   name: 'SiteShow',
@@ -85,6 +93,8 @@ export default {
       loading:  true,
       error:    false,
       site_id:  id,
+
+      newPartial: null,
     }
   },
   computed: {
@@ -156,12 +166,14 @@ export default {
     },
     toggleEditName() {
       this.editName = !this.editName
-    }
+    },
+  },
+  components: {
+    SitePageDetails,
   }
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 h1, h2 {
   font-weight: normal;
@@ -176,11 +188,10 @@ li {
   text-align: left;
 }
 .btn {
-  background-color: #42b983;
   color: #fff;
-  width: 100%;
 }
-.page-name {
-  padding: 0 10px 0 0;
+.button-custom {
+  width: 100%;
+  background-color: #42b983;
 }
 </style>
