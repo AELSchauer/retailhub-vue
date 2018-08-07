@@ -6,10 +6,10 @@
     Loading...
   </div>
   <div v-else>
-    <modal name="new-partial-form">
-      <input v-model="newPartial" type="text" name="newPartial">
-      <div class="btn button-custom" @click="createNewPartial">create</div>
-      <div class="btn button-custom" @click="cancelNewPartial">cancel</div>
+    <modal name="partial-form">
+      <input v-model="partialName" type="text" name="partialName">
+      <div class="btn button-custom" @click="getPartialAction">{{ partialAction }}</div>
+      <div class="btn button-custom" @click="cancelPartialAction">cancel</div>
     </modal>
     <modal name="add-child-menu">
       <template v-for="(components, category) in allowedChildren">
@@ -27,7 +27,9 @@
     <div class="row">
       <div class="component-tree col-md-6">
         <div class="page-action-buttons">
-          <div class="action-button add-partial btn btn-sm float-right" @click="$modal.show('new-partial-form')">
+          <div @click="setPartialAction('add')"
+            class="action-button add-partial btn btn-sm float-right"
+          >
             <font-awesome-icon :icon="['fas', 'plus-square']"/>
           </div>
         </div>
@@ -38,6 +40,11 @@
                 {{ partial.name }}
               </div>
               <div class="component-button-wrapper">
+                <div @click="setPartialAction('edit', partial.name)"
+                  class="action-button edit-partial btn btn-sm"
+                >
+                  <font-awesome-icon :icon="['fas', 'edit']"/>
+                </div>
                 <div
                   @click="removePartial(partial.name)"
                   class="btn btn-sm action-button remove-button"
@@ -138,10 +145,11 @@ export default {
       site_id: site_id,
       bus:     new Vue(),
 
-      newPartial: null,
+      partialName: null,
       activePartial: 0,
       allowedChildren: [],
-      componentAction: 'addComponent',
+      componentAction: null,
+      partialAction: null,
       pathForComponentAddingChild: null,
       componentToGraft: null,
       graftMode: false,
@@ -253,15 +261,33 @@ export default {
       this.cancelGraft();
       this.closeComponentDetails();
     },
-    createNewPartial() {
-      let partials = this.model.partials
-      partials.push(new BentoPartial({ name: this.newPartial }))
-      this.model.partials = partials
-      this.cancelNewPartial()
+    getPartialAction() {
+      let partialMethod = `${this.partialAction}Partial`
+      this[partialMethod]();
     },
-    cancelNewPartial() {
-      this.newPartial = null
-      this.$modal.hide('new-partial-form')
+    setPartialAction(action, partialName) {
+      this.partialAction = action
+      if (action === 'edit') {
+        this.partialName = partialName
+        this.partialIndex = this.getPartialIndex(partialName)
+      }
+      this.$modal.show('partial-form')
+    },
+    addPartial() {
+      let partials = this.model.partials
+      partials.push(new BentoPartial({ name: this.partialName }))
+      this.model.partials = partials
+      this.cancelPartialAction()
+    },
+    editPartial() {
+      let partials = this.model.partials
+      partials[this.partialIndex].name = this.partialName
+      this.model.partials = partials
+      this.cancelPartialAction()
+    },
+    cancelPartialAction() {
+      this.partialName = null
+      this.$modal.hide('partial-form')
     },
     removePartial(partialName) {
       let confirm = window.confirm(`This partial will be PERMANENTLY deleted. Continue?`)
