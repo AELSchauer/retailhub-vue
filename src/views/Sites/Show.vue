@@ -24,21 +24,19 @@
         <hr>
         <div class="partials-section">
           <h2>partials</h2>
+          <router-link 
+            :to="{
+              name: 'SitePartialEdit',
+              params: {
+                site_id: model.id,
+              }
+            }"
+          >
+            edit
+          </router-link>
           <ul>
             <li v-for="partial in model.partials">
-              <router-link 
-                :to="{
-                  name: 'SitePartialEdit',
-                  params: {
-                    site_id: model.id,
-                  },
-                  query: {
-                    names: partial.name
-                  }
-                }"
-              >
-                {{ partial.name }}
-              </router-link>
+              {{ partial.name }}
             </li>
           </ul>
         </div>

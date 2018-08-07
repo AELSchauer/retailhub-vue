@@ -32,9 +32,20 @@
           </div>
         </div>
         <template v-for="(partial, index) in partials">
-          <div class="partial">
-            <div class="partial-name" @click="switchActivePartial(index)">
-              {{ partial.name }} -- {{ activePartial === index }}
+          <div class="component-wrapper">
+            <div class="component-data">
+              <div class="component-title" @click="switchActivePartial(index)">
+                {{ partial.name }}
+              </div>
+              <div class="component-button-wrapper">
+                <div
+                  @click="removePartial(partial.name)"
+                  class="btn btn-sm action-button remove-button"
+                >
+                  <font-awesome-icon :icon="['fas', 'minus-square']"/>
+                </div>
+                <div class="empty">.</div>
+              </div>
             </div>
             <div v-if="activePartial === index"
               class="partial-content"
@@ -252,6 +263,15 @@ export default {
       this.newPartial = null
       this.$modal.hide('new-partial-form')
     },
+    removePartial(partialName) {
+      let confirm = window.confirm(`This partial will be PERMANENTLY deleted. Continue?`)
+      if (confirm) {
+        let partialIndex = this.getPartialIndex(partialName)
+        let partials = this.model.partials
+        partials = partials.slice(0,partialIndex).concat(partials.slice(partialIndex+1,partials.length))
+        this.model.partials = partials
+      }
+    },
     showAddComponentMenu(componentPath="") {
       this.pathForComponentAddingChild = componentPath;
       let component = _.get(this.model, componentPath) || this.model;
@@ -300,7 +320,7 @@ export default {
 
       branch.push(new BentoComponent({ name: name, type: pluralize.singular(type) }))
 
-      this.model.properties.partials = site.partials;
+      this.model.partials = site.partials;
       this.$modal.hide('add-child-menu');
     },
     removeComponent(path) {
@@ -428,6 +448,27 @@ li {
 .page-action-buttons {
   display: inline-block;
   width: 100%;
+}
+.component-wrapper {
+  list-style: none;
+}
+.component-data {
+  display: inline-block;
+  width: 100%;
+
+  * {
+    display: inline-block;;
+  }
+}
+.component-button-wrapper {
+  float: right;
+}
+.action-button {
+  width: 29px;
+}
+.empty {
+  width: 29px;
+  visibility: hidden;
 }
 // .component-name {
 //   font-weight: 600;
