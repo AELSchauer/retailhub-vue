@@ -11,28 +11,15 @@ export default class ORM {
     this.options           = args.options || {}
   }
 
-  isResourceQueried() {
-    return $store.getters[`entities/${this.resource}/isQueried`]
-  }
-
-  markResourceAsQueried() {
-    $store.dispatch(`entities/${this.resource}/markAsQueried`)
-  }
-
   find() {
-    return this._buildQuery().find(this.id)
+    return this.query().find(this.id)
   }
 
   all() {
-    return this._buildQuery().all()
+    return this.query().all()
   }
 
-  commit(response) {
-    let convertedData = this._convertResponseBody(response.data)
-    $store.dispatch(`entities/${this.resource}/${this._storeMethod}`, convertedData)
-  }
-
-  _buildQuery() {
+  query() {
     let include = _.get(this.options, 'params.include');
     let getRecord = $store.getters[`entities/${this.resource}/query`]()
     if (include) {
@@ -41,6 +28,19 @@ export default class ORM {
       })
     }
     return getRecord
+  }
+
+  commit(response) {
+    let convertedData = this._convertResponseBody(response.data)
+    $store.dispatch(`entities/${this.resource}/${this._storeMethod}`, convertedData)
+  }
+
+  isResourceQueried() {
+    return $store.getters[`entities/${this.resource}/isQueried`]
+  }
+
+  markResourceAsQueried() {
+    $store.dispatch(`entities/${this.resource}/markAsQueried`)
   }
 
   _convertResponseBody(body) {

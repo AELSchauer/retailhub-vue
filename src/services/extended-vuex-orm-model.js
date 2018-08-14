@@ -30,6 +30,13 @@ export default class ExtendedModel extends Model {
     }).all()
   }
 
+  static query(options) {
+    return new ORM({
+      resource: this.entity,
+      options:  options
+    }).query()
+  }
+
   static attributeFields() {
     let fields = this.fields()
     return _.keys(fields).filter(key => {
