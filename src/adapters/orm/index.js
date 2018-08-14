@@ -56,10 +56,9 @@ export default class ORM {
     }
 
     let _store = new DataStore(request)
-    let records = _store.all()
-    if (records.length && this._recordsHaveQueriedAllIncluded(records)) {
+    if (_store.isResourceQueried()) {
       return new Promise((resolve) => {
-        resolve(records)
+        resolve(_store.all())
       })
     }
 
@@ -70,6 +69,7 @@ export default class ORM {
         }
         else {
           _store.commit(response)
+          _store.markResourceAsQueried()
         }
       })
       .then(() => {

@@ -11,6 +11,14 @@ export default class ORM {
     this.options           = args.options || {}
   }
 
+  isResourceQueried() {
+    return $store.getters[`entities/${this.resource}/isQueried`]
+  }
+
+  markResourceAsQueried() {
+    $store.dispatch(`entities/${this.resource}/markAsQueried`)
+  }
+
   find() {
     return this._buildQuery().find(this.id)
   }
