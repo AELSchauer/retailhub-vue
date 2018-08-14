@@ -82,10 +82,10 @@ export default {
           text: id,
         }
       ],
-      model:   null,
-      loading: true,
-      error:   false,
-      deal_id: id,
+      model:    null,
+      loading:  true,
+      error:    false,
+      model_id: id,
     }
   },
   computed: {
@@ -136,13 +136,7 @@ export default {
       }
     },
     getModel() {
-      json_api.findRecord({
-        resource: 'deals',
-        id:       this.deal_id,
-        options:  {
-          params: { include: 'retailer,stores,retailer.stores' }
-        }
-      })
+      Deal.with('retailer,stores,retailer.stores').find(this.model_id)
       .then((record) => {
         this.model = record
       })

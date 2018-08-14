@@ -2,7 +2,6 @@
   <div :class="rootProperties.class">
     <label v-if="labelProps"
       :for="inputId" 
-      @click="labelClick"
       :class="labelProperties.class">
       {{ labelProperties.content }}
     </label>
@@ -10,15 +9,15 @@
       There was a problem rendering this input field
     </div>
     <template v-else>
-    <input
-      :value="get()"
-      @input="set($event.target.value)"
-      v-bind="inputProperties">
-    <input v-if="toggle"
-      type="checkbox"
-      :checked="getToggle()"
-      @input="setToggle($event.target.checked)"
-      :class="_classMerger('form-input', this.toggle.class)">
+      <input
+        :value="get()"
+        @input="set($event.target.value)"
+        v-bind="inputProperties">
+      <input v-if="toggle"
+        type="checkbox"
+        :checked="getToggle()"
+        @input="setToggle($event.target.checked)"
+        :class="_classMerger('form-input', this.toggle.class)">
     </template>
   </div>
 </template>
@@ -46,12 +45,9 @@ export default {
   },
   props: {
     attribute:  String,
-    label:      String,
     inputProps: Object,
     labelProps: Object,
     rootProps:  Object,
-    labelClass: String,
-    rootClass:  String,
     toggle:     Object,
   },
   computed: {
@@ -93,8 +89,6 @@ export default {
       let properties = formHelper.getElementProperties(defaultLabelProps, this.labelProps)
       delete properties.click
 
-      console.log('labelProperties', properties)
-
       return properties
     },
   },
@@ -113,11 +107,6 @@ export default {
     },
     setToggle(newValue) {
       this.$parent.set(this.toggle.attribute, newValue)
-    },
-    labelClick() {
-      if (this.labelProps.click) {
-        this.$parent[this.labelProps.click]
-      }
     },
     verifyType() {
       if (!_.includes(this.allowedTypes, this.inputProps.type)) {

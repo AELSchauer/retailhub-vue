@@ -6,8 +6,8 @@
     <section v-else>
       <div v-if="loading">Loading...</div>
       <ul v-else>
-        <li v-for="deal in model">
-          <router-link :to="{ name: 'DealShow', params: { deal_id: deal.id }}">{{ deal.title }}</router-link>
+        <li v-for="model in collection">
+          <router-link :to="{ name: 'DealShow', params: { deal_id: model.id }}">{{ model.title }}</router-link>
         </li>
       </ul>
     </section>
@@ -26,7 +26,7 @@ export default {
     return {
       permissions: ['admin'],
       breadcrumbs: [],
-      model:       null,
+      collection:  null,
       loading:     true,
       error:       false
     }
@@ -44,7 +44,7 @@ export default {
     this.checkCurrentPermissions()
   },
   mounted() {
-    this.getModel()
+    this.getCollection()
   },
   methods: {
     checkCurrentLogin() {
@@ -60,10 +60,10 @@ export default {
         this.$router.push('/dashboard?redirect=' + this.$route.path)
       }
     },
-    getModel() {
-      json_api.findAll({ resource: 'deals' })
+    getCollection() {
+      Deal.all()
       .then((records) => {
-        this.model = records;
+        this.collection = records;
       })
       .catch((error) => {
         console.error('request failed', error);

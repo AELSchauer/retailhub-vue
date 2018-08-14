@@ -1,9 +1,9 @@
 <template>
-  <div :class="_classMerger('input-wrapper', this.rootClass)">
-    <label v-if="label"
+  <div :class="rootProperties.class">
+    <label v-if="labelProps"
       :for="inputId" 
-      :class="_classMerger('form-label', this.labelClass)">
-      {{ label }}
+      :class="labelProperties.class">
+      {{ labelProperties.content }}
     </label>
     <div v-if="error" class="input-error">
       There was a problem rendering this input field
@@ -34,10 +34,9 @@ export default {
   },
   props: {
     attribute:  String,
-    label:      String,
     inputProps: Object,
-    labelClass: String,
-    rootClass:  String,
+    labelProps: Object,
+    rootProps:  Object,
   },
   computed: {
     inputId: function() {
@@ -63,6 +62,29 @@ export default {
       }
 
       return formHelper.getElementProperties(defaultInputProps, this.inputProps)
+    },
+    rootProperties: function() {
+      let defaultRootProps = {
+        class: {
+          value: 'input-wrapper',
+          action: 'merge',
+        },
+      }
+
+      return formHelper.getElementProperties(defaultRootProps, this.rootProps)
+    },
+    labelProperties: function() {
+      let defaultLabelProps = {
+        class: {
+          value: 'form-label',
+          action: 'merge',
+        },
+      }
+
+      let properties = formHelper.getElementProperties(defaultLabelProps, this.labelProps)
+      delete properties.click
+
+      return properties
     },
     inputFormat: function() {
       if (this.inputProps.type === 'date') {

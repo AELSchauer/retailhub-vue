@@ -6,262 +6,389 @@
     <section v-else>
       <div v-if="loading">Loading...</div>
       <div v-else>
-        <br>
-        <form @submit.prevent="createDeal" autocomplete="off">
+        <h2>details</h2>
+        <form @submit.prevent="createAction()" autocomplete="off">
           <div class=alert alert-danger v-if=validationErrors>{{ validationErrors }}</div>
           <div class="container">
-            <div class="row">
-              <label for="inputTitle" class="form-label col-md-2">
-                Title
-              </label>
-              <input
-                :value="title"
-                @input="input('title', $event.target.value)"
-                id="inputTitle"
-                class="form-control col-md-8"
-                required
-                autofocus
-              >
-            </div>
-            <div class="row">
-              <label for="inputSeoSlug" class="form-label col-md-2">
-                SEO Slug
-              </label>
-              <input
-                :value="seo_slug"
-                @input="input('seo_slug', $event.target.value)"
-                id="inputSeoSlug"
-                class="form-control col-md-8"
-                :disabled="calculate_seo_slug"
-                required
-              >
-              <input
-                :checked="calculate_seo_slug"
-                @input="input('calculate_seo_slug', $event.target.checked)"
-                type="checkbox"
-                id="calculateSeoSlug"
-                class="form-control col-md-1"
-              >
-            </div>
-            <div class="row">
-              <label for="inputSalesType" class="form-label col-md-2">
-                Sales Type
-              </label>
-              <select 
-                v-model="sales_type"
-                id="inputSalesType"
-                class="form-control col-md-8"
-                required
-              >
-                <option disabled value="">Please select one</option>
-                <option value="11">Sales and Promos</option>
-                <option value="12">New Arrivals</option>
-                <option value="13">In-Store Events</option>
-                <option value="15">Style Notes</option>
-              </select>
-            </div>
-            <div class="row">
-              <label for="inputDescription" class="form-label col-md-2">
-                Description
-              </label>
-              <textarea
-                v-model="description"
-                id="inputDescription"
-                class="form-control col-md-8"
-                required
-              ></textarea>
-            </div>
-            <div class="row">
-              <label for="inputFinePrintDescription" class="form-label col-md-2">
-                Fine Print
-              </label>
-              <textarea
-                v-model="fine_print_description"
-                id="inputFinePrintDescription"
-                class="form-control col-md-8"
-              ></textarea>
-            </div>
-            <div class="row">
-              <label for="inputWebsiteAddress" class="form-label col-md-2">
-                Website Address
-              </label>
-              <input
-                v-model="external_url"
-                type="url"
-                id="inputWebsiteAddress"
-                class="form-control col-md-8"
-              >
-            </div>
-            <div class="row">
-              <label for="inputIsLocal" class="form-label col-md-2">
-                Is Local?
-              </label>
-              <input
-                v-model="is_local"
-                type="checkbox"
-                id="inputIsLocal"
-                class="form-control col-md-1"
-              >
-            </div>
-            <div class="row">
-              <label for="inputIsFeatured" class="form-label col-md-2">
-                Is Featured?
-              </label>
-              <input
-                v-model="is_featured"
-                id="inputIsFeatured"
-                type="checkbox"
-                class="form-control col-md-1"
-              >
-            </div>
-            <div class="row">
-              <label for="inputIsLive" class="form-label col-md-2">
-                Is Live?
-              </label>
-              <input
-                v-model="is_live"
-                id="inputIsLive"
-                type="checkbox"
-                class="form-control col-md-1"
-              >
-            </div>
-            <div class="row">
-              <label for="inputStartAt" class="form-label col-md-2">
-                Start At Date
-              </label>
-              <input
-                v-model="start_at"
-                type="date"
-                :min="startAtMin"
-                :max="indefinitely"
-                id="inputStartAt"
-                class="form-control col-md-8"
-                required
-              >
-            </div>
-            <div class="row">
-              <label for="inputDisplayAt" class="form-label col-md-2">
-                Display At Date
-              </label>
-              <input
-                v-model="display_at"
-                type="date"
-                :min="displayAtMin"
-                :max="displayAtMax"
-                id="inputDisplayAt"
-                class="form-control col-md-8"
-                required
-              >
-            </div>
-            <div class="row">
-              <label for="inputEndAt" class="form-label col-md-2">
-                End At Date
-              </label>
-              <input
-                v-model="end_at"
-                type="date"
-                :min="endAtMin"
-                :max="indefinitely"
-                id="inputEndAt"
-                class="form-control col-md-8"
-                required
-              >
-            </div>
-            <div class="row">
-              <label for="inputEndAtText" class="form-label col-md-2">
-                End At Text
-              </label>
-              <select 
-                v-model="end_at_text"
-                type="radio" 
-                id="inputEndAtText"
-                class="form-control col-md-8"
-                required
-              >
-                <option disabled value="">Please select one</option>
-                <option>Show Dates</option>
-                <option value="Limited Time">"Limited Time"</option>
-                <option value="Ongoing">"Ongoing"</option>
-              </select>
-            </div>
+            <form-input
+              attribute="title"
+              :labelProps="{
+                content: 'Title',
+                class: 'col-md-2',
+              }"
+              :rootProps="{
+                class: 'row'
+              }"
+              :inputProps="{ 
+                type: 'text',
+                required: true,
+                autofocus: true,
+                class: 'form-control col-md-9',
+              }"
+            ></form-input>
+            <form-input
+              attribute="seo_slug"
+              :labelProps="{
+                content: 'SEO Title',
+                class: 'col-md-2',
+              }"
+              :rootProps="{
+                class: 'row'
+              }"
+              :inputProps="{ 
+                type: 'text',
+                required: true,
+                disabled: component_calculate_seo_slug,
+                class: 'form-control col-md-9',
+              }"
+              :toggle="{
+                attribute: 'component_calculate_seo_slug',
+                class: 'col-md-1',
+              }"
+            ></form-input>
+            <form-select
+              attribute="sales_type"
+              :labelProps="{
+                content: 'Sale Type',
+                class: 'col-md-2',
+              }"
+              :rootProps="{
+                class: 'row'
+              }"
+              :inputProps="{ 
+                required: true,
+                class: 'form-control col-md-9',
+              }"
+              :selectOptions="[
+                {
+                  text: 'Please select one',
+                  value:'',
+                  disabled: true,
+                },
+                {
+                  text: 'Sales and Promos',
+                },
+                {
+                  text: 'New Arrivals',
+                },
+                {
+                  text: 'In-Store Event',
+                },
+                {
+                  text: 'Style Notes',
+                },
+              ]"
+            ></form-select>
+            <form-textarea
+              attribute="description"
+              :labelProps="{
+                content: 'Description',
+                class: 'col-md-2',
+              }"
+              :rootProps="{
+                class: 'row'
+              }"
+              :inputProps="{ 
+                required: true, 
+                class: 'form-control col-md-9'
+              }"
+            ></form-textarea>
+            <form-textarea
+              attribute="fine_print_description"
+              :labelProps="{
+                content: 'Fine Print',
+                class: 'col-md-2',
+              }"
+              :rootProps="{
+                class: 'row'
+              }"
+              :inputProps="{ 
+                required: true, 
+                class: 'form-control col-md-9'
+              }"
+            ></form-textarea>
+            <form-input
+              attribute="external_url"
+              :labelProps="{
+                content: 'Website Address',
+                class: 'col-md-2',
+              }"
+              :rootProps="{
+                class: 'row'
+              }"
+              :inputProps="{ 
+                'type': 'url', 
+                'class': 'form-control col-md-9'
+              }"
+            ></form-input>
+            <form-checkbox
+              attribute="is_local"
+              :labelProps="{
+                content: 'Is Local?',
+                class: 'col-md-2',
+              }"
+              :rootProps="{
+                class: 'row'
+              }"
+              :inputProps="{ 
+                class: 'form-control col-md-1'
+              }"
+            ></form-checkbox>
+            <form-checkbox
+              attribute="is_featured"
+              :labelProps="{
+                content: 'Is Featured?',
+                class: 'col-md-2',
+              }"
+              :rootProps="{
+                class: 'row'
+              }"
+              :inputProps="{ 
+                class: 'form-control col-md-1'
+              }"
+            ></form-checkbox>
+            <form-checkbox
+              attribute="is_live"
+              :labelProps="{
+                content: 'Is Live?',
+                class: 'col-md-2',
+              }"
+              :rootProps="{
+                class: 'row'
+              }"
+              :inputProps="{ 
+                class: 'form-control col-md-1'
+              }"
+            ></form-checkbox>
+            <br>
+            <form-checkbox
+              attribute="component_calculate_dates_all_day"
+              :labelProps="{
+                content: 'All Day?',
+                class: 'col-md-2',
+              }"
+              :rootProps="{
+                class: 'row'
+              }"
+              :inputProps="{ 
+                class: 'form-control col-md-1'
+              }"
+            ></form-checkbox>
+            <form-date-time
+              attribute="start_at"
+              :labelProps="{
+                content: 'Start Date',
+                class: 'col-md-2',
+              }"
+              :rootProps="{
+                class: 'row'
+              }"
+              :inputProps="{ 
+                type: dateType,
+                class: 'form-control col-md-9',
+                min: startAtMin,
+                max: indefinitely,
+                required: true,
+              }"
+            ></form-date-time>
+            <form-date-time
+              attribute="end_at"
+              :labelProps="{
+                content: 'End Date',
+                class: 'col-md-2',
+              }"
+              :rootProps="{
+                class: 'row'
+              }"
+              :inputProps="{ 
+                type: dateType,
+                class: 'form-control col-md-9',
+                min: endAtMin,
+                max: indefinitely,
+                required: true,
+              }"
+            ></form-date-time>
+            <form-date-time
+              attribute="display_at"
+              :labelProps="{
+                content: 'Display Date',
+                class: 'col-md-2',
+              }"
+              :rootProps="{
+                class: 'row'
+              }"
+              :inputProps="{ 
+                type: dateType,
+                class: 'form-control col-md-9',
+                min: displayAtMin,
+                max: displayAtMax,
+                required: true,
+              }"
+            ></form-date-time>
+            <!-- 
+            The API doesn't currently support end_date_visibility or end_at_text
+            in post or patch requests.
+             -->
+            <!-- <form-select
+              attribute="end_at_text"
+              :labelProps="{
+                content: 'End Date Text',
+                class: 'col-md-2',
+                }"
+              :rootProps="{
+                class: 'row'
+                }"
+              :inputProps="{ 
+                required: true,
+                class: 'form-control col-md-9',
+              }"
+              :selectOptions="[
+                {
+                  text: 'Please select one',
+                  value:'',
+                  disabled: true,
+                },
+                {
+                  text: 'Show Dates',
+                },
+                {
+                  text: `${doubleQuotes}Limited Time${doubleQuotes}`,
+                  value: 'Limited Time',
+                },
+                {
+                  text: `${doubleQuotes}Ongoing${doubleQuotes}`,
+                  value: 'Ongoing',
+                },
+              ]"
+            ></form-select> -->
           </div>
           <br>
-          <button class="btn btn-lg btn-primary btn-block" type="submit">Submit</button>
+          <div class="row">
+            <div class="col-md-6 btn-row">
+              <button
+                class="btn btn-lg btn-primary btn-block"
+                type="submit"
+              >
+                Submit
+              </button>
+            </div>
+            <div class="col-md-6 btn-row">
+              <router-link 
+                :to="{ name: 'DealIndex' }"
+                class='btn btn-lg btn-primary btn-block'
+              >
+                Cancel
+              </router-link>
+            </div>
+          </div>
         </form>
+        <hr>
       </div>
     </section>
   </div>
 </template>
 
+
 <script>
 import { mapGetters } from 'vuex'
 import moment from 'moment'
-// import VueGoogleAutocomplete from 'vue-google-autocomplete'
-import json_api from '@/services/json-api'
+
 import Deal from '@/models/deal'
+
+import FormCheckbox from '@/components/form-elements/checkbox'
+import FormDateTime from '@/components/form-elements/date-time'
+import FormInput    from '@/components/form-elements/input'
+import FormSelect   from '@/components/form-elements/select'
+import FormTextarea from '@/components/form-elements/textarea'
 
 export default {
   name: 'DealNew',
   data() {
     return {
       permissions: ['admin'],
+      breadcrumbs: [
+        {
+          name:   'DealIndex',
+          text:   'Deals',
+        },
+        {
+          text:   'New',
+        }
+      ],
+
       model:    null,
       loading:  true,
+      saved:    false,
       error:    false,
 
-      validationErrors: null,
+      dateAttributeNames: Deal.dateAttributeNames(),
+      validationErrors:   null,
+      
+      component_calculate_seo_slug:      true,
+      component_calculate_dates_all_day: true
+      // permissions: ['admin'],
+      // model:    null,
+      // loading:  true,
+      // error:    false,
 
-      title: '',
-      seo_slug: '',
-      calculate_seo_slug: true,
-      sales_type: '',
-      description: '',
-      fine_print_description: '',
-      external_url: '',
-      is_local: false,
-      is_featured: false,
-      is_live: false,
-      start_at: '',
-      display_at: '',
-      end_at: '',
-      end_at_text: '',
+      // validationErrors: null,
+
+      // title: '',
+      // seo_slug: '',
+      // calculate_seo_slug: true,
+      // sales_type: '',
+      // description: '',
+      // fine_print_description: '',
+      // external_url: '',
+      // is_local: false,
+      // is_featured: false,
+      // is_live: false,
+      // start_at: '',
+      // display_at: '',
+      // end_at: '',
+      // end_at_text: '',
     }
   },
   computed: {
     ...mapGetters({ currentUser: 'currentUser' }),
     startAtMin: function() {
-      return moment().format('YYYY-MM-DD')
-    },
-    displayAtMin: function() {
-      if (this.start_at.length) {
-        return this.start_at
+      let today = moment.utc()
+      let start_at = this.model.get('start_at')
+      if (start_at && start_at.isValid() && start_at < today) {
+        return start_at
       }
       else {
-        return this.startAtMin
+        return today
       }
     },
+    displayAtMin: function() {
+      let start_at = this.model.get('start_at')
+      return (start_at && start_at.isValid()) ? (start_at) : (this.startAtMin)
+    },
+    endAtMin: function() {
+      let date = (this.model.get('display_at') || this.model.get('start_at'));
+      return (date) ? (moment.utc(date).add(1, 'd')) : (moment.utc().add(1, 'd'))
+    },
     displayAtMax: function() {
-      if (this.end_at.length) {
-        return this.end_at
+      if (this.model.get('end_at')) {
+        return moment.utc(this.model.get('end_at')).subtract(1, 'd')
       }
       else {
         return this.indefinitely
       }
     },
-    endAtMin: function() {
-      if (this.display_at.length) {
-        return moment(this.display_at, 'YYYY-MM-DD').add(1, 'days').format('YYYY-MM-DD')
-      }
-      else if (this.start_at.length) {
-        return moment(this.start_at, 'YYYY-MM-DD').add(1, 'days').format('YYYY-MM-DD')
-      }
-      else {
-        return moment().add(1, 'days').format('YYYY-MM-DD')
-      }
-    },
     indefinitely: function() {
-      return moment().add(20, 'years').endOf('year').format('YYYY-MM-DD')
+      return moment.utc().add(10, 'years')
     },
+    dateType: function() {
+      return (this.component_calculate_dates_all_day) ? ('date') : ('datetime-local');
+    },
+    isChangesEmpty: function() {
+      return _.isEmpty(this.model.changes)
+    },
+    doubleQuotes: function() {
+      return String.fromCharCode(34);
+    }
   },
   created() {
     this.checkCurrentLogin()
@@ -274,6 +401,21 @@ export default {
   mounted() {
     this.getModel()
     this.loading = false;
+  },
+  beforeRouteLeave(to, from, next) {
+    if (this.isChangesEmpty || this.saved) {
+      next()
+    }
+    else {
+      let confirm = window.confirm('Do you really want to leave? All unsaved changes will be lost.')
+      if (confirm) {
+        // delete model
+        next()
+      }
+      else {
+        next(false)
+      }
+    }
   },
   methods: {
     checkCurrentLogin() {
@@ -292,49 +434,68 @@ export default {
     getModel() {
       this.model = new Deal()
     },
-    input(attr, value) {
-      if (attr === 'title') {
-        this.title = value
-        if (this.calculate_seo_slug) {
-          this.input('seo_slug', value)
-        }
+    get(attr) {
+      if (attr.indexOf('component_') === 0) {
+        return this[attr]
       }
-      else if (attr === 'seo_slug') {
-        this.seo_slug = value.slugify()
-      }
-      else if (attr === 'calculate_seo_slug') {
-        this.calculate_seo_slug = value
-        if (this.calculate_seo_slug) {
-          this.input('seo_slug', this.title)
-        }
+      else {
+        return this.model.get(attr)
       }
     },
-    createDeal() {
+    set(attr, newValue) {
+      if (attr === 'title') {
+        this.model.set('title', newValue)
+        if (this.component_calculate_seo_slug) {
+          this.set('seo_slug', newValue);
+        }
+      }
+      else if (attr === 'component_calculate_seo_slug') {
+        this.component_calculate_seo_slug = newValue
+        if (this.component_calculate_seo_slug) {
+          this.set('seo_slug', this.model.get('title'));
+        }
+      }
+      else if (attr === 'component_calculate_dates_all_day') {
+        this.component_calculate_dates_all_day = newValue
+        if (this.component_calculate_dates_all_day) {
+          let self = this
+          this.dateAttributeNames.forEach(attr => {
+            let date = self.model.get(attr)
+            date.set({ hour: 0, minute: 0, second: 0 })
+            self.model.set(attr, date)
+          })
+        }
+      }
+      else {
+        this.model.set(attr, newValue)
+      }
+    },
+    createAction() {
       console.log('wooohoo', this)
     },
+  },
+  components: {
+    FormCheckbox,
+    FormDateTime,
+    FormInput,
+    FormSelect,
+    FormTextarea,
+    FormTextarea,
   }
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-h1, h2 {
-  font-weight: normal;
-}
-a {
-  color: #42b983;
-}
+
+<style scoped lang=scss>
+@import "~@/styles/placeholders";
+
 .form-label {
-  align-self: center;
-  margin: 0;
-  padding: 0 10px 0 0;
-  text-align: right;
-}
-.form-input {
-  align-self: center;
-  margin: 0;
+  @extend %form-label;
 }
 .row {
   padding: 5px 0;
+}
+.btn-row {
+  padding: 0px 5px;
 }
 </style>

@@ -237,10 +237,7 @@
 import { mapGetters } from 'vuex'
 import moment from 'moment'
 
-import json_api from '@/services/json-api'
-
 import Deal from '@/models/deal'
-import Mall from '@/models/mall'
 
 import FormCheckbox from '@/components/form-elements/checkbox'
 import FormDateTime from '@/components/form-elements/date-time'
@@ -270,11 +267,11 @@ export default {
         }
       ],
 
-      model:   null,
-      loading: true,
-      saved:   false,
-      error:   false,
-      deal_id: id,
+      model:    null,
+      loading:  true,
+      saved:    false,
+      error:    false,
+      model_id: id,
 
       dateAttributeNames: Deal.dateAttributeNames(),
       validationErrors:   null,
@@ -366,13 +363,7 @@ export default {
       }
     },
     getModel() {
-      json_api.findRecord({
-        resource: 'deals',
-        id:       this.deal_id,
-        options:  {
-          params: { include: 'retailer,stores,retailer.stores' }
-        }
-      })
+      Deal.with('retailer,stores,retailer.stores').find(this.model_id)
       .then((record) => {
         this.model = record
         this.model.snapshot()
