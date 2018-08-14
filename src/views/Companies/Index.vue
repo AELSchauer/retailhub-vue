@@ -6,7 +6,7 @@
     <section v-else>
       <div v-if="loading">Loading...</div>
       <ul v-else>
-        <li v-for="company in model">
+        <li v-for="company in collection">
           <router-link :to="{ name: 'CompanyShow', params: { company_id: company.id }}">{{ company.name }}</router-link>
         </li>
       </ul>
@@ -18,6 +18,7 @@
 import { mapGetters } from 'vuex'
 import json_api from '@/services/json-api'
 
+import Mall from '@/models/mall'
 import Company from '@/models/company'
 
 export default {
@@ -25,7 +26,7 @@ export default {
   data() {
     return {
       permissions: ['admin'],
-      model:       null,
+      collection:  null,
       loading:     true,
       error:       false
     }
@@ -59,9 +60,9 @@ export default {
       }
     },
     getModel() {
-      json_api.findAll({ resource: 'companies' })
-      .then((request) => {
-        this.model = Company.all() || [];
+      Company.all()
+      .then((collection) => {
+        this.collection = collection
       })
       .catch((error) => {
         console.error('request failed', error);

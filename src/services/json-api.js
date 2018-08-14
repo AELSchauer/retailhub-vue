@@ -4,8 +4,6 @@ import pluralize from 'pluralize'
 import $http from '@/config/axios';
 import $store from '@/store';
 
-import Company from '@/models/company'
-
 const singularize = pluralize.singular
 
 export default class JsonApi {
@@ -146,7 +144,8 @@ export default class JsonApi {
         url: this.url,
         headers: this.headers('get'),
         params: this.requestParams
-      }).then((response) => {
+      })
+      .then((response) => {
         if (response.status != 200) {
           throw response
         }
@@ -163,7 +162,8 @@ export default class JsonApi {
         })
 
         $store.dispatch(`entities/${this.resource}/${this.storeMethod}`, convertedData )
-      }).then(() => {
+      })
+      .then(() => {
         return this.peekRecord()
       })
     })

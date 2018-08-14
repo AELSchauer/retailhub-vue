@@ -1,8 +1,35 @@
 import _ from 'lodash'
 import moment from 'moment'
 import { Model } from '@vuex-orm/core'
+import ORM from '@/adapters/orm/index'
 
 export default class ExtendedModel extends Model {
+  static with(relationships) {
+    return new ORM({
+      resource: this.entity,
+      options: {
+        params: {
+          include: relationships
+        }
+      }
+    })
+  }
+
+  static find(id, options) {
+    return new ORM({
+      resource: this.entity,
+      id:       id,
+      options:  options
+    }).find()
+  }
+
+  static all(options) {
+    return new ORM({
+      resource: this.entity,
+      options:  options
+    }).all()
+  }
+
   static attributeFields() {
     let fields = this.fields()
     return _.keys(fields).filter(key => {
@@ -31,6 +58,33 @@ export default class ExtendedModel extends Model {
 
   static dateAttributeNames() {
     return []
+  }
+
+  get(attr) {
+    if (_.includes(this.constructor.dateAttributeNames(), attr)) {
+      return moment.utc(this[attr])
+    }
+    else {
+      return this[attr]
+    }
+  }
+
+  set(attr, newValue) {
+    let dateAttributeNames = this.constructor.dateAttributeNames()
+
+    function format(attr, value) {
+      if (attr === 'seo_slug') {
+        return value.slugify()
+      }
+      else if (_.includes(dateAttributeNames, attr)) {
+        return moment.utc(value).format('YYYY-MM-DD HH:mm:ss')
+      }
+      else {
+        return value
+      }
+    }
+
+    this[attr] = format(attr, newValue)
   }
 
   get attributes() {

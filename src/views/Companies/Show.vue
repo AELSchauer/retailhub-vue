@@ -63,7 +63,7 @@ export default {
       model:       null,
       loading:     true,
       error:       false,
-      company_id:  this.$route.params.company_id,
+      model_id:    this.$route.params.company_id,
       addResource: null
     }
   },
@@ -96,14 +96,16 @@ export default {
       }
     },
     getModel() {
-      json_api.findRecord({
-        resource: 'companies',
-        id:       this.company_id,
-        options:  {
-          params: { include: 'malls' }
-        }
-      })
+      // json_api.findRecord({
+      //   resource: 'companies',
+      //   id:       this.company_id,
+      //   options:  {
+      //     params: { include: 'malls' }
+      //   }
+      // })
+      Company.with('malls').find(this.model_id)
       .then((record) => {
+        console.log('record', record)
         this.model = record
       })
       .catch((error) => {
