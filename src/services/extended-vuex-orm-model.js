@@ -37,6 +37,15 @@ export default class ExtendedModel extends Model {
     }).query()
   }
 
+  static new() {
+    let newObj = new this
+
+    return new Promise(resolve => {
+      newObj.snapshot()
+      resolve(newObj)
+    })
+  }
+
   static attributeFields() {
     let fields = this.fields()
     return _.keys(fields).filter(key => {
@@ -67,12 +76,21 @@ export default class ExtendedModel extends Model {
     return []
   }
 
+  save(options) {
+    return new ORM({
+      resource: this.type,
+      id:       this.id,
+      changes:  this.serializedChanges(),
+      options:  options
+    }).save()
+  }
+
   get(attr) {
     if (_.includes(this.constructor.dateAttributeNames(), attr)) {
-      return moment.utc(this[attr])
+      return moment.utc(_.get(this, attr))
     }
     else {
-      return this[attr]
+      return _.get(this, attr)
     }
   }
 
@@ -91,7 +109,7 @@ export default class ExtendedModel extends Model {
       }
     }
 
-    this[attr] = format(attr, newValue)
+    _.set(this, attr, format(attr, newValue))
   }
 
   get attributes() {
@@ -101,8 +119,18 @@ export default class ExtendedModel extends Model {
     }, {});
   }
 
+  get relationships() {
+    let self = this;
+    return this.constructor.relationshipFieldNames().reduce((json, key) => {
+      return _.set(json, key, self[key])
+    }, {});
+  }
+
   snapshot() {
-    this.snapshot = _.cloneDeep(this.attributes);
+    this.snapshot = {
+      attributes: _.cloneDeep(this.attributes),
+      relationships: _.cloneDeep(this.relationships)
+    }
   }
 
   rollback() {
@@ -115,10 +143,9 @@ export default class ExtendedModel extends Model {
   get changes() {
     let self = this
     let snapshot = this.snapshot
-    let changes = {}
-    _.keys(snapshot).forEach((key) => {
-      let old_val = snapshot[key],
-          new_val = self[key]
+    let changes = { attributes: {}, relationships: {} }
+    _.toPairs(snapshot.attributes).forEach(([ key, oldVal ]) => {
+      let newVal = self[key]
 
       if (_.includes(self.constructor.dateAttributeNames(), key)) {
         function formatDate(val) {
@@ -131,32 +158,92 @@ export default class ExtendedModel extends Model {
           return val
         }
 
-        old_val = formatDate(old_val)
-        new_val = formatDate(new_val)
+        oldVal = formatDate(oldVal)
+        newVal = formatDate(newVal)
       }
 
-      if (new_val != old_val) {
-        _.set(changes, key, new_val)
+      if (newVal != oldVal) {
+        _.set(changes.attributes, key, newVal)
+      }
+    })
+
+    _.toPairs(snapshot.relationships).forEach(([ key, oldVal ]) => {
+      let newVal = _.get(self, key)
+
+      if (_.isArray(newVal)) {
+        let oldIds = oldVal.map(v => v.id),
+            newIds = newVal.map(v => v.id),
+            match = _.every(newIds, id => {
+              return _.includes(oldIds, id)
+            })
+
+        if (!match) {
+          _.set(changes.relationships, key, newVal)
+        }
+      }
+      else if (_.get(newVal, 'id') != _.get(oldVal, 'id')) {
+        _.set(changes.relationships, key, newVal)
       }
     })
 
     return changes
   }
 
-  _serializedChanges(keyMap) {
-    let changes = this.changes
+  serializedChanges() {
+    let changes = {},
+        attributes = this.serializedAttributes(),
+        relationships = this.serializedRelationships()
+
+    if (attributes) {
+      _.set(changes, 'attributes', attributes)
+    }
+
+    if (relationships) {
+      _.set(changes, 'relationships', relationships)
+    }
+
+    return changes
+  }
+
+  serializedAttributes() {
+    let keyMap = this.serializationKeyMap || {}
+    let attributes = this.changes.attributes
 
     _.toPairs(keyMap).forEach(([oldKey, newKey]) => {
       if (newKey) {
-        changes[newKey] = changes[oldKey]
-        delete changes[oldKey]
+        attributes[newKey] = attributes[oldKey]
+        delete attributes[oldKey]
       }
       else {
-        delete changes[oldKey]
+        delete attributes[oldKey]
       }
     })
 
-    return changes
+    return attributes
+  }
+
+  serializedRelationships() {
+    let relationships = this.changes.relationships
+
+    return _.toPairs(relationships).reduce((json, [ name, relationship ]) => {
+      let data
+      if (_.isArray(relationship)) {
+        data = relationship.map(r => {
+          return {
+            id: r.id,
+            type: r.type
+          }
+        })
+      }
+      else {
+        data = {
+          id: relationship.id,
+          type: relationship.type
+        }
+      }
+
+      return _.set(json, name, { data: data })
+    }, {})
   }
 
   _attributeManifest(options) {

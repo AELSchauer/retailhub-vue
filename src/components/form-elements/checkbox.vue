@@ -77,8 +77,6 @@ export default {
       let properties = formHelper.getElementProperties(defaultLabelProps, this.labelProps)
       delete properties.click
 
-      console.log('labelProperties', properties)
-
       return properties
     },
   },

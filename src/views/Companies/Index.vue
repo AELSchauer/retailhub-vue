@@ -43,7 +43,7 @@ export default {
     this.checkCurrentPermissions()
   },
   mounted() {
-    this.getModel()
+    this.getCollection()
   },
   methods: {
     checkCurrentLogin() {
@@ -59,7 +59,7 @@ export default {
         this.$router.push('/dashboard?redirect=' + this.$route.path)
       }
     },
-    getModel() {
+    getCollection() {
       Company.all()
       .then((collection) => {
         this.collection = collection

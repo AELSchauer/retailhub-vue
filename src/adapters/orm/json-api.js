@@ -9,7 +9,7 @@ export default class JsonApi {
     this.id                = args.id
     this.options           = args.options || {};
     this.associatedRecords = args.associatedRecords
-    this.body              = args.body
+    this.changes           = args.changes
     this.options           = args.options || {}
   }
 
@@ -28,6 +28,22 @@ export default class JsonApi {
       url: this._url(),
       headers: this._headers('GET'),
       params: this._requestParams()
+    })
+  }
+
+  create() {
+    return $http.request({
+      method: 'POST',
+      url: this._url(),
+      headers: this._headers('POST'),
+      params: this._requestParams(),
+      data: {
+        data: {
+          type: this.resource,
+          attributes: this.changes.attributes,
+          relationships: this.changes.relationships
+        }
+      }
     })
   }
 
@@ -51,12 +67,12 @@ export default class JsonApi {
   }
 
   _headers(method) {
-    if (_.includes(['get'], method)) {
+    if (_.includes(['GET'], method)) {
       return {
         'Accept': 'application/vnd.api+json'
       }
     }
-    else if (_.includes(['post', 'patch', 'delete'], method)) {
+    else if (_.includes(['POST', 'PATCH', 'DELETE'], method)) {
       return {
         'Accept': 'application/vnd.api+json',
         'Content-Type': 'application/vnd.api+json'

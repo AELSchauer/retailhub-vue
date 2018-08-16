@@ -9,12 +9,14 @@
       There was a problem rendering this input field
     </div>
     <select 
-      :value="get()"
-      @input="set($event.target.value)"
+      :selectedOptions="get()"
+      @input="set($event.target.selectedOptions, $event)"
       v-bind="inputProperties"
     >
+      <option v-if="!inputProperties.multiple" disabled :selected="!get()">
+        Please select one:
+      </option>
       <option v-for="option in selectOptions"
-        :disabled="option.disabled"
         :value="option.value || option.text"
       >
         {{ option.text }}
@@ -86,9 +88,21 @@ export default {
   },
   methods: {
     get() {
-      return this.$parent.get(this.attribute)
+      let value = this.$parent.get(this.attribute)
+      if (this.inputProperties.multiple) {
+        return value
+      }
+      else if (!value) {
+        return null
+      }
+      else {
+        return [ value ]
+      }
     },
-    set(newValue) {
+    set(selectedOptions, target) {
+      let newValue = _.map(selectedOptions, option => option.value)
+      newValue = (this.inputProperties.multiple) ? (newValue) : (newValue[0])
+      
       this.$parent.set(this.attribute, newValue)
     },
     _classMerger(a, b) {

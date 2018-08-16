@@ -18,7 +18,7 @@ export default class Deal extends Model {
 
       title:                  this.attr(''),
       seo_slug:               this.attr(''),
-      sales_type:             this.attr(''),
+      sales_type:             this.attr(null),
       description:            this.attr(''),
       fine_print_description: this.attr(''),
       external_url:           this.attr(''),
@@ -67,42 +67,15 @@ export default class Deal extends Model {
     return ['start_at', 'display_at', 'end_at']
   }
 
-  get(attr) {
-    if (_.includes(this.constructor.dateAttributeNames(), attr)) {
-      return moment.utc(this[attr])
-    }
-    else {
-      return this[attr]
-    }
-  }
-
-  set(attr, newValue) {
-    let dateAttributeNames = this.constructor.dateAttributeNames()
-
-    function format(attr, value) {
-      if (attr === 'seo_slug') {
-        return value.slugify()
-      }
-      else if (_.includes(dateAttributeNames, attr)) {
-        return moment.utc(value).format('YYYY-MM-DD HH:mm:ss')
-      }
-      else {
-        return value
-      }
-    }
-
-    this[attr] = format(attr, newValue)
-  }
-
-  get serializedChanges() {
+  get serializationKeyMap() {
     // End_at_date is being removed because The API doesn't currently support 
     // end_date_visibility or end_at_text in post or patch requests
-    let keyMap = {
+    return {
       // end_at_text: 'end_date_visibility',
-      end_at_text: null
+      end_at_text: null,
+      retailer_id: null,
+      type: null,
     }
-
-    return this._serializedChanges(keyMap)
   }
 
   get attributeManifest() {

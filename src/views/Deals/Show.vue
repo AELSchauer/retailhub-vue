@@ -150,7 +150,7 @@ export default {
     },
     get(attrName) {
       let attribute = this.model.get(attrName)
-      if (attribute.constructor.name === 'Moment') {
+      if (attribute && attribute.constructor.name === 'Moment') {
         return attribute.format('YYYY-MM-DD HH:mm:ss')
       }
       else {

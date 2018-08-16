@@ -96,16 +96,8 @@ export default {
       }
     },
     getModel() {
-      // json_api.findRecord({
-      //   resource: 'companies',
-      //   id:       this.company_id,
-      //   options:  {
-      //     params: { include: 'malls' }
-      //   }
-      // })
       Company.with('malls').find(this.model_id)
       .then((record) => {
-        console.log('record', record)
         this.model = record
       })
       .catch((error) => {

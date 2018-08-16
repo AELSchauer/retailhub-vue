@@ -7,9 +7,8 @@ export default class ORM {
   constructor({ ...args }) {
     this.resource          = args.resource
     this.id                = args.id
-    this.options           = args.options || {};
     this.associatedRecords = args.associatedRecords
-    this.body              = args.body
+    this.changes           = args.changes
     this.options           = args.options || {}
   }
 
@@ -74,6 +73,41 @@ export default class ORM {
       })
       .then(() => {
         return _store.all()
+      })
+  }
+
+  save() {
+    if (this.id) {
+      return this.update()
+    }
+    else {
+      return this.create()
+    }
+  }
+
+  create() {
+    let request = {
+      resource: this.resource,
+      options:  this.options,
+      changes:  this.changes
+    }
+    let _store = new DataStore(request)
+
+    return new JsonApi(request).create()
+      .then(response => {
+        if (response.status != 201) {
+          throw response
+        }
+        else {
+          _store.commit(response)
+          return response.data.data.id
+        }
+      })
+      .then((id) => {
+        _store.id = id
+        return new Promise(resolve => {
+          resolve(_store.find())
+        })
       })
   }
 

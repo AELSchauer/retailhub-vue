@@ -38,11 +38,11 @@
               :inputProps="{ 
                 type: 'text',
                 required: true,
-                disabled: component_calculate_seo_slug,
+                disabled: attribute_calculate_seo_slug,
                 class: 'form-control col-md-9',
               }"
               :toggle="{
-                attribute: 'component_calculate_seo_slug',
+                attribute: 'attribute_calculate_seo_slug',
                 class: 'col-md-1',
               }"
             ></form-input>
@@ -60,11 +60,6 @@
                 class: 'form-control col-md-9',
               }"
               :selectOptions="[
-                {
-                  text: 'Please select one',
-                  value:'',
-                  disabled: true,
-                },
                 {
                   text: 'Sales and Promos',
                 },
@@ -162,7 +157,7 @@
             ></form-checkbox>
             <br>
             <form-checkbox
-              attribute="component_calculate_dates_all_day"
+              attribute="attribute_calculate_dates_all_day"
               :labelProps="{
                 content: 'All Day?',
                 class: 'col-md-2',
@@ -229,15 +224,15 @@
             The API doesn't currently support end_date_visibility or end_at_text
             in post or patch requests.
              -->
-            <!-- <form-select
+            <form-select
               attribute="end_at_text"
               :labelProps="{
                 content: 'End Date Text',
                 class: 'col-md-2',
-                }"
+              }"
               :rootProps="{
                 class: 'row'
-                }"
+              }"
               :inputProps="{ 
                 required: true,
                 class: 'form-control col-md-9',
@@ -260,7 +255,38 @@
                   value: 'Ongoing',
                 },
               ]"
-            ></form-select> -->
+            ></form-select>
+            <form-select
+              attribute="retailer_id"
+              :labelProps="{
+                content: 'Retailer',
+                class: 'col-md-2',
+              }"
+              :rootProps="{
+                class: 'row'
+              }"
+              :inputProps="{ 
+                required: true,
+                class: 'form-control col-md-9',
+              }"
+              :selectOptions="retailerSelectList"
+            ></form-select>
+            <form-select
+              attribute="store_ids"
+              :labelProps="{
+                content: 'Stores',
+                class: 'col-md-2',
+              }"
+              :rootProps="{
+                class: 'row'
+              }"
+              :inputProps="{ 
+                required: true,
+                multiple: true,
+                class: 'form-control col-md-9',
+              }"
+              :selectOptions="storeSelectList"
+            ></form-select>
           </div>
           <br>
           <div class="row">
@@ -294,6 +320,7 @@ import { mapGetters } from 'vuex'
 import moment from 'moment'
 
 import Deal from '@/models/deal'
+import Retailer from '@/models/retailer'
 
 import FormCheckbox from '@/components/form-elements/checkbox'
 import FormDateTime from '@/components/form-elements/date-time'
@@ -316,44 +343,24 @@ export default {
         }
       ],
 
-      model:    null,
-      loading:  true,
-      saved:    false,
-      error:    false,
+      deal:      null,
+      retailers: [],
+      loading:   true,
+      saved:     false,
+      error:     false,
 
       dateAttributeNames: Deal.dateAttributeNames(),
       validationErrors:   null,
       
-      component_calculate_seo_slug:      true,
-      component_calculate_dates_all_day: true
-      // permissions: ['admin'],
-      // model:    null,
-      // loading:  true,
-      // error:    false,
-
-      // validationErrors: null,
-
-      // title: '',
-      // seo_slug: '',
-      // calculate_seo_slug: true,
-      // sales_type: '',
-      // description: '',
-      // fine_print_description: '',
-      // external_url: '',
-      // is_local: false,
-      // is_featured: false,
-      // is_live: false,
-      // start_at: '',
-      // display_at: '',
-      // end_at: '',
-      // end_at_text: '',
+      attribute_calculate_seo_slug:      true,
+      attribute_calculate_dates_all_day: true,
     }
   },
   computed: {
     ...mapGetters({ currentUser: 'currentUser' }),
     startAtMin: function() {
       let today = moment.utc()
-      let start_at = this.model.get('start_at')
+      let start_at = this.deal.get('start_at')
       if (start_at && start_at.isValid() && start_at < today) {
         return start_at
       }
@@ -362,16 +369,16 @@ export default {
       }
     },
     displayAtMin: function() {
-      let start_at = this.model.get('start_at')
+      let start_at = this.deal.get('start_at')
       return (start_at && start_at.isValid()) ? (start_at) : (this.startAtMin)
     },
     endAtMin: function() {
-      let date = (this.model.get('display_at') || this.model.get('start_at'));
+      let date = (this.deal.get('display_at') || this.deal.get('start_at'));
       return (date) ? (moment.utc(date).add(1, 'd')) : (moment.utc().add(1, 'd'))
     },
     displayAtMax: function() {
-      if (this.model.get('end_at')) {
-        return moment.utc(this.model.get('end_at')).subtract(1, 'd')
+      if (this.deal.get('end_at')) {
+        return moment.utc(this.deal.get('end_at')).subtract(1, 'd')
       }
       else {
         return this.indefinitely
@@ -381,13 +388,32 @@ export default {
       return moment.utc().add(10, 'years')
     },
     dateType: function() {
-      return (this.component_calculate_dates_all_day) ? ('date') : ('datetime-local');
+      return (this.attribute_calculate_dates_all_day) ? ('date') : ('datetime-local');
     },
     isChangesEmpty: function() {
-      return _.isEmpty(this.model.changes)
+      return _.isEmpty(this.deal.changes)
     },
     doubleQuotes: function() {
       return String.fromCharCode(34);
+    },
+    stores: function() {
+      return this.get('retailer.stores') || []
+    },
+    retailerSelectList: function() {
+      return this.retailers.map(retailer => {
+        return {
+          text: retailer.name,
+          value: retailer.id
+        }
+      })
+    },
+    storeSelectList: function() {
+      return this.stores.map(store => {
+        return {
+          text: store.name,
+          value: store.id
+        }
+      })
     }
   },
   created() {
@@ -399,8 +425,16 @@ export default {
     this.checkCurrentPermissions()
   },
   mounted() {
-    this.getModel()
-    this.loading = false;
+    new Promise(resolve => {
+      this.getDeal()
+      resolve(true)
+    })
+    .then(() => {
+      this.getRetailers()
+    })
+    .finally(() => {
+      this.loading = false;
+    })
   },
   beforeRouteLeave(to, from, next) {
     if (this.isChangesEmpty || this.saved) {
@@ -409,7 +443,7 @@ export default {
     else {
       let confirm = window.confirm('Do you really want to leave? All unsaved changes will be lost.')
       if (confirm) {
-        // delete model
+        //////////////////////// delete deal
         next()
       }
       else {
@@ -431,47 +465,76 @@ export default {
         this.$router.push('/dashboard?redirect=' + this.$route.path)
       }
     },
-    getModel() {
-      this.model = new Deal()
+    getDeal() {
+      Deal.new()
+      .then(model => {
+        this.deal = model
+      })
+    },
+    getRetailers() {
+      Retailer.with('stores').all()
+      .then(collection => {
+        this.retailers = collection
+      })
     },
     get(attr) {
-      if (attr.indexOf('component_') === 0) {
+      if (attr.indexOf('attribute_') === 0) {
         return this[attr]
       }
+      else if (attr === 'store_ids') {
+       return this.deal.get('stores').map(store => store.id)
+      }
       else {
-        return this.model.get(attr)
+        return this.deal.get(attr)
       }
     },
     set(attr, newValue) {
       if (attr === 'title') {
-        this.model.set('title', newValue)
-        if (this.component_calculate_seo_slug) {
+        this.deal.set('title', newValue)
+        if (this.attribute_calculate_seo_slug) {
           this.set('seo_slug', newValue);
         }
       }
-      else if (attr === 'component_calculate_seo_slug') {
-        this.component_calculate_seo_slug = newValue
-        if (this.component_calculate_seo_slug) {
-          this.set('seo_slug', this.model.get('title'));
+      else if (attr === 'retailer_id') {
+        this.deal.set('retailer_id', newValue)
+        this.deal.set('retailer', this.retailers.find(retailer => retailer.id === newValue))
+      }
+      else if (attr === 'store_ids') {
+        let stores = this.stores.filter(store => {
+          return _.includes(newValue, store.id)
+        })
+        this.deal.set('stores', stores)
+      }
+      else if (attr === 'attribute_calculate_seo_slug') {
+        this.attribute_calculate_seo_slug = newValue
+        if (this.attribute_calculate_seo_slug) {
+          this.set('seo_slug', this.deal.get('title'));
         }
       }
-      else if (attr === 'component_calculate_dates_all_day') {
-        this.component_calculate_dates_all_day = newValue
-        if (this.component_calculate_dates_all_day) {
+      else if (attr === 'attribute_calculate_dates_all_day') {
+        this.attribute_calculate_dates_all_day = newValue
+        if (this.attribute_calculate_dates_all_day) {
           let self = this
           this.dateAttributeNames.forEach(attr => {
-            let date = self.model.get(attr)
+            let date = self.deal.get(attr)
             date.set({ hour: 0, minute: 0, second: 0 })
-            self.model.set(attr, date)
+            self.deal.set(attr, date)
           })
         }
       }
       else {
-        this.model.set(attr, newValue)
+        this.deal.set(attr, newValue)
       }
     },
     createAction() {
-      console.log('wooohoo', this)
+      this.deal.save()
+        .then((deal) => {
+          this.saved = true
+          this.$router.push('/deals/' + deal.id)
+        })
+        .catch(error => {
+          console.error('error', error)
+        })
     },
   },
   components: {
