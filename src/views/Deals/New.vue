@@ -224,7 +224,7 @@
             The API doesn't currently support end_date_visibility or end_at_text
             in post or patch requests.
              -->
-            <form-select
+            <!-- <form-select
               attribute="end_at_text"
               :labelProps="{
                 content: 'End Date Text',
@@ -255,7 +255,7 @@
                   value: 'Ongoing',
                 },
               ]"
-            ></form-select>
+            ></form-select> -->
             <form-select
               attribute="retailer_id"
               :labelProps="{
@@ -425,10 +425,7 @@ export default {
     this.checkCurrentPermissions()
   },
   mounted() {
-    new Promise(resolve => {
-      this.getDeal()
-      resolve(true)
-    })
+    this.getDeal()
     .then(() => {
       this.getRetailers()
     })
@@ -436,21 +433,21 @@ export default {
       this.loading = false;
     })
   },
-  beforeRouteLeave(to, from, next) {
-    if (this.isChangesEmpty || this.saved) {
-      next()
-    }
-    else {
-      let confirm = window.confirm('Do you really want to leave? All unsaved changes will be lost.')
-      if (confirm) {
-        //////////////////////// delete deal
-        next()
-      }
-      else {
-        next(false)
-      }
-    }
-  },
+  // beforeRouteLeave(to, from, next) {
+  //   if (this.isChangesEmpty || this.saved) {
+  //     next()
+  //   }
+  //   else {
+  //     let confirm = window.confirm('Do you really want to leave? All unsaved changes will be lost.')
+  //     if (confirm) {
+  //       //////////////////////// delete deal from store
+  //       next()
+  //     }
+  //     else {
+  //       next(false)
+  //     }
+  //   }
+  // },
   methods: {
     checkCurrentLogin() {
       if (!this.currentUser && this.$route.path !== '/') {
@@ -466,16 +463,18 @@ export default {
       }
     },
     getDeal() {
-      Deal.new()
-      .then(model => {
-        this.deal = model
-      })
+      return Deal
+        .new()
+        .then(model => {
+          this.deal = model
+        })
     },
     getRetailers() {
-      Retailer.with('stores').all()
-      .then(collection => {
-        this.retailers = collection
-      })
+      return Retailer
+        .with('stores').all()
+        .then(collection => {
+          this.retailers = collection
+        })
     },
     get(attr) {
       if (attr.indexOf('attribute_') === 0) {
@@ -527,14 +526,19 @@ export default {
       }
     },
     createAction() {
+      this.loading = true
       this.deal.save()
-        .then((deal) => {
-          this.saved = true
-          this.$router.push('/deals/' + deal.id)
-        })
-        .catch(error => {
-          console.error('error', error)
-        })
+      .then((deal) => {
+        this.saved = true
+        this.$router.push('/deals/' + deal.id)
+      })
+      .catch(error => {
+        console.error('error', error)
+        this.error = true
+      })
+      .finally(() => {
+        this.loading == false
+      })
     },
   },
   components: {

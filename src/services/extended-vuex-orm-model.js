@@ -30,16 +30,8 @@ export default class ExtendedModel extends Model {
     }).all()
   }
 
-  static query(options) {
-    return new ORM({
-      resource: this.entity,
-      options:  options
-    }).query()
-  }
-
   static new() {
     let newObj = new this
-
     return new Promise(resolve => {
       newObj.snapshot()
       resolve(newObj)
@@ -48,20 +40,24 @@ export default class ExtendedModel extends Model {
 
   static attributeFields() {
     let fields = this.fields()
-    return _.keys(fields).filter(key => {
-      return fields[key].constructor.name === 'Attr'
-    }).reduce((list, key) => {
-      return _.set(list, key, fields[key])
-    }, {});
+    return _
+      .keys(fields).filter(key => {
+        return fields[key].constructor.name === 'Attr'
+      })
+      .reduce((list, key) => {
+        return _.set(list, key, fields[key])
+      }, {});
   }
 
   static relationshipFields() {
     let fields = this.fields()
-    return _.keys(fields).filter(key => {
-      return fields[key].constructor.name != 'Attr'
-    }).reduce((list, key) => {
-      return _.set(list, key, fields[key])
-    }, {});
+    return _
+      .keys(fields).filter(key => {
+        return fields[key].constructor.name != 'Attr'
+      })
+      .reduce((list, key) => {
+        return _.set(list, key, fields[key])
+      }, {});
   }
 
   static attributeFieldNames() {

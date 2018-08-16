@@ -7,14 +7,18 @@
       <div v-if="loading">Loading...</div>
       <div v-else>
         <h2>details</h2>
-        <form @submit.prevent="updateAction()" autocomplete="off">
+        <form @submit.prevent="createAction()" autocomplete="off">
           <div class=alert alert-danger v-if=validationErrors>{{ validationErrors }}</div>
           <div class="container">
             <form-input
               attribute="title"
-              label="Title"
-              labelClass="col-md-2"
-              rootClass="row"
+              :labelProps="{
+                content: 'Title',
+                class: 'col-md-2',
+              }"
+              :rootProps="{
+                class: 'row'
+              }"
               :inputProps="{ 
                 type: 'text',
                 required: true,
@@ -24,35 +28,38 @@
             ></form-input>
             <form-input
               attribute="seo_slug"
-              label="SEO Title"
-              labelClass="col-md-2"
-              rootClass="row"
+              :labelProps="{
+                content: 'SEO Title',
+                class: 'col-md-2',
+              }"
+              :rootProps="{
+                class: 'row'
+              }"
               :inputProps="{ 
                 type: 'text',
                 required: true,
-                disabled: component_calculate_seo_slug,
+                disabled: attribute_calculate_seo_slug,
                 class: 'form-control col-md-9',
               }"
               :toggle="{
-                attribute: 'component_calculate_seo_slug',
+                attribute: 'attribute_calculate_seo_slug',
                 class: 'col-md-1',
               }"
             ></form-input>
             <form-select
               attribute="sales_type"
-              label="Sale Type"
-              labelClass="col-md-2"
-              rootClass="row"
+              :labelProps="{
+                content: 'Sale Type',
+                class: 'col-md-2',
+              }"
+              :rootProps="{
+                class: 'row'
+              }"
               :inputProps="{ 
                 required: true,
                 class: 'form-control col-md-9',
               }"
               :selectOptions="[
-                {
-                  text: 'Please select one',
-                  value:'',
-                  disabled: true,
-                },
                 {
                   text: 'Sales and Promos',
                 },
@@ -69,9 +76,13 @@
             ></form-select>
             <form-textarea
               attribute="description"
-              label="Description"
-              labelClass="col-md-2"
-              rootClass="row"
+              :labelProps="{
+                content: 'Description',
+                class: 'col-md-2',
+              }"
+              :rootProps="{
+                class: 'row'
+              }"
               :inputProps="{ 
                 required: true, 
                 class: 'form-control col-md-9'
@@ -79,9 +90,13 @@
             ></form-textarea>
             <form-textarea
               attribute="fine_print_description"
-              label="Fine Print"
-              labelClass="col-md-2"
-              rootClass="row"
+              :labelProps="{
+                content: 'Fine Print',
+                class: 'col-md-2',
+              }"
+              :rootProps="{
+                class: 'row'
+              }"
               :inputProps="{ 
                 required: true, 
                 class: 'form-control col-md-9'
@@ -89,9 +104,13 @@
             ></form-textarea>
             <form-input
               attribute="external_url"
-              label="Website Address"
-              labelClass="col-md-2"
-              rootClass="row"
+              :labelProps="{
+                content: 'Website Address',
+                class: 'col-md-2',
+              }"
+              :rootProps="{
+                class: 'row'
+              }"
               :inputProps="{ 
                 'type': 'url', 
                 'class': 'form-control col-md-9'
@@ -99,46 +118,66 @@
             ></form-input>
             <form-checkbox
               attribute="is_local"
-              label="Is Local?"
-              labelClass="col-md-2"
-              rootClass="row"
+              :labelProps="{
+                content: 'Is Local?',
+                class: 'col-md-2',
+              }"
+              :rootProps="{
+                class: 'row'
+              }"
               :inputProps="{ 
                 class: 'form-control col-md-1'
               }"
             ></form-checkbox>
             <form-checkbox
               attribute="is_featured"
-              label="Is Featured?"
-              labelClass="col-md-2"
-              rootClass="row"
+              :labelProps="{
+                content: 'Is Featured?',
+                class: 'col-md-2',
+              }"
+              :rootProps="{
+                class: 'row'
+              }"
               :inputProps="{ 
                 class: 'form-control col-md-1'
               }"
             ></form-checkbox>
             <form-checkbox
               attribute="is_live"
-              label="Is Live?"
-              labelClass="col-md-2"
-              rootClass="row"
+              :labelProps="{
+                content: 'Is Live?',
+                class: 'col-md-2',
+              }"
+              :rootProps="{
+                class: 'row'
+              }"
               :inputProps="{ 
                 class: 'form-control col-md-1'
               }"
             ></form-checkbox>
             <br>
             <form-checkbox
-              attribute="component_calculate_dates_all_day"
-              label="All Day?"
-              labelClass="col-md-2"
-              rootClass="row"
+              attribute="attribute_calculate_dates_all_day"
+              :labelProps="{
+                content: 'All Day?',
+                class: 'col-md-2',
+              }"
+              :rootProps="{
+                class: 'row'
+              }"
               :inputProps="{ 
                 class: 'form-control col-md-1'
               }"
             ></form-checkbox>
             <form-date-time
               attribute="start_at"
-              label="Start Date"
-              labelClass="col-md-2"
-              rootClass="row"
+              :labelProps="{
+                content: 'Start Date',
+                class: 'col-md-2',
+              }"
+              :rootProps="{
+                class: 'row'
+              }"
               :inputProps="{ 
                 type: dateType,
                 class: 'form-control col-md-9',
@@ -149,9 +188,13 @@
             ></form-date-time>
             <form-date-time
               attribute="end_at"
-              label="End Date"
-              labelClass="col-md-2"
-              rootClass="row"
+              :labelProps="{
+                content: 'End Date',
+                class: 'col-md-2',
+              }"
+              :rootProps="{
+                class: 'row'
+              }"
               :inputProps="{ 
                 type: dateType,
                 class: 'form-control col-md-9',
@@ -162,9 +205,13 @@
             ></form-date-time>
             <form-date-time
               attribute="display_at"
-              label="Display Date"
-              labelClass="col-md-2"
-              rootClass="row"
+              :labelProps="{
+                content: 'Display Date',
+                class: 'col-md-2',
+              }"
+              :rootProps="{
+                class: 'row'
+              }"
               :inputProps="{ 
                 type: dateType,
                 class: 'form-control col-md-9',
@@ -179,9 +226,13 @@
              -->
             <!-- <form-select
               attribute="end_at_text"
-              label="End Date Text"
-              labelClass="col-md-2"
-              rootClass="row"
+              :labelProps="{
+                content: 'End Date Text',
+                class: 'col-md-2',
+              }"
+              :rootProps="{
+                class: 'row'
+              }"
               :inputProps="{ 
                 required: true,
                 class: 'form-control col-md-9',
@@ -205,6 +256,37 @@
                 },
               ]"
             ></form-select> -->
+            <form-select
+              attribute="retailer_id"
+              :labelProps="{
+                content: 'Retailer',
+                class: 'col-md-2',
+              }"
+              :rootProps="{
+                class: 'row'
+              }"
+              :inputProps="{ 
+                required: true,
+                class: 'form-control col-md-9',
+              }"
+              :selectOptions="retailerSelectList"
+            ></form-select>
+            <form-select
+              attribute="store_ids"
+              :labelProps="{
+                content: 'Stores',
+                class: 'col-md-2',
+              }"
+              :rootProps="{
+                class: 'row'
+              }"
+              :inputProps="{ 
+                required: true,
+                multiple: true,
+                class: 'form-control col-md-9',
+              }"
+              :selectOptions="storeSelectList"
+            ></form-select>
           </div>
           <br>
           <div class="row">
@@ -212,14 +294,13 @@
               <button
                 class="btn btn-lg btn-primary btn-block"
                 type="submit"
-                :disabled="isChangesEmpty"
               >
                 Submit
               </button>
             </div>
             <div class="col-md-6 btn-row">
               <router-link 
-                :to="{ name: 'DealShow', params: { deal_id: deal_id }}"
+                :to="{ name: 'DealIndex' }"
                 class='btn btn-lg btn-primary btn-block'
               >
                 Cancel
@@ -238,6 +319,7 @@ import { mapGetters } from 'vuex'
 import moment from 'moment'
 
 import Deal from '@/models/deal'
+import Retailer from '@/models/retailer'
 
 import FormCheckbox from '@/components/form-elements/checkbox'
 import FormDateTime from '@/components/form-elements/date-time'
@@ -267,24 +349,25 @@ export default {
         }
       ],
 
-      model:    null,
-      loading:  true,
-      saved:    false,
-      error:    false,
-      model_id: id,
+      deal:      null,
+      retailers: [],
+      loading:   true,
+      saved:     false,
+      error:     false,
+      deal_id:   id,
 
       dateAttributeNames: Deal.dateAttributeNames(),
       validationErrors:   null,
       
-      component_calculate_seo_slug:      true,
-      component_calculate_dates_all_day: true
+      attribute_calculate_seo_slug:      true,
+      attribute_calculate_dates_all_day: true
     }
   },
   computed: {
     ...mapGetters({ currentUser: 'currentUser' }),
     startAtMin: function() {
       let today = moment.utc()
-      let start_at = this.model.get('start_at')
+      let start_at = this.get('start_at')
       if (start_at && start_at.isValid() && start_at < today) {
         return start_at
       }
@@ -293,16 +376,16 @@ export default {
       }
     },
     displayAtMin: function() {
-      let start_at = this.model.get('start_at')
+      let start_at = this.get('start_at')
       return (start_at && start_at.isValid()) ? (start_at) : (this.startAtMin)
     },
     endAtMin: function() {
-      let date = (this.model.get('display_at') || this.model.get('start_at'));
+      let date = (this.get('display_at') || this.get('start_at'));
       return (date) ? (moment.utc(date).add(1, 'd')) : (moment.utc().add(1, 'd'))
     },
     displayAtMax: function() {
-      if (this.model.get('end_at')) {
-        return moment.utc(this.model.get('end_at')).subtract(1, 'd')
+      if (this.get('end_at')) {
+        return moment.utc(this.get('end_at')).subtract(1, 'd')
       }
       else {
         return this.indefinitely
@@ -315,11 +398,30 @@ export default {
       return (this.component_calculate_dates_all_day) ? ('date') : ('datetime-local');
     },
     isChangesEmpty: function() {
-      return _.isEmpty(this.model.changes)
+      return _.isEmpty(this.deal.changes)
     },
     doubleQuotes: function() {
       return String.fromCharCode(34);
-    }
+    },
+    stores: function() {
+      return this.get('retailer.stores') || []
+    },
+    retailerSelectList: function() {
+      return this.retailers.map(retailer => {
+        return {
+          text: retailer.name,
+          value: retailer.id
+        }
+      })
+    },
+    storeSelectList: function() {
+      return this.stores.map(store => {
+        return {
+          text: store.name,
+          value: store.id
+        }
+      })
+    },
   },
   created() {
     this.checkCurrentLogin()
@@ -331,23 +433,29 @@ export default {
     this.checkCurrentPermissions()
   },
   mounted() {
-    this.getModel()
+    this.getDeal()
+    .then(() => {
+      this.getRetailers()
+    })
+    .then(() => {
+      this.loading = false
+    })
   },
-  beforeRouteLeave(to, from, next) {
-    if (this.isChangesEmpty || this.saved) {
-      next()
-    }
-    else {
-      let confirm = window.confirm('Do you really want to leave? All unsaved changes will be lost.')
-      if (confirm) {
-        this.model.rollback()
-        next()
-      }
-      else {
-        next(false)
-      }
-    }
-  },
+  // beforeRouteLeave(to, from, next) {
+  //   if (this.isChangesEmpty || this.saved) {
+  //     next()
+  //   }
+  //   else {
+  //     let confirm = window.confirm('Do you really want to leave? All unsaved changes will be lost.')
+  //     if (confirm) {
+  //       this.deal.rollback()
+  //       next()
+  //     }
+  //     else {
+  //       next(false)
+  //     }
+  //   }
+  // },
   methods: {
     checkCurrentLogin() {
       if (!this.currentUser && this.$route.path !== '/') {
@@ -362,79 +470,90 @@ export default {
         this.$router.push('/dashboard?redirect=' + this.$route.path)
       }
     },
-    getModel() {
-      Deal.with('retailer,stores,retailer.stores').find(this.model_id)
-      .then((record) => {
-        this.model = record
-        this.model.snapshot()
-        return this.model
-      })
-      .then((model) => {
-        this.component_calculate_dates_all_day = _
-          .every(this.dateAttributeNames, attrName => {
-            return _.every(['hour', 'minute', 'second'], x => {
-              return model[attrName].get(x) === 0
+    getDeal() {
+      return Deal
+        .with('retailer,stores,retailer.stores').find(this.deal_id)
+        .then((record) => {
+          this.deal = record
+          this.deal.snapshot()
+          return this.deal
+        })
+        .then((deal) => {
+          this.component_calculate_dates_all_day = _
+            .every(this.dateAttributeNames, attrName => {
+              return _.every(['hour', 'minute', 'second'], x => {
+                return deal[attrName].get(x) === 0
+              })
             })
-          })
-
-      })
-      .catch((error) => {
-        console.error('request failed', error);
-        this.error = true;
-      })
-      .finally(() => {
-        this.loading = false
-      })
+        })
+        .catch((error) => {
+          console.error('request failed', error);
+          this.error = true;
+        })
+    },
+    getRetailers() {
+      return Retailer
+        .with('stores').all()
+        .then(collection => {
+          this.retailers = collection
+        })
+        .catch((error) => {
+          console.error('request failed', error);
+          this.error = true;
+        })
     },
     get(attr) {
-      if (attr.indexOf('component_') === 0) {
-        return this[attr]
+      if (attr.indexOf('attribute_') === 0) {
+        return _.get(this, attr)
+      }
+      else if (attr === 'store_ids') {
+       return this.deal.get('stores').map(store => store.id)
       }
       else {
-        return this.model.get(attr)
+        return this.deal.get(attr)
       }
     },
     set(attr, newValue) {
       if (attr === 'title') {
-        this.model.set('title', newValue)
-        if (this.component_calculate_seo_slug) {
+        this.deal.set('title', newValue)
+        if (this.attribute_calculate_seo_slug) {
           this.set('seo_slug', newValue);
         }
       }
-      else if (attr === 'component_calculate_seo_slug') {
-        this.component_calculate_seo_slug = newValue
-        if (this.component_calculate_seo_slug) {
-          this.set('seo_slug', this.model.get('title'));
+      else if (attr === 'retailer_id') {
+        this.deal.set('retailer_id', newValue)
+        this.deal.set('retailer', this.retailers.find(retailer => retailer.id === newValue))
+      }
+      else if (attr === 'store_ids') {
+        let stores = this.stores.filter(store => {
+          return _.includes(newValue, store.id)
+        })
+        this.deal.set('stores', stores)
+      }
+      else if (attr === 'attribute_calculate_seo_slug') {
+        this.attribute_calculate_seo_slug = newValue
+        if (this.attribute_calculate_seo_slug) {
+          this.set('seo_slug', this.deal.get('title'));
         }
       }
-      else if (attr === 'component_calculate_dates_all_day') {
-        this.component_calculate_dates_all_day = newValue
-        if (this.component_calculate_dates_all_day) {
+      else if (attr === 'attribute_calculate_dates_all_day') {
+        this.attribute_calculate_dates_all_day = newValue
+        if (this.attribute_calculate_dates_all_day) {
           let self = this
           this.dateAttributeNames.forEach(attr => {
-            let date = self.model.get(attr)
+            let date = self.deal.get(attr)
             date.set({ hour: 0, minute: 0, second: 0 })
-            self.model.set(attr, date)
+            self.deal.set(attr, date)
           })
         }
       }
       else {
-        this.model.set(attr, newValue)
+        this.deal.set(attr, newValue)
       }
     },
     updateAction() {
       this.loading = true;
-      json_api.updateRecord({
-        resource: 'deals',
-        id:       this.deal_id,
-        body: {
-          data: {
-            id: this.model.get('id'),
-            type: this.model.get('type'),
-            attributes: this.model.serializedChanges,
-          }
-        }
-      })
+      this.deal.save()
       .then(() => {
         this.saved = true
         this.$router.push('/deals/' + this.deal_id)
