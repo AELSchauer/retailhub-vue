@@ -7,7 +7,7 @@
       <div v-if="loading">Loading...</div>
       <div v-else>
         <h2>details</h2>
-        <form @submit.prevent="createAction()" autocomplete="off">
+        <form @submit.prevent="saveAction()" autocomplete="off">
           <div class=alert alert-danger v-if=validationErrors>{{ validationErrors }}</div>
           <div class="container">
             <form-input
@@ -525,12 +525,12 @@ export default {
         this.deal.set(attr, newValue)
       }
     },
-    createAction() {
+    saveAction() {
       this.loading = true
       this.deal.save()
-      .then((deal) => {
+      .then(() => {
         this.saved = true
-        this.$router.push('/deals/' + deal.id)
+        this.$router.push('/deals/' + this.deal.id)
       })
       .catch(error => {
         console.error('error', error)

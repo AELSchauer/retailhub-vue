@@ -7,7 +7,7 @@
       <div v-if="loading">Loading...</div>
       <div v-else>
         <h2>details</h2>
-        <form @submit.prevent="createAction()" autocomplete="off">
+        <form @submit.prevent="saveAction()" autocomplete="off">
           <div class=alert alert-danger v-if=validationErrors>{{ validationErrors }}</div>
           <div class="container">
             <form-input
@@ -522,7 +522,11 @@ export default {
       }
       else if (attr === 'retailer_id') {
         this.deal.set('retailer_id', newValue)
-        this.deal.set('retailer', this.retailers.find(retailer => retailer.id === newValue))
+        let retailer = this.retailers.find(retailer => retailer.id === newValue)
+        console.log('retailer', retailer)
+        this.deal.set('retailer', retailer)
+        console.log('getter from store', Deal.getters('find')(this.deal_id))
+        console.log('this.deal', this.deal)
       }
       else if (attr === 'store_ids') {
         let stores = this.stores.filter(store => {
@@ -551,7 +555,7 @@ export default {
         this.deal.set(attr, newValue)
       }
     },
-    updateAction() {
+    saveAction() {
       this.loading = true;
       this.deal.save()
       .then(() => {

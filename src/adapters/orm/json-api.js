@@ -38,11 +38,19 @@ export default class JsonApi {
       headers: this._headers('POST'),
       params: this._requestParams(),
       data: {
-        data: {
-          type: this.resource,
-          attributes: this.changes.attributes,
-          relationships: this.changes.relationships
-        }
+        data: this._body()
+      }
+    })
+  }
+
+  update() {
+    return $http.request({
+      method: 'PATCH',
+      url: this._url(),
+      headers: this._headers('PATCH'),
+      params: this._requestParams(),
+      data: {
+        data: this._body()
       }
     })
   }
@@ -125,6 +133,14 @@ export default class JsonApi {
 
   _requestParams() {
     return _.merge(this._authorizationParams(), this._buildParams())
+  }
+
+  _body() {
+    let body = { type: this.resource }
+    if (this.id) _.set(body, 'id', this.id)
+    if (this.changes.attributes) _.set(body, 'attributes', this.changes.attributes)
+    if (this.changes.relationships) _.set(body, 'relationships', this.changes.relationships)
+    return body
   }
 
   _associationType() {

@@ -10,9 +10,14 @@ export default class Store extends Model {
 
   static fields () {
     return {
-      id:     this.attr(null),
-      type:   this.attr('stores'),
-      name:   this.attr(''),
+      id:   this.attr(null),
+      type: this.attr('stores'),
+
+      name:     this.attr(''),
+      seo_slug: this.attr(''),
+      address:  this.attr(''),
+      city:     this.attr(''),
+      state:    this.attr(''),
       
       mall_id:      this.attr(null),
       retailer_id:  this.attr(null),

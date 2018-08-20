@@ -7,7 +7,6 @@ export default class ORM {
     this.id                = args.id
     this.options           = args.options || {};
     this.associatedRecords = args.associatedRecords
-    this.body              = args.body
     this.options           = args.options || {}
   }
 
@@ -30,8 +29,15 @@ export default class ORM {
     return getRecord
   }
 
-  commit(response) {
-    let convertedData = this._convertResponseBody(response.data)
+  commit({ response, changes }) {
+    let convertedData
+    if (response) {
+      convertedData = this._convertResponseBody(response.data)
+    }
+    else {
+      convertedData = this._convertChanges(changes)
+      let pluralRelationships = _.keys(changes.relationships).filter(relationship => relationship.isPlural())
+    }
     $store.dispatch(`entities/${this.resource}/${this._storeMethod}`, convertedData)
   }
 
@@ -143,6 +149,18 @@ export default class ORM {
         _.set(record, includeQueried, true)
       }
     }
+  }
+
+  _convertChanges(changes) {
+    let data = { id: this.id }
+    _.merge(data, changes.attributes)
+    _.toPairs(changes.relationships).forEach(([ relationship, value ]) => {
+      value = value.data
+      _.set(data, `$${relationship}_queried`, true)
+      _.set(data, relationship, value)
+    })
+
+    return { data: data }
   }
 
   get _storeMethod() {

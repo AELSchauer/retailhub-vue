@@ -138,6 +138,7 @@ export default {
     getModel() {
       Deal.with('retailer,stores,retailer.stores').find(this.model_id)
       .then((record) => {
+        console.log('record', record)
         this.model = record
       })
       .catch((error) => {

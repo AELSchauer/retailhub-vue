@@ -25,6 +25,7 @@ export default class ORM {
 
     let _store = new DataStore(request)
     let record = _store.find()
+    console.log('_store record', record)
     if (record && this._recordsHaveQueriedAllIncluded(record)) {
       return new Promise((resolve) => {
         resolve(record)
@@ -37,7 +38,7 @@ export default class ORM {
           throw response
         }
         else {
-          _store.commit(response)
+          _store.commit({ response: response })
         }
       })
       .then(() => {
@@ -67,7 +68,7 @@ export default class ORM {
           throw response
         }
         else {
-          _store.commit(response)
+          _store.commit({ response: response })
           _store.markResourceAsQueried()
         }
       })
@@ -99,7 +100,7 @@ export default class ORM {
           throw response
         }
         else {
-          _store.commit(response)
+          _store.commit({ response: response })
           return response.data.data.id
         }
       })
@@ -108,6 +109,26 @@ export default class ORM {
         return new Promise(resolve => {
           resolve(_store.find())
         })
+      })
+  }
+
+  update() {
+    let request = {
+      resource: this.resource,
+      id:       this.id,
+      options:  this.options,
+      changes:  this.changes
+    }
+    let _store = new DataStore(request)
+
+    return new JsonApi(request).update()
+      .then(response => {
+        if (response.status != 200) {
+          throw response
+        }
+        else {
+          _store.commit({ changes: this.changes })
+        }
       })
   }
 
@@ -159,11 +180,11 @@ export default class ORM {
       .compact()
       .value()
 
-      return _.every(records, record => {
-        return _.every(include, resource => {
-          return isIncludedQueried(resource, record)
-        })
+    return _.every(records, record => {
+      return _.every(include, resource => {
+        return isIncludedQueried(resource, record)
       })
+    })
 
     function isIncludedQueried(resource, record) {
       let nestedResource = resource.splice(1)

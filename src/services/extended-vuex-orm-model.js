@@ -105,7 +105,8 @@ export default class ExtendedModel extends Model {
       }
     }
 
-    _.set(this, attr, format(attr, newValue))
+    // _.set(this, attr, format(attr, newValue))
+    this[attr] = format(attr, newValue)
   }
 
   get attributes() {
