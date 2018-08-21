@@ -428,20 +428,19 @@ export default {
     this.checkCurrentLogin()
     this.checkCurrentPermissions()
     this.$store.dispatch('breadcrumbs', this.breadcrumbs)
-    this.getRetailers()
-    .then(() => {
-      this.getDeal()
-    })
-    .then(() => {
-      this.loading = false
-    })
   },
   updated() {
     this.checkCurrentLogin()
     this.checkCurrentPermissions()
   },
   mounted() {
-
+    this.getDeal()
+    .then(() => {
+      this.getRetailers()
+    })
+    .then(() => {
+      this.loading = false
+    })
   },
   // beforeRouteLeave(to, from, next) {
   //   if (this.isChangesEmpty || this.saved) {
@@ -476,8 +475,8 @@ export default {
       return Deal
         .with('retailer,stores,retailer.stores').find(this.deal_id)
         .then((record) => {
-          this.deal = record
           this.deal.snapshot()
+          this.deal = record
           return this.deal
         })
         .then((deal) => {

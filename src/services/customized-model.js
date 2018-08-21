@@ -31,8 +31,7 @@ export default class CustomModel extends ExtendedOrmModel {
       }
     }
 
-    // _.set(this, attr, format(attr, newValue))
-    this[attr] = format(attr, newValue)
+    _.set(this, attr, format(attr, newValue))
   }
 
   _isChanged(attrName, oldVal, newVal) {

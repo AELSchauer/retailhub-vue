@@ -9,13 +9,13 @@
         <span class="row">
           <h2 class="section-title col-md-11">details</h2>
           <router-link 
-            :to="{ name: 'DealEdit', params: { deal_id: model.id }}"
+            :to="{ name: 'DealEdit', params: { deal_id: get('id') }}"
             class='btn edit-button col-md-1'
           >
             Edit
           </router-link>
         </span>
-        <div v-for="attribute in model.attributeManifest" class="attribute row">
+        <div v-for="attribute in deal.attributeManifest" class="attribute row">
           <div class="attribute-label col-md-2">
             {{ attribute.label }}
           </div>
@@ -26,7 +26,7 @@
         <hr>
         <div class="retailer-section">
           <h2>retailer</h2>
-          {{ model.retailer.name }}
+          {{ get('retailer.name') }}
         </div>
         <hr>
         <div class="stores-section">
@@ -43,12 +43,21 @@
               </td>
               <td>
                 <template v-if="store.isAssociated">
-                  <!-- <font-awesome-icon icon="minus-square"  @click="deleteAssociation(store)" /> -->
-                  <button @click="deleteAssociations(store.record)" class="add-remove">-</button>
+                  <button
+                    @click="deleteAssociation(store.record)"
+                    :disabled="isDeleteAssociationDisabled(store.record)"
+                    class="add-remove"
+                  >
+                    <font-awesome-icon icon="minus-square" />
+                  </button>
                 </template>
                 <template v-else>
-                  <!-- <font-awesome-icon icon="plus-square" @click="createAssociation(store)" /> -->
-                  <button @click="createAssociations(store.record)" class="add-remove">+</button>
+                  <button
+                    @click="createAssociation(store.record)"
+                    class="add-remove"
+                  >
+                    <font-awesome-icon icon="plus-square" />
+                  </button>
                 </template>
               </td>
             </tr>
@@ -64,7 +73,6 @@ import { mapGetters } from 'vuex'
 import json_api from '@/services/json-api'
 
 import Deal from '@/models/deal'
-import Mall from '@/models/mall'
 
 export default {
   name: 'DealShow',
@@ -82,31 +90,37 @@ export default {
           text: id,
         }
       ],
-      model:    null,
-      loading:  true,
-      error:    false,
-      model_id: id,
+      deal:    null,
+      loading: true,
+      error:   false,
+      deal_id: id,
     }
   },
   computed: {
     ...mapGetters({ currentUser: 'currentUser' }),
     stores: function() {
-      let stores = _.chain(this.model.stores);
+      let dealStores = this.get('stores');
+      let retailerStores = this.get('retailer.stores');
 
-      return stores
-        .concat(this.model.retailer.stores)
+      return _
+        .chain(dealStores)
+        .concat(retailerStores)
         .sortBy('name')
         .sortedUniqBy('name')
         .map(store => {
           return {
             record: store,
-            isAssociated: stores.map('id').includes(store.id).value()
+            isAssociated: _
+              .chain(dealStores)
+              .map('id')
+              .includes(store.get('id'))
+              .value()
           }
         })
         .value()
     },
     attributeManifest: function() {
-      return this.model.attributeManifest
+      return this.deal.attributeManifest
     },
   },
   created() {
@@ -119,7 +133,7 @@ export default {
     this.checkCurrentPermissions()
   },
   mounted() {
-    this.getModel()
+    this.getDeal()
   },
   methods: {
     checkCurrentLogin() {
@@ -135,10 +149,11 @@ export default {
         this.$router.push('/dashboard?redirect=' + this.$route.path)
       }
     },
-    getModel() {
-      Deal.with('retailer,stores,retailer.stores').find(this.model_id)
+    getDeal() {
+      Deal.with('retailer,stores,retailer.stores').find(this.deal_id)
       .then((record) => {
-        this.model = record
+        record.snapshot()
+        this.deal = record
       })
       .catch((error) => {
         console.error('request failed', error);
@@ -149,7 +164,7 @@ export default {
       })
     },
     get(attrName) {
-      let attribute = this.model.get(attrName)
+      let attribute = this.deal.get(attrName)
       if (attribute && attribute.constructor.name === 'Moment') {
         return attribute.format('YYYY-MM-DD HH:mm:ss')
       }
@@ -157,59 +172,50 @@ export default {
         return attribute
       }
     },
-    deleteAssociations(record) {
-      this.loading = true
-      json_api.deleteAssociations({
-        resource: 'deals',
-        id: this.deal_id,
-        associatedRecords: [
-          { type: record.type, id: record.id }
-        ]
-      })
-      .then(() => {
-        return json_api.peekRecord({
-          resource: 'deals',
-          id:       this.deal_id,
-          options:  {
-            params: { include: 'retailer,stores,retailer.stores' }
-          }
-        })
-      })
-      .then((record) => {
-        this.model = record
-      })
-      .catch((error) => {
-        console.error('request failed', error);
-        this.error = true;
-      })
-      .finally(() => this.loading = false)
+    set(attr, newValue) {
+      this.deal.set(attr, newValue)
     },
-    createAssociations(record) {
-      this.loading = true
-      json_api.createAssociations({
-        resource: 'deals',
-        id: this.deal_id,
-        associatedRecords: [
-          { type: record.type, id: record.id }
-        ]
-      })
-      .then(() => {
-        return json_api.peekRecord({
-          resource: 'deals',
-          id:       this.deal_id,
-          options:  {
-            params: { include: 'retailer,stores,retailer.stores' }
-          }
+    isDeleteAssociationDisabled(record) {
+      return this.deal.get(record.type).length <= 1
+    },
+    deleteAssociation(record) {
+      this.loading = true;
+      let newRecords = _
+        .chain(this.deal)
+        .get(record.type, [])
+        .filter(_record => {
+          return _record.get('id') != record.get('id')
         })
-      })
-      .then((record) => {
-        this.model = record
-      })
+        .value()
+
+      this.set(record.type, newRecords)
+      this.deal.save()
       .catch((error) => {
         console.error('request failed', error);
         this.error = true;
       })
-      .finally(() => this.loading = false)
+      .finally(() => {
+        console.log('this.deal', Deal.with('retailer,stores,retailer.stores').find(this.deal_id))
+        this.loading = false
+      })
+    },
+    createAssociation(record) {
+      this.loading = true
+      let newRecords = _
+        .chain(this.deal)
+        .get(record.type, [])
+        .concat([record])
+        .value()
+
+      this.set(record.type, newRecords)
+      this.deal.save()
+      .catch((error) => {
+        console.error('request failed', error);
+        this.error = true;
+      })
+      .finally(() => {
+        this.loading = false
+      })
     },
   }
 }

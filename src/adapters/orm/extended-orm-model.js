@@ -89,7 +89,7 @@ export default class ExtendedOrmModel extends Model {
   }
 
   snapshot() {
-    this.snapshot = {
+    this._snapshot = {
       attributes: _.cloneDeep(this.attributes),
       relationships: _.cloneDeep(this.relationships)
     }
@@ -97,7 +97,7 @@ export default class ExtendedOrmModel extends Model {
 
   rollback() {
     let self = this
-    _.keys(this.snapshot).forEach(k => {
+    _.keys(this._snapshot).forEach(k => {
       self[k] = self.snapshot[k]
     })
   }
@@ -166,7 +166,7 @@ export default class ExtendedOrmModel extends Model {
 
   get changes() {
     let self = this
-    let snapshot = this.snapshot
+    let snapshot = this._snapshot
     let changes = { attributes: {}, relationships: {} }
 
     _.toPairs(snapshot.attributes).forEach(([ attrName, oldVal ]) => {
