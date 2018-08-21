@@ -256,7 +256,7 @@
                 },
               ]"
             ></form-select> -->
-            retailer id: {{ get('retailer_id') }}
+            <!-- retailer id: {{ get('retailer_id') }} -->
             <form-select
               attribute="retailer_id"
               :labelProps="{
@@ -283,7 +283,6 @@
               }"
               :inputProps="{ 
                 required: true,
-                multiple: true,
                 class: 'form-control col-md-9',
               }"
               :selectOptions="storeSelectList"
@@ -429,19 +428,20 @@ export default {
     this.checkCurrentLogin()
     this.checkCurrentPermissions()
     this.$store.dispatch('breadcrumbs', this.breadcrumbs)
+    this.getRetailers()
+    .then(() => {
+      this.getDeal()
+    })
+    .then(() => {
+      this.loading = false
+    })
   },
   updated() {
     this.checkCurrentLogin()
     this.checkCurrentPermissions()
   },
   mounted() {
-    this.getDeal()
-    .then(() => {
-      this.getRetailers()
-    })
-    .then(() => {
-      this.loading = false
-    })
+
   },
   // beforeRouteLeave(to, from, next) {
   //   if (this.isChangesEmpty || this.saved) {
@@ -508,11 +508,16 @@ export default {
       if (attr.indexOf('attribute_') === 0) {
         return _.get(this, attr)
       }
-      else if (attr === 'store_ids') {
-       return this.deal.get('stores').map(store => store.id)
-      }
       else {
-        return this.deal.get(attr)
+        if (!this.deal) {
+          return null
+        }
+        else if (attr === 'store_ids') {
+         return this.deal.get('stores').map(store => store.id)
+        }
+        else {
+          return this.deal.get(attr)
+        }
       }
     },
     set(attr, newValue) {

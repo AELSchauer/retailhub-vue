@@ -100,7 +100,8 @@ export default {
   },
   methods: {
     get() {
-      return this.$parent.get(this.attribute).format(this.inputFormat)
+      let attribute = this.$parent.get(this.attribute)
+      return (attribute) ? (attribute.format(this.inputFormat)) : (null)
     },
     set(newValue) {
       this.$parent.set(this.attribute, newValue)

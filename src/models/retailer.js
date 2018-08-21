@@ -1,5 +1,5 @@
 // import { Model } from '@vuex-orm/core'
-import Model from '@/services/custom-vuex-orm-model'
+import Model from '@/services/customized-model'
 import Deal from './deal'
 import Store from './store'
 

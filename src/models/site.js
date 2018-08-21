@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import moment from 'moment'
 
-import Model from '@/services/custom-vuex-orm-model'
+import Model from '@/services/customized-model'
 import Page from './page'
 
 export default class Site extends Model {

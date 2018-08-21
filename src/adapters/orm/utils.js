@@ -38,83 +38,31 @@ export function mergeDeep(objOne, objTwo, options={}) {
   return newObj
 }
 
-
-export const OrmRelationships = {
-  BelongsToMany: {
-    type: 'plural',
-    needJoins: true
-  },
-  HasMany: {
-    type: 'plural'
-  },
-  BelongsTo: {
-    type: 'singular'
-  },
-  HasOne: {
-    type: 'singular'
-  },
-  HasManyBy: {
-    type: 'unknown'
-  },
-  HasManyThrough: {
-    type: 'unknown'
-  },
-  MorphMany: {
-    type: 'unknown'
-  },
-  MorphToMany: {
-    type: 'unknown'
-  },
+let OrmRelationships = {
+  BelongsToMany: [ 'plural', 'needJoins' ],
+  HasMany: [ 'plural' ],
+  BelongsTo: [ 'singular' ],
+  HasOne: [ 'singular' ],
+  HasManyBy: [ 'unknown' ],
+  HasManyThrough: [ 'unknown' ],
+  MorphMany: [ 'unknown' ],
+  MorphToMany: [ 'unknown' ],
 }
 
-export function singularRelationships() {
+function getByTag(tag) {
   return _
-  .chain(OrmRelationships)
-  .toPairs()
-  .map((data, name) => {
-    if (data.type === 'singular') {
-      return name
-    }
-  })
-  .compact()
-  .value()
+    .chain(OrmRelationships)
+    .map((tags, name) => {
+      if (_.includes(tags, tag)) {
+        return name
+      }
+    })
+    .compact()
+    .sort()
+    .value()
 }
 
-export function pluralRelationships() {
-  return _
-  .chain(OrmRelationships)
-  .toPairs()
-  .map((data, name) => {
-    if (data.type === 'plural') {
-      return name
-    }
-  })
-  .compact()
-  .value()
-}
-
-export function unknownRelationships() {
-  return _
-  .chain(OrmRelationships)
-  .toPairs()
-  .map((data, name) => {
-    if (data.type === 'plural') {
-      return name
-    }
-  })
-  .compact()
-  .value()
-}
-
-export function needJoinsTableRelationships() {
-  return _
-  .chain(OrmRelationships)
-  .toPairs()
-  .map((data, name) => {
-    if (data.needJoins) {
-      return name
-    }
-  })
-  .compact()
-  .value()
-}
+export const singularRelationships = getByTag('singular')
+export const pluralRelationships   = getByTag('plural')
+export const unknownRelationships  = getByTag('unknown')
+export const needJoinsTableRelationships  = getByTag('needJoins')
