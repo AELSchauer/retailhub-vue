@@ -5,9 +5,9 @@ export default class ORM {
   constructor({ ...args }) {
     this.resource          = args.resource
     this.id                = args.id
-    this.options           = args.options || {};
-    this.associatedRecords = args.associatedRecords
+    this.record            = args.record
     this.options           = args.options || {}
+    this.associatedRecords = args.associatedRecords
   }
 
   find() {
@@ -29,14 +29,14 @@ export default class ORM {
     return getRecord
   }
 
-  commit({ response, changes }) {
+  commit(response) {
     let convertedData
     if (response) {
       convertedData = this._convertResponseBody(response.data)
     }
-    else {
-      convertedData = this._convertChanges(changes)
-      let pluralRelationships = _.keys(changes.relationships).filter(relationship => relationship.isPlural())
+    else if (this.record) {
+      convertedData = this._convertChanges(this.record.changes)
+      this._resetChangedJoinsTables()
     }
     $store.dispatch(`entities/${this.resource}/${this._storeMethod}`, convertedData)
   }
@@ -154,13 +154,40 @@ export default class ORM {
   _convertChanges(changes) {
     let data = { id: this.id }
     _.merge(data, changes.attributes)
-    _.toPairs(changes.relationships).forEach(([ relationship, value ]) => {
-      value = value.data
-      _.set(data, `$${relationship}_queried`, true)
-      _.set(data, relationship, value)
+    _.merge(data, changes.relationships)
+    _.keys(changes.relationships).forEach((relationshipName) => {
+      _.set(data, `$${relationshipName}_queried`, true)
     })
 
     return { data: data }
+  }
+
+  _resetChangedJoinsTables(records) {
+    let resource = this.resource
+    let id = this.id
+    let record = this.record
+    let relationshipAttributes = record.constructor.relationshipFields()
+    let joinsTablesToReset = _
+      .chain(record)
+      .get('changes.relationships', {})
+      .keys()
+      .filter(relationshipName => {
+        let relationship = _.get(relationshipAttributes, relationshipName)
+        return relationship.constructor.name === 'BelongsToMany'
+      })
+      .map(relationshipName => {
+        let joinRelationship = [ relationshipName, resource ].sort()
+        joinRelationship[0] = joinRelationship[0].singularize()
+        return joinRelationship.join('-')
+      })
+      .value()
+
+    let idAttr = `${resource.singularize()}_id`
+    joinsTablesToReset.forEach(joinTable => {
+      $store.dispatch(`entities/${joinTable}/delete`, (record) => {
+        return record[idAttr] === id
+      })
+    })
   }
 
   get _storeMethod() {

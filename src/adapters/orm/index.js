@@ -7,9 +7,9 @@ export default class ORM {
   constructor({ ...args }) {
     this.resource          = args.resource
     this.id                = args.id
-    this.associatedRecords = args.associatedRecords
-    this.changes           = args.changes
+    this.record            = args.record
     this.options           = args.options || {}
+    this.associatedRecords = args.associatedRecords
   }
 
   find(id, options={}) {
@@ -25,7 +25,6 @@ export default class ORM {
 
     let _store = new DataStore(request)
     let record = _store.find()
-    console.log('_store record', record)
     if (record && this._recordsHaveQueriedAllIncluded(record)) {
       return new Promise((resolve) => {
         resolve(record)
@@ -38,7 +37,7 @@ export default class ORM {
           throw response
         }
         else {
-          _store.commit({ response: response })
+          _store.commit(response)
         }
       })
       .then(() => {
@@ -68,7 +67,7 @@ export default class ORM {
           throw response
         }
         else {
-          _store.commit({ response: response })
+          _store.commit(response)
           _store.markResourceAsQueried()
         }
       })
@@ -90,7 +89,7 @@ export default class ORM {
     let request = {
       resource: this.resource,
       options:  this.options,
-      changes:  this.changes
+      record:   this.record
     }
     let _store = new DataStore(request)
 
@@ -100,7 +99,7 @@ export default class ORM {
           throw response
         }
         else {
-          _store.commit({ response: response })
+          _store.commit(response)
           return response.data.data.id
         }
       })
@@ -117,7 +116,7 @@ export default class ORM {
       resource: this.resource,
       id:       this.id,
       options:  this.options,
-      changes:  this.changes
+      record:   this.record
     }
     let _store = new DataStore(request)
 
@@ -127,8 +126,12 @@ export default class ORM {
           throw response
         }
         else {
-          _store.commit({ changes: this.changes })
+          _store.commit()
         }
+      })
+      .then(() => {
+        let woot = _store.find()
+        return woot
       })
   }
 

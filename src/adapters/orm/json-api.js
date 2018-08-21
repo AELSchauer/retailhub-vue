@@ -7,10 +7,9 @@ export default class JsonApi {
   constructor({ ...args }) {
     this.resource          = args.resource
     this.id                = args.id
+    this.record            = args.record
     this.options           = args.options || {};
     this.associatedRecords = args.associatedRecords
-    this.changes           = args.changes
-    this.options           = args.options || {}
   }
 
   find() {
@@ -136,10 +135,11 @@ export default class JsonApi {
   }
 
   _body() {
+    let changes = this.record.serializedChanges()
     let body = { type: this.resource }
     if (this.id) _.set(body, 'id', this.id)
-    if (this.changes.attributes) _.set(body, 'attributes', this.changes.attributes)
-    if (this.changes.relationships) _.set(body, 'relationships', this.changes.relationships)
+    if (changes.attributes) _.set(body, 'attributes', changes.attributes)
+    if (changes.relationships) _.set(body, 'relationships', changes.relationships)
     return body
   }
 

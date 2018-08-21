@@ -60,13 +60,13 @@ export default class ExtendedModel extends Model {
       }, {});
   }
 
-  static attributeFieldNames() {
-    return _.keys(this.attributeFields())
-  }
+  // static attributeFieldNames() {
+  //   return _.keys(this.attributeFields())
+  // }
 
-  static relationshipFieldNames() {
-    return _.keys(this.relationshipFields())
-  }
+  // static relationshipFieldNames() {
+  //   return _.keys(this.relationshipFields())
+  // }
 
   static dateAttributeNames() {
     return []
@@ -76,7 +76,7 @@ export default class ExtendedModel extends Model {
     return new ORM({
       resource: this.type,
       id:       this.id,
-      changes:  this.serializedChanges(),
+      record:   this,
       options:  options
     }).save()
   }
@@ -111,14 +111,16 @@ export default class ExtendedModel extends Model {
 
   get attributes() {
     let self = this;
-    return this.constructor.attributeFieldNames().reduce((json, key) => {
+    let attributeFieldNames = _.keys(this.constructor.attributeFields())
+    return attributeFieldNames.reduce((json, key) => {
       return _.set(json, key, self[key])
     }, {});
   }
 
   get relationships() {
     let self = this;
-    return this.constructor.relationshipFieldNames().reduce((json, key) => {
+    let relationshipFieldNames = _.keys(this.constructor.relationshipFields())
+    return relationshipFieldNames.reduce((json, key) => {
       return _.set(json, key, self[key])
     }, {});
   }
@@ -168,13 +170,10 @@ export default class ExtendedModel extends Model {
       let newVal = _.get(self, key)
 
       if (_.isArray(newVal)) {
-        let oldIds = oldVal.map(v => v.id),
-            newIds = newVal.map(v => v.id),
-            match = _.every(newIds, id => {
-              return _.includes(oldIds, id)
-            })
+        let oldIds = oldVal.map(v => v.id).sort().join(','),
+            newIds = newVal.map(v => v.id).sort().join(',')
 
-        if (!match) {
+        if (oldIds != newIds) {
           _.set(changes.relationships, key, newVal)
         }
       }
