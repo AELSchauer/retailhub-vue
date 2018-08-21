@@ -83,9 +83,6 @@ export default {
     set(newValue) {
       this.$parent.set(this.attribute, newValue)
     },
-    _classMerger(a, b) {
-      return formHelper.stringMerger(a, b)
-    }
   },
 }
 </script>

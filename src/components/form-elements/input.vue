@@ -13,11 +13,11 @@
         :value="get()"
         @input="set($event.target.value)"
         v-bind="inputProperties">
-      <input v-if="toggle"
+      <input v-if="toggleProps"
         type="checkbox"
         :checked="getToggle()"
         @input="setToggle($event.target.checked)"
-        :class="_classMerger('form-input', this.toggle.class)">
+        :class="_classMerger('form-input', this.toggleProps.class)">
     </template>
   </div>
 </template>
@@ -44,11 +44,11 @@ export default {
     }
   },
   props: {
-    attribute:  String,
-    inputProps: Object,
-    labelProps: Object,
-    rootProps:  Object,
-    toggle:     Object,
+    attribute:   String,
+    inputProps:  Object,
+    labelProps:  Object,
+    rootProps:   Object,
+    toggleProps: Object,
   },
   computed: {
     inputId: function() {
@@ -103,10 +103,10 @@ export default {
       this.$parent.set(this.attribute, newValue)
     },
     getToggle() {
-      return this.$parent.get(this.toggle.attribute)
+      return this.$parent.get(this.toggleProps.attribute)
     },
     setToggle(newValue) {
-      this.$parent.set(this.toggle.attribute, newValue)
+      this.$parent.set(this.toggleProps.attribute, newValue)
     },
     verifyType() {
       if (!_.includes(this.allowedTypes, this.inputProps.type)) {
@@ -115,9 +115,6 @@ export default {
         this.error = true
       }
     },
-    _classMerger(a, b) {
-      return formHelper.stringMerger(a, b)
-    }
   },
   components: {
     FormCheckbox,

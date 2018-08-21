@@ -87,14 +87,6 @@ export default {
     set(newValue) {
       this.$parent.set(this.attribute, newValue)
     },
-    _classMerger(classA, classB) {
-      return _
-        .chain([ classA ])
-        .concat([ classB ])
-        .compact()
-        .join(' ')
-        .value()
-    }
   },
 }
 </script>

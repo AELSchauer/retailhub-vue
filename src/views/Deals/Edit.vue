@@ -256,6 +256,7 @@
                 },
               ]"
             ></form-select> -->
+            retailer id: {{ get('retailer_id') }}
             <form-select
               attribute="retailer_id"
               :labelProps="{
@@ -271,7 +272,7 @@
               }"
               :selectOptions="retailerSelectList"
             ></form-select>
-            <form-select
+            <form-multiple-select
               attribute="store_ids"
               :labelProps="{
                 content: 'Stores',
@@ -286,7 +287,7 @@
                 class: 'form-control col-md-9',
               }"
               :selectOptions="storeSelectList"
-            ></form-select>
+            ></form-multiple-select>
           </div>
           <br>
           <div class="row">
@@ -324,6 +325,7 @@ import Retailer from '@/models/retailer'
 import FormCheckbox from '@/components/form-elements/checkbox'
 import FormDateTime from '@/components/form-elements/date-time'
 import FormInput from '@/components/form-elements/input'
+import FormMultipleSelect from '@/components/form-elements/multiple-select'
 import FormSelect from '@/components/form-elements/select'
 import FormTextarea from '@/components/form-elements/textarea'
 
@@ -523,10 +525,7 @@ export default {
       else if (attr === 'retailer_id') {
         this.deal.set('retailer_id', newValue)
         let retailer = this.retailers.find(retailer => retailer.id === newValue)
-        console.log('retailer', retailer)
         this.deal.set('retailer', retailer)
-        console.log('getter from store', Deal.getters('find')(this.deal_id))
-        console.log('this.deal', this.deal)
       }
       else if (attr === 'store_ids') {
         let stores = this.stores.filter(store => {
@@ -575,6 +574,7 @@ export default {
     FormCheckbox,
     FormDateTime,
     FormInput,
+    FormMultipleSelect,
     FormSelect,
     FormTextarea,
     FormTextarea,

@@ -9,14 +9,15 @@
       There was a problem rendering this input field
     </div>
     <select 
-      :selectedOptions="get()"
-      @input="set($event.target.selectedOptions, $event)"
+      :value="get()"
+      @input="set($event.target.value)"
       v-bind="inputProperties"
     >
-      <option v-if="!inputProperties.multiple" disabled :selected="!get()">
+      <option disabled :selected="!get()">
         Please select one:
       </option>
       <option v-for="option in selectOptions"
+        :disabled="option.disabled"
         :value="option.value || option.text"
       >
         {{ option.text }}
@@ -28,7 +29,6 @@
 <script>
 import _ from 'lodash'
 import formHelper from '@/helpers/form-elements'
-
 export default {
   name: 'form-select',
   data() {
@@ -58,8 +58,10 @@ export default {
           value: 'form-input',
           action: 'merge',
         },
+        multiple: {
+          action: 'delete',
+        },
       }
-
       return formHelper.getElementProperties(defaultInputProps, this.inputProps)
     },
     rootProperties: function() {
@@ -69,7 +71,6 @@ export default {
           action: 'merge',
         },
       }
-
       return formHelper.getElementProperties(defaultRootProps, this.rootProps)
     },
     labelProperties: function() {
@@ -79,42 +80,23 @@ export default {
           action: 'merge',
         },
       }
-
       let properties = formHelper.getElementProperties(defaultLabelProps, this.labelProps)
-      delete properties.click
-
       return properties
     },
   },
   methods: {
     get() {
-      let value = this.$parent.get(this.attribute)
-      if (this.inputProperties.multiple) {
-        return value
-      }
-      else if (!value) {
-        return null
-      }
-      else {
-        return [ value ]
-      }
+      return this.$parent.get(this.attribute)
     },
-    set(selectedOptions, target) {
-      let newValue = _.map(selectedOptions, option => option.value)
-      newValue = (this.inputProperties.multiple) ? (newValue) : (newValue[0])
-      
+    set(newValue) {
       this.$parent.set(this.attribute, newValue)
     },
-    _classMerger(a, b) {
-      return formHelper.stringMerger(a, b)
-    }
   },
 }
 </script>
 
 <style scoped lang=scss>
 @import "~@/styles/placeholders";
-
 .form-label {
   @extend %form-label;
 }

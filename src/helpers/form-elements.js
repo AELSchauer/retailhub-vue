@@ -1,6 +1,8 @@
-function customizer(objValue, srcValue) {
-  if (objValue && srcValue) {
-    return [objValue].concat([srcValue]);
+function mergeValues(objValue, srcValue) {
+  if (!_.isEmpty(objValue) && !_.isEmpty(srcValue)) {
+    objValue = _.flatten([ objValue ])
+    srcValue = _.flatten([ srcValue ])
+    return objValue.concat(srcValue);
   }
   else {
     return objValue || srcValue
@@ -17,39 +19,34 @@ function stringMerger(stringA, stringB) {
 }
 
 export default {
-  getElementProperties(defaultOptions, overrideOptions) {
+  getElementProperties(defaultOptions, userOptions) {
     return _
       .chain(defaultOptions)
-      .reduce((result, v, k) => {
-        return _.set(result, k, v.value)
-      }, {})
-      .mergeWith(overrideOptions, customizer)
-      .reduce((result, v, k) => {
-        if(_.isArray(v)) {
-          let defaultOption = defaultOptions[k]
+      .keys()
+      .concat(_.keys(userOptions))
+      .sort()
+      .sortedUniq()
+      .reduce((result, propertyName) => {
+        let defaultOption = _.get(defaultOptions, propertyName),
+            defaultValue  = _.get(defaultOption, 'value'),
+            defaultAction = _.get(defaultOption, 'action'),
+            userValue     = _.get(userOptions, propertyName)
 
-          if (!defaultOption) {
-            console.error('ERROR: Do no pass arrays into the defaultOptions or the component options')
-          }
-
-          if (defaultOption.action === 'overwrite') {
-            _.set(result, k, v[1])
-          }
-          else if (defaultOption.action === 'merge') {
-            if (_.isString(v[0]) && _.isString(v[1])) {
-              _.set(result, 'class', stringMerger(v[0], v[1]))
-            }
-            else {
-              console.error('ERROR: Developer must add support for merge of non-strings')
-            }
-          }
-          else {
-            console.error('ERROR: Please specify what you want to do with this action:', defaultOption.action)
-          }
+        if (defaultAction === 'delete') {
+          // Do not add any value to the result object.
+        }
+        else if (defaultAction === 'overwrite') {
+          _.set(result, propertyName, defaultValue)
+        }
+        else if (defaultAction === 'merge') {
+          let mergedValue = mergeValues(defaultValue, userValue)
+          mergedValue = (_.isArray(mergedValue)) ? (mergedValue.join(' ')) : (mergedValue)
+          _.set(result, propertyName, mergedValue)
         }
         else {
-          _.set(result, k, v)
+          _.set(result, propertyName, userValue)
         }
+
         return result
       }, {})
       .value()
