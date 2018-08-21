@@ -6,43 +6,39 @@
     <section v-else>
       <div v-if="loading">Loading...</div>
       <div v-else>
-        <h1>{{ model.name }}</h1>
+        <span class="row">
+          <h2 class="section-title col-md-11">details</h2>
+          <router-link 
+            :to="{ name: 'CompanyEdit', params: { company_id: get('id') }}"
+            class='btn edit-button col-md-1'
+          >
+            Edit
+          </router-link>
+        </span>
+        <div v-for="attribute in company.attributeManifest" class="attribute row">
+          <div class="attribute-label col-md-2">
+            {{ attribute.label }}
+          </div>
+          <div class="attribute-value col-md-10">
+            {{ get(attribute.name) }}
+          </div>
+        </div>
         <hr>
         <div class="malls-section">
-          <h3>malls</h3>
-          <h4>current associations</h4>
+          <h2>malls</h2>
           <table>
-            <th>
-              <td>name</td>
-              <td></td>
-            </th>
-            <tr v-for="mall in model.get('malls')">
+            <tr>
+              <th>name</th>
+              <th></th>
+            </tr>
+            <tr v-for="mall in malls">
               <td>
-                {{ mall.name }}
-              </td>
-              <td>
-                <button @click="deleteAssociation(mall)">Delete Association</button>
+                {{ mall.get('name') }}
               </td>
             </tr>
           </table>
-          <br>
-          <span>
-            <h4>add association</h4>
-            <font-awesome-icon
-              v-if="addResource === null"
-              :icon="['fas', 'plus-square']"
-              @click="addResource = 'malls'"
-            />
-            <font-awesome-icon
-              v-if="addResource === 'malls'"
-              :icon="['fas', 'minus-square']"
-              @click="addResource = null"
-            />
-          </span>
-          <div v-if="addResource === 'malls'">
-            form goes here
-          </div>
         </div>
+        <hr>
       </div>
     </section>
   </div>
@@ -53,33 +49,49 @@ import { mapGetters } from 'vuex'
 import json_api from '@/services/json-api'
 
 import Company from '@/models/company'
-import Mall from '@/models/mall'
 
 export default {
   name: 'CompanyShow',
   data() {
+    let id = this.$route.params.company_id
+
     return {
       permissions: ['admin'],
-      model:       null,
-      loading:     true,
-      error:       false,
-      model_id:    this.$route.params.company_id,
-      addResource: null
+      breadcrumbs: [
+        {
+          name: 'CompanyIndex',
+          text: 'Companies',
+        },
+        {
+          text: id,
+        }
+      ],
+      company:    null,
+      loading: true,
+      error:   false,
+      company_id: id,
     }
   },
   computed: {
     ...mapGetters({ currentUser: 'currentUser' }),
+    malls: function() {
+      return this.get('malls');
+    },
+    attributeManifest: function() {
+      return this.company.attributeManifest
+    },
   },
   created() {
     this.checkCurrentLogin()
     this.checkCurrentPermissions()
+    this.$store.dispatch('breadcrumbs', this.breadcrumbs)
   },
   updated() {
     this.checkCurrentLogin()
     this.checkCurrentPermissions()
   },
   mounted() {
-    this.getModel()
+    this.getCompany()
   },
   methods: {
     checkCurrentLogin() {
@@ -95,10 +107,11 @@ export default {
         this.$router.push('/dashboard?redirect=' + this.$route.path)
       }
     },
-    getModel() {
-      Company.with('malls').find(this.model_id)
+    getCompany() {
+      Company.with('malls').find(this.company_id)
       .then((record) => {
-        this.model = record
+        record.snapshot()
+        this.company = record
       })
       .catch((error) => {
         console.error('request failed', error);
@@ -108,23 +121,59 @@ export default {
         this.loading = false
       })
     },
+    get(attrName) {
+      let attribute = this.company.get(attrName)
+      if (attribute && attribute.constructor.name === 'Moment') {
+        return attribute.format('YYYY-MM-DD HH:mm:ss')
+      }
+      else {
+        return attribute
+      }
+    },
+    set(attr, newValue) {
+      this.company.set(attr, newValue)
+    },
+    isDeleteAssociationDisabled(record) {
+      return this.company.get(record.type).length <= 1
+    },
     deleteAssociation(record) {
-      this.loading = true
-      json_api.deleteAssociations({
-        resource: 'companies',
-        id: this.company_id,
-        associatedRecords: [
-          { type: record.type, id: record.id }
-        ]
-      })
-      .then(() => {
-        this.model = Company.query().with('malls').find(this.company_id) || {};
-      })
+      this.loading = true;
+      let newRecords = _
+        .chain(this.company)
+        .get(record.type, [])
+        .filter(_record => {
+          return _record.get('id') != record.get('id')
+        })
+        .value()
+
+      this.set(record.type, newRecords)
+      this.company.save()
       .catch((error) => {
         console.error('request failed', error);
         this.error = true;
       })
-      .finally(() => this.loading = false)
+      .finally(() => {
+        console.log('this.company', Company.with('retailer,stores,retailer.stores').find(this.company_id))
+        this.loading = false
+      })
+    },
+    createAssociation(record) {
+      this.loading = true
+      let newRecords = _
+        .chain(this.company)
+        .get(record.type, [])
+        .concat([record])
+        .value()
+
+      this.set(record.type, newRecords)
+      this.company.save()
+      .catch((error) => {
+        console.error('request failed', error);
+        this.error = true;
+      })
+      .finally(() => {
+        this.loading = false
+      })
     },
   }
 }
@@ -135,7 +184,22 @@ export default {
 h1, h2 {
   font-weight: normal;
 }
-a {
-  color: #42b983;
+.container {
+  margin-top: 10px;
+}
+.section-title {
+  display: inline-block;
+  margin: 0;
+}
+.btn {
+  background-color: #42b983;
+  color: #fff;
+}
+.attribute-label {
+  padding: 0 10px 0 0;
+}
+.add-remove {
+  width: 30px;
+  text-align: center;
 }
 </style>

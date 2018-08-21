@@ -63,11 +63,11 @@ export default class Deal extends Model {
     }
   }
 
-  static dateAttributeNames() {
+  static get dateAttributeNames() {
     return ['start_at', 'display_at', 'end_at']
   }
 
-  get serializationKeyMap() {
+  static get serializationKeyMap() {
     // End_at_date is being removed because The API doesn't currently support 
     // end_date_visibility or end_at_text in post or patch requests
     return {
@@ -78,14 +78,12 @@ export default class Deal extends Model {
     }
   }
 
-  get attributeManifest() {
-    let modelLabelMap = {
+  static get attributeLabelMap() {
+    return {
       external_url: 'Website Address',
       fine_print_description: 'Fine Print',
       sales_type: 'Sale Type',
       end_at_text: 'End Date Text',
     }
-
-    return this._attributeManifest({ labelMap: modelLabelMap })
-  }
+  }  
 }

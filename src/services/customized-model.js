@@ -3,12 +3,18 @@ import moment from 'moment'
 import ExtendedOrmModel from '@/adapters/orm/extended-orm-model'
 
 export default class CustomModel extends ExtendedOrmModel {
-  static dateAttributeNames() {
+  static get dateAttributeNames() {
     return []
+  }
+  static get serializationKeyMap() {
+    return {}
+  }
+  static get attributeLabelMap() {
+    return {}
   }
 
   get(attr) {
-    if (_.includes(this.constructor.dateAttributeNames(), attr)) {
+    if (_.includes(this.constructor.dateAttributeNames, attr)) {
       return moment.utc(_.get(this, attr))
     }
     else {
@@ -17,7 +23,7 @@ export default class CustomModel extends ExtendedOrmModel {
   }
 
   set(attr, newValue) {
-    let dateAttributeNames = this.constructor.dateAttributeNames()
+    let dateAttributeNames = this.constructor.dateAttributeNames
 
     function format(attr, value) {
       if (attr === 'seo_slug') {
@@ -35,7 +41,7 @@ export default class CustomModel extends ExtendedOrmModel {
   }
 
   _isChanged(attrName, oldVal, newVal) {
-    if (_.includes(this.constructor.dateAttributeNames(), attrName)) {
+    if (_.includes(this.constructor.dateAttributeNames, attrName)) {
       return formatDate(oldVal) != formatDate(newVal)
     }
     else {
@@ -44,7 +50,7 @@ export default class CustomModel extends ExtendedOrmModel {
   }
 
   _formatChanged(attrName, newVal) {
-    if (_.includes(this.constructor.dateAttributeNames(), attrName)) {
+    if (_.includes(this.constructor.dateAttributeNames, attrName)) {
       return formatDate(newVal)
     }
     else {
@@ -52,7 +58,11 @@ export default class CustomModel extends ExtendedOrmModel {
     }
   }
 
-  _attributeManifest(options) {
+
+  get attributeManifest() {
+    let options = { labelMap: this.constructor.attributeLabelMap }
+    let dateAttributeNames = this.constructor.dateAttributeNames
+
     function defaultLabelRemove(attrName) {
       return attrName.indexOf('$') < 0 && 
         attrName.indexOf('id') < 0 &&
@@ -63,7 +73,7 @@ export default class CustomModel extends ExtendedOrmModel {
       if (attrName.indexOf('is_') === 0 ) {
         return attrName.replace('is_','').startCase() + '?'
       }
-      else if (attrName.indexOf('_at') > -1 && self[attrName].constructor.name === 'Moment') {
+      else if (_.includes(dateAttributeNames, attrName)) {
         return attrName.replace('_at', '_date').startCase()
       }
       else if (attrName === 'seo_slug') {
@@ -75,27 +85,21 @@ export default class CustomModel extends ExtendedOrmModel {
     }
 
     let self = this;
-    let woot = _
+    return _
       .chain(this.attributes)
       .keys()
       .remove(attrName => {
         return defaultLabelRemove(attrName)
       })
-    // console.log('woot1', woot.value())
-    // woot = woot
       .remove(attrName => {
         return !_.includes((options.labelRemove || []), attrName)
       })
-    // console.log('woot1', woot.value())
-    // woot = woot
       .map(attrName => {
         return {
           name: attrName,
           label: defaultLabelMap(attrName) || (options.labelMap || {})[attrName] || attrName.startCase()
         }
       })
-    // console.log('woot3', woot.value())
-    return woot
       .value()
   }
 }

@@ -33,7 +33,7 @@ export default class Site extends Model {
     }
   }
 
-  static dateAttributeNames() {
+  static get dateAttributeNames() {
     return ['published_at']
   }
 
@@ -45,7 +45,7 @@ export default class Site extends Model {
     if (this[attr] === null) {
       return this.constructor.fields()[attr].value
     }
-    else if (_.includes(this.constructor.dateAttributeNames(), attr)) {
+    else if (_.includes(this.constructor.dateAttributeNames, attr)) {
       return moment.utc(this[attr])
     }
     else {
@@ -54,7 +54,7 @@ export default class Site extends Model {
   }
 
   // set(attr, newValue) {
-  //   let dateAttributeNames = this.constructor.dateAttributeNames() || [];
+  //   let dateAttributeNames = this.constructor.dateAttributeNames || [];
 
   //   function format(attr, value) {
   //     if (attr === 'seo_slug') {
@@ -70,12 +70,4 @@ export default class Site extends Model {
 
   //   this[attr] = format(attr, newValue)
   // }
-
-  get attributeManifest() {
-    // I don't think a manifest is necessary here since all attributes
-    // except name are either part of a lifecycle (e.g. 'published_at')
-    // or are calculated (e.g. canonical domain name)
-
-    return []
-  }
 }
