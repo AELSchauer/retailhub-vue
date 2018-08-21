@@ -1,4 +1,4 @@
-import Model from '@/services/extended-vuex-orm-model'
+import Model from '@/services/custom-vuex-orm-model'
 
 import Company from './company'
 import Image from './image'

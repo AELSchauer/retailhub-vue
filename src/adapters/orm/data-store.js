@@ -166,7 +166,7 @@ export default class ORM {
     let resource = this.resource
     let id = this.id
     let record = this.record
-    let relationshipAttributes = record.constructor.relationshipFields()
+    let relationshipAttributes = record.constructor._relationshipFields()
     let joinsTablesToReset = _
       .chain(record)
       .get('changes.relationships', {})

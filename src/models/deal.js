@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import moment from 'moment'
 
-import Model from '@/services/extended-vuex-orm-model'
+import Model from '@/services/custom-vuex-orm-model'
 import Mall from './mall'
 import DealStore from './deal-store'
 import Retailer from './retailer'
