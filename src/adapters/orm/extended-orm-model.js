@@ -1,24 +1,10 @@
 import _ from 'lodash'
 import moment from 'moment'
 import { Model } from '@vuex-orm/core'
+import {  singularRelationships,
+          pluralRelationships,
+          unknownRelationships } from './utils'
 import ORM from './index'
-
-const pluralRelationships = [
-  'BelongsToMany',
-  'HasMany'
-]
-
-const singularRelationships = [
-  'BelongsTo',
-  'HasOne',
-]
-
-const unknownRelationships = [
-  'HasManyBy',
-  'HasManyThrough',
-  'MorphMany',
-  'MorphToMany'
-]
 
 export default class ExtendedOrmModel extends Model {
   static with(relationships) {

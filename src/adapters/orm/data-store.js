@@ -1,5 +1,6 @@
 import _ from 'lodash'
 import $store from '@/store';
+import {  needJoinsTableRelationships } from './utils'
 
 export default class ORM {
   constructor({ ...args }) {
@@ -173,7 +174,7 @@ export default class ORM {
       .keys()
       .filter(relationshipName => {
         let relationship = _.get(relationshipAttributes, relationshipName)
-        return relationship.constructor.name === 'BelongsToMany'
+        return _.includes(needJoinsTableRelationships, relationship.constructor.name)
       })
       .map(relationshipName => {
         let joinRelationship = [ relationshipName, resource ].sort()

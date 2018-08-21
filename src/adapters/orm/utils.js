@@ -37,3 +37,84 @@ export function mergeDeep(objOne, objTwo, options={}) {
 
   return newObj
 }
+
+
+export const OrmRelationships = {
+  BelongsToMany: {
+    type: 'plural',
+    needJoins: true
+  },
+  HasMany: {
+    type: 'plural'
+  },
+  BelongsTo: {
+    type: 'singular'
+  },
+  HasOne: {
+    type: 'singular'
+  },
+  HasManyBy: {
+    type: 'unknown'
+  },
+  HasManyThrough: {
+    type: 'unknown'
+  },
+  MorphMany: {
+    type: 'unknown'
+  },
+  MorphToMany: {
+    type: 'unknown'
+  },
+}
+
+export function singularRelationships() {
+  return _
+  .chain(OrmRelationships)
+  .toPairs()
+  .map((data, name) => {
+    if (data.type === 'singular') {
+      return name
+    }
+  })
+  .compact()
+  .value()
+}
+
+export function pluralRelationships() {
+  return _
+  .chain(OrmRelationships)
+  .toPairs()
+  .map((data, name) => {
+    if (data.type === 'plural') {
+      return name
+    }
+  })
+  .compact()
+  .value()
+}
+
+export function unknownRelationships() {
+  return _
+  .chain(OrmRelationships)
+  .toPairs()
+  .map((data, name) => {
+    if (data.type === 'plural') {
+      return name
+    }
+  })
+  .compact()
+  .value()
+}
+
+export function needJoinsTableRelationships() {
+  return _
+  .chain(OrmRelationships)
+  .toPairs()
+  .map((data, name) => {
+    if (data.needJoins) {
+      return name
+    }
+  })
+  .compact()
+  .value()
+}
