@@ -6,79 +6,256 @@
     <section v-else>
       <div v-if="loading">Loading...</div>
       <div v-else>
-        <br>
-        <form @submit.prevent="createCompany" autocomplete="off">
+        <h2>details</h2>
+        <form @submit.prevent="saveAction()" autocomplete="off">
           <div class=alert alert-danger v-if=validationErrors>{{ validationErrors }}</div>
           <div class="container">
-            <div class="row">
-              <label for="inputName" class="form-label col-md-2">Name</label>
-              <input :value="name" @input="inputName($event)" id="inputName" class="form-control col-md-9" required autofocus>
-            </div>
-            <div class="row">
-              <label for="inputNickname" class="form-label col-md-2">Nickname</label>
-              <input v-model="nickname" id="inputNickname" class="form-control col-md-9" :disabled="calculateNickname">
-              <input v-model="calculateNickname" id="calculateNickname" type="checkbox" class="form-control col-md-1">
-            </div>
-            <div class="row">
-              <label for="inputSeoSlug" class="form-label col-md-2">SEO Slug</label>
-              <input v-model="seoSlug" id="inputSeoSlug" class="form-control col-md-9" :disabled="calculateSeoSlug">
-              <input v-model="calculateSeoSlug" id="calculateSeoSlug" type="checkbox" class="form-control col-md-1">
-            </div>
-            <div class="row">
-              <label for="inputAddress" class="form-label col-md-2">Address</label>
-              <input v-model="address"id="inputAddress" class="form-control col-md-9">
-            </div>
-            <div class="row">
-              <label for="inputCity" class="form-label col-md-2">City</label>
-              <input v-model="city"id="inputCity" class="form-control col-md-9">
-            </div>
-            <div class="row">
-              <label for="inputState" class="form-label col-md-2">State</label>
-              <input v-model="state"id="inputState" class="form-control col-md-9">
-            </div>
-            <div class="row">
-              <label for="inputZipCode" class="form-label col-md-2">Zip Code</label>
-              <input v-model="zip"id="inputZipCode" class="form-control col-md-9">
-            </div>
+            <form-input
+              attribute="name"
+              :labelProps="{
+                content: 'Name',
+                class: 'col-md-2',
+              }"
+              :rootProps="{
+                class: 'row'
+              }"
+              :inputProps="{ 
+                type: 'text',
+                required: true,
+                autofocus: true,
+                class: 'form-control col-md-9',
+              }"
+            ></form-input>
+            <form-input
+              attribute="nick_name"
+              :labelProps="{
+                content: 'Nickame',
+                class: 'col-md-2',
+              }"
+              :rootProps="{
+                class: 'row'
+              }"
+              :inputProps="{ 
+                type: 'text',
+                required: true,
+                disabled: attribute_calculate_nickname,
+                class: 'form-control col-md-9',
+              }"
+              :toggle="{
+                attribute: 'attribute_calculate_nickname',
+                class: 'col-md-1',
+              }"
+            ></form-input>
+            <form-input
+              attribute="seo_slug"
+              :labelProps="{
+                content: 'SEO Title',
+                class: 'col-md-2',
+              }"
+              :rootProps="{
+                class: 'row'
+              }"
+              :inputProps="{ 
+                type: 'text',
+                required: true,
+                disabled: attribute_calculate_seo_slug,
+                class: 'form-control col-md-9',
+              }"
+              :toggle="{
+                attribute: 'attribute_calculate_seo_slug',
+                class: 'col-md-1',
+              }"
+            ></form-input>
+            <form-input
+              attribute="address"
+              :labelProps="{
+                content: 'Address',
+                class: 'col-md-2',
+              }"
+              :rootProps="{
+                class: 'row'
+              }"
+              :inputProps="{ 
+                type: 'text',
+                required: true,
+                class: 'form-control col-md-9',
+              }"
+            ></form-input>
+            <form-input
+              attribute="city"
+              :labelProps="{
+                content: 'City',
+                class: 'col-md-2',
+              }"
+              :rootProps="{
+                class: 'row'
+              }"
+              :inputProps="{ 
+                type: 'text',
+                required: true,
+                class: 'form-control col-md-9',
+              }"
+            ></form-input>
+            <form-input
+              attribute="state"
+              :labelProps="{
+                content: 'State',
+                class: 'col-md-2',
+              }"
+              :rootProps="{
+                class: 'row'
+              }"
+              :inputProps="{ 
+                type: 'text',
+                required: true,
+                class: 'form-control col-md-9',
+              }"
+            ></form-input>
+            <form-input
+              attribute="zip"
+              :labelProps="{
+                content: 'Zip Code',
+                class: 'col-md-2',
+              }"
+              :rootProps="{
+                class: 'row'
+              }"
+              :inputProps="{ 
+                type: 'text',
+                required: true,
+                class: 'form-control col-md-9',
+              }"
+            ></form-input>
+            <form-input
+              attribute="phone"
+              :labelProps="{
+                content: 'Phone Number',
+                class: 'col-md-2',
+              }"
+              :rootProps="{
+                class: 'row'
+              }"
+              :inputProps="{ 
+                type: 'text',
+                required: true,
+                class: 'form-control col-md-9',
+              }"
+            ></form-input>
+            <form-input
+              attribute="fax"
+              :labelProps="{
+                content: 'Fax Number',
+                class: 'col-md-2',
+              }"
+              :rootProps="{
+                class: 'row'
+              }"
+              :inputProps="{ 
+                type: 'text',
+                required: true,
+                class: 'form-control col-md-9',
+              }"
+            ></form-input>
+            <form-input
+              attribute="url"
+              :labelProps="{
+                content: 'Website Address',
+                class: 'col-md-2',
+              }"
+              :rootProps="{
+                class: 'row'
+              }"
+              :inputProps="{ 
+                'type': 'url', 
+                'class': 'form-control col-md-9'
+              }"
+            ></form-input>
+            <form-checkbox
+              attribute="is_live"
+              :labelProps="{
+                content: 'Is Live?',
+                class: 'col-md-2',
+              }"
+              :rootProps="{
+                class: 'row'
+              }"
+              :inputProps="{ 
+                class: 'form-control col-md-1'
+              }"
+            ></form-checkbox>
           </div>
           <br>
-          <button class="btn btn-lg btn-primary btn-block" type="submit">Submit</button>
+          <div class="row">
+            <div class="col-md-6 btn-row">
+              <button
+                class="btn btn-lg btn-primary btn-block"
+                type="submit"
+              >
+                Submit
+              </button>
+            </div>
+            <div class="col-md-6 btn-row">
+              <router-link 
+                :to="{ name: 'CompanyIndex' }"
+                class='btn btn-lg btn-primary btn-block'
+              >
+                Cancel
+              </router-link>
+            </div>
+          </div>
         </form>
+        <hr>
       </div>
     </section>
   </div>
 </template>
 
+
 <script>
 import { mapGetters } from 'vuex'
-import VueGoogleAutocomplete from 'vue-google-autocomplete'
-import json_api from '@/services/json-api'
+import moment from 'moment'
+
 import Company from '@/models/company'
+
+import FormCheckbox from '@/components/form-elements/checkbox'
+import FormDateTime from '@/components/form-elements/date-time'
+import FormInput    from '@/components/form-elements/input'
+import FormSelect   from '@/components/form-elements/select'
+import FormTextarea from '@/components/form-elements/textarea'
 
 export default {
   name: 'CompanyNew',
   data() {
     return {
       permissions: ['admin'],
-      model:    null,
-      loading:  true,
-      error:    false,
+      breadcrumbs: [
+        {
+          name:   'CompanyIndex',
+          text:   'Companys',
+        },
+        {
+          text:   'New',
+        }
+      ],
 
-      validationErrors: null,
+      deal:      null,
+      retailers: [],
+      loading:   true,
+      saved:     false,
+      error:     false,
 
-      name: '',
-      nickname: '',
-      calculateNickname: true,
-      seoSlug: '',
-      calculateSeoSlug: true,
-      address: '',
-      city: '',
-      state: '',
-      zip: '',
+      dateAttributeNames: Company.dateAttributeNames,
+      validationErrors:   null,
+      
+      attribute_calculate_nickname: true,
+      attribute_calculate_seo_slug: true,
     }
   },
   computed: {
     ...mapGetters({ currentUser: 'currentUser' }),
+    isChangesEmpty: function() {
+      return _.isEmpty(this.company.changes)
+    },
   },
   created() {
     this.checkCurrentLogin()
@@ -89,8 +266,26 @@ export default {
     this.checkCurrentPermissions()
   },
   mounted() {
-    this.getModel()
+    this.getCompany()
+    .finally(() => {
+      this.loading = false;
+    })
   },
+  // beforeRouteLeave(to, from, next) {
+  //   if (this.isChangesEmpty || this.saved) {
+  //     next()
+  //   }
+  //   else {
+  //     let confirm = window.confirm('Do you really want to leave? All unsaved changes will be lost.')
+  //     if (confirm) {
+  //       //////////////////////// delete deal from store
+  //       next()
+  //     }
+  //     else {
+  //       next(false)
+  //     }
+  //   }
+  // },
   methods: {
     checkCurrentLogin() {
       if (!this.currentUser && this.$route.path !== '/') {
@@ -105,38 +300,85 @@ export default {
         this.$router.push('/dashboard?redirect=' + this.$route.path)
       }
     },
-    getModel() {
-      this.loading = false;
-      return new Company()
+    getCompany() {
+      return Company
+        .new()
+        .then((record) => {
+          this.company = record
+        })
     },
-    inputName(event) {
-      this.name = name + event.target.value
-      if (this.calculateNickname) {
-        this.nickname = this.name
+    get(attr) {
+      if (attr.indexOf('attribute_') === 0) {
+        return this[attr]
       }
-      if (this.calculateSeoSlug) {
-        this.seoSlug = this.name.toLowerCase()
+      else {
+        return this.company.get(attr)
       }
     },
-    inputSeoSlug(event) {
-      this.seoSlug = (seoSlug + event.target.value).toLowerCase()
+    set(attr, newValue) {
+      if (attr === 'title') {
+        this.company.set('title', newValue)
+        if (this.attribute_calculate_seo_slug) {
+          this.set('seo_slug', newValue);
+        }
+        if (this.attribute_calculate_nickname) {
+          this.set('nick_name', newValue)
+        }
+      }
+      else if (attr === 'attribute_calculate_seo_slug') {
+        this.attribute_calculate_seo_slug = newValue
+        if (this.attribute_calculate_seo_slug) {
+          this.set('seo_slug', this.company.get('title'));
+        }
+      }
+      else if (attr === 'attribute_calculate_nickname') {
+        this.attribute_calculate_nickname = newValue
+        if (this.attribute_calculate_nickname) {
+          this.set('nick_name', this.company.get('title'));
+        }
+      }
+      else {
+        this.company.set(attr, newValue)
+      }
     },
-    createCompany() {
-      console.log('wooohoo', this)
+    saveAction() {
+      this.loading = true
+      this.company.save()
+      .then(() => {
+        this.saved = true
+        this.$router.push('/companies/' + this.company.id)
+      })
+      .catch(error => {
+        console.error('error', error)
+        this.error = true
+      })
+      .finally(() => {
+        this.loading == false
+      })
     },
+  },
+  components: {
+    FormCheckbox,
+    FormDateTime,
+    FormInput,
+    FormSelect,
+    FormTextarea,
+    FormTextarea,
   }
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-h1, h2 {
-  font-weight: normal;
-}
-a {
-  color: #42b983;
-}
+
+<style scoped lang=scss>
+@import "~@/styles/placeholders";
+
 .form-label {
-  text-align: right;
+  @extend %form-label;
+}
+.row {
+  padding: 5px 0;
+}
+.btn-row {
+  padding: 0px 5px;
 }
 </style>

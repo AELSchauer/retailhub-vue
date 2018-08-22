@@ -1,6 +1,6 @@
 import CompanyIndex from '@/views/Companies/Index'
-import CompanyShow  from '@/views/Companies/Show'
 import CompanyNew   from '@/views/Companies/New'
+import CompanyShow  from '@/views/Companies/Show'
 
 export default [
   {

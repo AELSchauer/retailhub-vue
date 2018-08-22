@@ -46,8 +46,6 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import json_api from '@/services/json-api'
-
 import Company from '@/models/company'
 
 export default {
@@ -153,7 +151,6 @@ export default {
         this.error = true;
       })
       .finally(() => {
-        console.log('this.company', Company.with('retailer,stores,retailer.stores').find(this.company_id))
         this.loading = false
       })
     },

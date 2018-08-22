@@ -110,7 +110,6 @@ export default {
         if (arg.name === 'filter') {
           opts = {}
           arg.opts.forEach(opt => {
-            console.log('opt', opt)
             opts[opt.attr] = opt.value
           })
         }
@@ -141,7 +140,6 @@ export default {
       }
 
       this.changeset.args = args
-      console.log('changeset 2', this.changeset)
     },
     removeArg(index) {
       let args = this.changeset.args

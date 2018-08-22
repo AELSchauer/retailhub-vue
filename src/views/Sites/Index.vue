@@ -16,8 +16,6 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import json_api from '@/services/json-api'
-
 import Site from '@/models/site'
 
 export default {
@@ -62,7 +60,7 @@ export default {
       }
     },
     getModel() {
-      json_api.findAll({ resource: 'sites' })
+      Site.all()
       .then((records) => {
         this.model = records;
       })

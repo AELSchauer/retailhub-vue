@@ -16,8 +16,6 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import json_api from '@/services/json-api'
-
 import Deal from '@/models/deal'
 
 export default {

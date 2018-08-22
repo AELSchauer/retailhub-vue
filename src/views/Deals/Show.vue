@@ -70,8 +70,6 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import json_api from '@/services/json-api'
-
 import Deal from '@/models/deal'
 
 export default {
@@ -195,7 +193,6 @@ export default {
         this.error = true;
       })
       .finally(() => {
-        console.log('this.deal', Deal.with('retailer,stores,retailer.stores').find(this.deal_id))
         this.loading = false
       })
     },

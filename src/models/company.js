@@ -1,6 +1,4 @@
 import Model from '@/services/customized-model'
-
-import Image from './image'
 import Mall from './mall'
 
 export default class Company extends Model {
@@ -14,11 +12,9 @@ export default class Company extends Model {
       name:     this.attr(''),
       seo_slug: this.attr(''),
 
-      // images:  this.morphMany(Image, 'imageable_id', 'imageable_type'),
       malls:  this.hasMany(Mall, 'company_id'),
 
       // meta
-      $images_queried: this.attr(false),
       $malls_queried:  this.attr(false),
     }
   }

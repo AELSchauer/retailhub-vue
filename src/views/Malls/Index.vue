@@ -6,7 +6,7 @@
     <section v-else>
       <div v-if="loading">Loading...</div>
       <ul v-else>
-        <li v-for="mall in model">
+        <li v-for="mall in malls">
           {{ mall.name }}
         </li>
       </ul>
@@ -17,16 +17,15 @@
 <script>
 import { mapGetters } from 'vuex'
 import Mall from '@/models/mall'
-import json_api from '@/services/json-api'
 
 export default {
   name: 'MallIndex',
   data() {
     return {
       permissions: ['admin'],
-      model:       null,
-      loading:     true,
-      error:       false
+      malls:   null,
+      loading: true,
+      error:   false
     }
   },
   computed: {
@@ -41,7 +40,7 @@ export default {
     this.checkCurrentPermissions()
   },
   mounted() {
-    this.getModel()
+    this.getMalls()
   },
   methods: {
     checkCurrentLogin() {
@@ -57,16 +56,18 @@ export default {
         this.$router.push('/dashboard?redirect=' + this.$route.path)
       }
     },
-    getModel() {
-      json_api.findAll({ resource: 'malls' })
-      .then((request) => {
-        this.model = Mall.all() || [];
+    getMalls() {
+      Mall.all()
+      .then((records) => {
+        this.malls = records
       })
       .catch((error) => {
         console.error('request failed', error);
         this.error = true;
       })
-      .finally(() => this.loading = false)
+      .finally(() => {
+        this.loading = false
+      })
     },
   }
 }

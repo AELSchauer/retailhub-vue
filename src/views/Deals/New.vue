@@ -349,7 +349,7 @@ export default {
       saved:     false,
       error:     false,
 
-      dateAttributeNames: Deal.dateAttributeNames(),
+      dateAttributeNames: Deal.dateAttributeNames,
       validationErrors:   null,
       
       attribute_calculate_seo_slug:      true,

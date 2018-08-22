@@ -64,8 +64,6 @@
 <script>
 import Vue from 'vue'
 import { mapGetters } from 'vuex'
-import pluralize from 'pluralize'
-import json_api from '@/services/json-api'
 
 import Page from '@/models/page'
 import BentoComponent from '@/models/bento/component'
@@ -159,7 +157,6 @@ export default {
       this.graftMode = action;
     })
     this.bus.$on('pasteComponent', (newIndex, newParentPath) => {
-      console.log('newIndex', newIndex)
       if (newIndex != undefined) {
         this.commitGraft(newIndex, newParentPath)
       }
@@ -190,13 +187,7 @@ export default {
       }
     },
     getModel() {
-      json_api.findRecord({
-        resource: 'pages',
-        id:       this.page_id,
-        options:  {
-          params: { include: 'site' }
-        }
-      })
+      Page.with('site').find(this.page_id)
       .then((record) => {
         this.model = record
       })
@@ -241,7 +232,7 @@ export default {
       let branchPath = this.pathForComponentAddingChild.concat(['children'])
       let branch = _.get(page, branchPath)
 
-      branch.push(new BentoComponent({ name: name, type: pluralize.singular(type) }))
+      branch.push(new BentoComponent({ name: name, type: type.singularize() }))
 
       this.model.children = page.children
       this.$modal.hide('add-child-menu');
@@ -273,9 +264,6 @@ export default {
       let newBranch =  _.get(page, newBranchPath) || page;
       let node
 
-      console.log('oldBranch 1', oldBranch)
-      console.log('newBranch 1', newBranch)
-
       if (this.graftMode === 'cut') {
         node = oldBranch.splice(oldIndex, 1)
       }
@@ -288,9 +276,6 @@ export default {
       newBranch = before.concat(node).concat(after)
 
       _.set(page, newBranchPath, newBranch)
-
-      console.log('oldBranch 2', oldBranch)
-      console.log('newBranch 2', newBranch)
 
       this.model.children = page.children
       this.graftMode = false;

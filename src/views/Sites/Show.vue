@@ -59,10 +59,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import json_api from '@/services/json-api'
-
 import Site from '@/models/site'
-import Page from '@/models/page'
 
 export default {
   name: 'SiteShow',
@@ -126,13 +123,7 @@ export default {
       }
     },
     getModel() {
-      json_api.findRecord({
-        resource: 'sites',
-        id:       this.site_id,
-        options:  {
-          params: { include: 'pages' }
-        }
-      })
+      Site.with('pages').find(this.site_id)
       .then((record) => {
         this.model = record
       })
@@ -146,7 +137,6 @@ export default {
     },
     get(attrName) {
       let attribute = this.model.get(attrName)
-      console.log('attribute', attrName, attribute)
       if (attribute.constructor.name === 'Moment') {
         return attribute.format('YYYY-MM-DD HH:mm:ss')
       }

@@ -11,6 +11,7 @@
 </template>
 
 <script>
+import $store from '@/store'; // import this to avoid some weird inheritance bug.
 import { mapGetters } from 'vuex'
 import Navbar from '@/components/Navbar'
 import Breadcrumbs from '@/components/Breadcrumbs'

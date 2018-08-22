@@ -16,7 +16,7 @@ const database = new Database()
 
 database.register(Company,   OrmModule)
 database.register(Deal,      OrmModule)
-database.register(DealStore, OrmModule)
+database.register(DealStore, {})
 database.register(Image,     OrmModule)
 database.register(Mall,      OrmModule)
 database.register(Page,      OrmModule)

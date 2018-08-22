@@ -1,7 +1,7 @@
+import DealEdit  from '@/views/Deals/Edit'
 import DealIndex from '@/views/Deals/Index'
 import DealNew   from '@/views/Deals/New'
 import DealShow  from '@/views/Deals/Show'
-import DealEdit  from '@/views/Deals/Edit'
 
 export default [
   {

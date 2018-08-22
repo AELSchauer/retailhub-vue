@@ -357,7 +357,7 @@ export default {
       error:     false,
       deal_id:   id,
 
-      dateAttributeNames: Deal.dateAttributeNames(),
+      dateAttributeNames: Deal.dateAttributeNames,
       validationErrors:   null,
       
       attribute_calculate_seo_slug:      true,
@@ -475,7 +475,7 @@ export default {
       return Deal
         .with('retailer,stores,retailer.stores').find(this.deal_id)
         .then((record) => {
-          this.deal.snapshot()
+          record.snapshot()
           this.deal = record
           return this.deal
         })
