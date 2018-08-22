@@ -2,6 +2,7 @@ import _ from 'lodash'
 import moment from 'moment'
 
 import Model from '@/services/customized-model'
+import Image from './image'
 import Mall from './mall'
 import DealStore from './deal-store'
 import Retailer from './retailer'
@@ -32,10 +33,12 @@ export default class Deal extends Model {
 
       retailer_id:  this.attr(null),
 
+      images:   this.morphMany(Image, 'imageable_id', 'imageable_type'),
       retailer: this.belongsTo(Retailer, 'retailer_id'),
       stores:   this.belongsToMany(Store, DealStore, 'deal_id', 'store_id'),
 
       // meta attributes
+      $images_queried:   this.attr(false),
       $retailer_queried: this.attr(false),
       $stores_queried:   this.attr(false)
     }

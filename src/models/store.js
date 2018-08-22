@@ -2,6 +2,7 @@ import Model from '@/services/customized-model'
 
 import Deal from './deal'
 import DealStore from './deal-store'
+import Image from './image'
 import Mall from './mall'
 import Retailer from './retailer'
 
@@ -23,11 +24,13 @@ export default class Store extends Model {
       retailer_id:  this.attr(null),
 
       deals:    this.belongsToMany(Deal, DealStore, 'store_id', 'deal_id'),
+      images:   this.morphMany(Image, 'imageable_id', 'imageable_type'),
       mall:     this.belongsTo(Mall, 'mall_id'),
       retailer: this.belongsTo(Retailer, 'retailer_id'),
 
       // meta
       $deals_queried:    this.attr(false),
+      $images_queried:   this.attr(false),
       $mall_queried:     this.attr(false),
       $retailer_queried: this.attr(false),
     }

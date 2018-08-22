@@ -1,6 +1,7 @@
 import Model from '@/services/customized-model'
 
 import Company from './company';
+import Image from './image';
 import Store from './store';
 
 export default class Mall extends Model {
@@ -17,10 +18,12 @@ export default class Mall extends Model {
       company_id: this.attr(null),
 
       company: this.belongsTo(Company, 'company_id'),
+      images:  this.morphMany(Image, 'imageable_id', 'imageable_type'),
       stores:  this.hasMany(Store, 'mall_id'),
 
       // meta
       $company_queried: this.attr(false),
+      $images_queried:  this.attr(false),
       $stores_queried:  this.attr(false),
     }
   }
