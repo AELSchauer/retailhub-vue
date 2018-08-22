@@ -45,7 +45,7 @@ let OrmRelationships = {
   HasOne: [ 'singular' ],
   HasManyBy: [ 'unknown' ],
   HasManyThrough: [ 'unknown' ],
-  MorphMany: [ 'unknown' ],
+  MorphMany: [ 'plural' ],
   MorphToMany: [ 'unknown' ],
 }
 

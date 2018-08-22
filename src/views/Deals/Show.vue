@@ -63,6 +63,24 @@
             </tr>
           </table>
         </div>
+        <hr>
+        <div class="images-section">
+          <h2>images</h2>
+          <table>
+            <th>
+              <td>image</td>
+              <td>alt text</td>
+            </th>
+            <tr v-for="image in get('images')">
+              <td>
+                <img :src="image.url" class="deal-image">
+              </td>
+              <td>
+                {{ image.alt_text }}
+              </td>
+            </tr>
+          </table>
+        </div>
       </div>
     </section>
   </div>
@@ -148,7 +166,7 @@ export default {
       }
     },
     getDeal() {
-      Deal.with('retailer,stores,retailer.stores').find(this.deal_id)
+      Deal.with('images,retailer,retailer.stores,stores').find(this.deal_id)
       .then((record) => {
         record.snapshot()
         this.deal = record
@@ -218,7 +236,6 @@ export default {
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 h1, h2 {
   font-weight: normal;
@@ -240,5 +257,8 @@ h1, h2 {
 .add-remove {
   width: 30px;
   text-align: center;
+}
+.deal-image {
+  height: 100px;
 }
 </style>
