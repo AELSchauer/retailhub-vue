@@ -41,17 +41,17 @@ export default class Site extends Model {
     return this.properties.partials
   }
 
-  get(attr) {
-    if (this[attr] === null) {
-      return this.constructor.fields()[attr].value
-    }
-    else if (_.includes(this.constructor.dateAttributeNames, attr)) {
-      return moment.utc(this[attr])
-    }
-    else {
-      return this[attr]
-    }
-  }
+  // get(attr) {
+  //   if (this[attr] === null) {
+  //     return this.constructor.fields()[attr].value
+  //   }
+  //   else if (_.includes(this.constructor.dateAttributeNames, attr)) {
+  //     return moment.utc(this[attr])
+  //   }
+  //   else {
+  //     return this[attr]
+  //   }
+  // }
 
   // set(attr, newValue) {
   //   let dateAttributeNames = this.constructor.dateAttributeNames || [];

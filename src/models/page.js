@@ -1,7 +1,7 @@
 import Model from '@/services/customized-model'
 import Site from './page'
 import BentoComponent from './bento/component'
-import BentoManifest from './bento/_manifest'
+import BentoManifest from './bento/manifest/index'
 
 export default class Page extends Model {
   static entity = 'pages'

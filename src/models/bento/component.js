@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import BentoManifest from './_manifest'
+import BentoManifest from './manifest/index'
 
 export default class BentoComponent {
 

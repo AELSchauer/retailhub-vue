@@ -115,11 +115,11 @@ export default {
       pathForComponentAddingChild: null,
       componentToGraft: null,
       graftMode: false,
-      error:   false,
-      loading: true,
-      page_id: page_id,
-      page:    null,
-      bus:     new Vue(),
+      error:     false,
+      loading:   true,
+      page_id:   page_id,
+      page:      null,
+      bus:       new Vue(),
 
       detailComponent: { model: new BentoComponent() }
     }
@@ -206,7 +206,7 @@ export default {
       function allowedChildren(component, site) {
         let manifest = component.bentoManifest;
         let children = {
-          components: component.bentoManifest.allowedComponentChildren(),
+          components: manifest.allowedComponentChildren(),
         }
 
         if (manifest.isAllowedPartialsChildren) {
