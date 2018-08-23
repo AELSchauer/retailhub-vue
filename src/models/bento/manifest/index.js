@@ -66,8 +66,13 @@ export default class Manifest {
   }
 
   attributes() {
-    return this.find().attributes.map(([attrName, attrData]) => {
-      return new Attribute(attrName, attrData)
-    })
+    return _
+      .chain(this.find())
+      .get('attributes', {})
+      .toPairs()
+      .map(([ attrName, attrData ]) => {
+        return new Attribute(attrName, attrData)
+      })
+      .value()
   }
 }

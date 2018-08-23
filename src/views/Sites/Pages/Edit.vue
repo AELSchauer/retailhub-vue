@@ -14,7 +14,7 @@
             @click="addComponent(component.name, category)"
           >
             <font-awesome-icon :icon="component.icon" />
-            {{component.name}}
+            {{component.displayName}}
           </li>
         </ul>
       </template>
@@ -41,7 +41,7 @@
     <div class="component-details-aside container col-md-6">
       <div class="row">
         <span class="col-md-11 component-name">
-          {{ detailComponent.name }}
+          {{ detailComponent.displayName }}
         </span>
         <span class="col-md-1">
           <button @click="closeComponentDetails" class="close-component-details">x</button>

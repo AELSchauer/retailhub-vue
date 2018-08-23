@@ -25,4 +25,8 @@ export default class BentoComponent {
   get bentoManifest() {
     return BentoManifest.build(this.name, this.type)
   }
+
+  get displayName() {
+    return this.bentoManifest.find().displayName
+  }
 }

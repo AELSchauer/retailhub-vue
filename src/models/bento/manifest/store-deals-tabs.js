@@ -15,7 +15,7 @@ export class StoreDealsTabs extends BaseComponent {
       title: {
         type: 'text',
         required: false,
-        default: 'default',
+        default: 'More from {{ store.name }}',
       },
     }
   }

@@ -9,29 +9,37 @@
     <modal name='token-builder'
       :resizable="true"
       :clickToClose="false"
-      :height="600">
+      :scrollable="true"
+      height="auto"
+      width="90%"
+    >
       <div class="modal-content">
-        <div class="token-builder">
-          <div>
-            <label>model</label>
-            <select v-model="changeset.model">
-              <option>deals</option>
-              <option>events</option>
-              <option>malls</option>
-            </select>
+        <div class="token-builder row">
+          <div class="token-form col-md-6">
+            <div>
+              <label>model</label>
+              <select v-model="changeset.model">
+                <option>deals</option>
+                <option>events</option>
+                <option>malls</option>
+              </select>
+            </div>
+            <div>
+              <label>args</label>
+              <table>
+                <template v-for="(arg, i) in changeset.args">
+                  <component :is="`bento-query-args-${arg.name}`" :arg="arg"></component>
+                </template>
+              </table>
+              <select value="" @input="addArg($event.target.value)">
+                <option></option>
+                <option>filter</option>
+                <option>sort</option>
+              </select>
+            </div>
           </div>
-          <div>
-            <label>args</label>
-            <table>
-              <template v-for="(arg, i) in changeset.args">
-                <component :is="`bento-query-args-${arg.name}`" :arg="arg"></component>
-              </template>
-            </table>
-            <select value="" @input="addArg($event.target.value)">
-              <option></option>
-              <option>filter</option>
-              <option>sort</option>
-            </select>
+          <div class="token-result col-md-6">
+            <pre>{{ get() }}</pre>
           </div>
         </div>
         <div class="action-buttons btn-group">
@@ -198,7 +206,7 @@ export default {
 }
 .modal-content {
   border: none;
-  height: 100%;
+  height: auto;
   padding: 20px;
   display: flex;
   justify-content: space-between;
