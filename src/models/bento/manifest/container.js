@@ -8,7 +8,7 @@ export class Container extends BaseComponent {
 
     this.icon = 'window-maximize'
     this.allowsChildren = true
-    this.allowedChildren = this.standardComponentsAndPartials
+    this.allowedChildren = this.$standardComponentsAndPartials
     this.childrenRequired = false
     this.attributes = {
       classes: {

@@ -1,12 +1,12 @@
 import BaseComponent from './_base'
 
 export class StoreDealsTabs extends BaseComponent {
-  static entity = 'store-deals-tabs'
+  static entity = 'store_deals_tabs'
 
   constructor() {
     super()
 
-    // this.icon = 'shopping-cart'
+    // this.icon = '????'
     this.attributes = {
       classes: {
         type: 'text',

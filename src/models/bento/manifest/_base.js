@@ -1,11 +1,12 @@
 import _ from 'lodash'
+import Manifest from './index'
 
 export default class _Base {
   static entity = ''
 
   constructor() {
     this.name = this.constructor.entity
-    this.icon = ''
+    this.icon = 'circle'
     this.allowsChildren = false
     this.allowedChildren = null
     this.childrenRequired = null
@@ -36,7 +37,7 @@ export default class _Base {
   }
 
   get $standardComponentsAndPartials() {
-    return this.$standardComponents.push('partial')
+    return _.concat(this.$standardComponents, ['partial']).sort()
   }
 
   get $containerWrappers() {
@@ -48,6 +49,6 @@ export default class _Base {
   }
 
   get $allWrappers() {
-    return this.$containerWrappers.concat(this.$textWrappers)
+    return _.concat(this.$containerWrappers, this.$textWrappers)
   }
 }

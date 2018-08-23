@@ -6,7 +6,7 @@ export class Directory extends BaseComponent {
   constructor() {
     super()
 
-    // this.icon = 'shopping-cart'
+    this.icon = 'book'
     this.attributes = {
       classes: {
         type: 'text',
@@ -17,6 +17,10 @@ export class Directory extends BaseComponent {
         required: false,
         whitelist: [ 'true', 'false' ],
         default: 'false',
+      },
+      map_src: {
+        type: 'text',
+        required: false,
       },
       stores: {
         type: 'query',

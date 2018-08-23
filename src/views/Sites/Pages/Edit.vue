@@ -6,7 +6,7 @@
     Loading...
   </div>
   <div v-else class="row">
-    <modal name="add-child-menu">
+    <modal name="add-child-menu" height="auto">
       <template v-for="(components, category) in allowedChildren">
         <h4>{{category}}</h4>
         <ul class="allowed-children-list">
@@ -62,6 +62,7 @@
 </template>
 
 <script>
+import _ from 'lodash'
 import Vue from 'vue'
 import { mapGetters } from 'vuex'
 
@@ -112,6 +113,7 @@ export default {
       permissions: ['admin'],
       breadcrumbs: breadcrumbs,
       allowedChildren: [],
+      modalHeight: 500,
       pathForComponentAddingChild: null,
       componentToGraft: null,
       graftMode: false,
@@ -128,7 +130,7 @@ export default {
     ...mapGetters({ currentUser: 'currentUser' }),
     pasteModeEnabled: function() {
       return !!this.graftMode;
-    }
+    },
   },
   created() {
     this.checkCurrentLogin()
@@ -208,6 +210,7 @@ export default {
         let children = {
           components: manifest.allowedComponentChildren(),
         }
+
 
         if (manifest.isAllowedPartialsChildren) {
           let sitePartials = (site.partials || [])

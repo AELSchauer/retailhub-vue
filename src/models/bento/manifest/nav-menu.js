@@ -6,12 +6,12 @@ export class NavMenu extends BaseComponent {
   constructor() {
     super()
   
-    // this.icon = 'shopping-cart'
+    this.icon = 'bars'
     this.allowsChildren = true
     this.allowedChildren = [
-      'nav-link',
-      'nav-image',
-      'nav-text'
+      'nav_link',
+      'nav_image',
+      'nav_text'
     ]
     this.childrenRequired = false
 
@@ -20,8 +20,16 @@ export class NavMenu extends BaseComponent {
         type: 'text',
         required: false,
       },
+      hamburger: {
+        type:      'drop-down',
+        required:  true,
+        default:   'false',
+        whitelist: [ 'true', 'false' ],
+      },
     }
+  }
 
-    this.displayName = 'Navigation Menu'
+  get displayName() {
+    return 'Navigation Menu'
   }
 }

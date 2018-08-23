@@ -6,7 +6,7 @@ export class ShareIcons extends BaseComponent {
   constructor() {
     super()
 
-    // this.icon = 'shopping-cart'
+    this.icon = 'share-alt'
     this.attributes = {
       classes: {
         type: 'text',

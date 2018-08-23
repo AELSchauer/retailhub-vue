@@ -27,8 +27,10 @@ class BaseLink extends BaseComponent {
         required: false,
       },
     }
+  }
 
-    this.displayName = 'Link'
+  get displayName() {
+    return 'Link'
   }
 }
 
@@ -42,8 +44,8 @@ export class NavLink extends BaseLink {
   constructor() {
     super()
     this.allowedChildren = [
-      'nav-image',
-      'nav-text'
+      'nav_image',
+      'nav_text'
     ]
   }
 }

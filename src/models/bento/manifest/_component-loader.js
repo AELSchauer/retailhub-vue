@@ -1,3 +1,5 @@
+import BaseComponent from './_base'
+
 // Dynamically load all the files in this filder except internal use
 // files (_*.js) and the index. Then add the classes in those files 
 // to an object that can be called by the loader class.
@@ -16,6 +18,9 @@ context.keys().forEach(key => {
 
 export default class ComponentLoader {
   constructor (className, opts) {
+    if (!className || !components[className]) {
+      return new BaseComponent()
+    }
     return new components[className](opts);
   }
 }

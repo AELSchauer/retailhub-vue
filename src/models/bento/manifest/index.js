@@ -1,6 +1,5 @@
 import ComponentLoader from './_component-loader'
 
-
 class Attribute {
   constructor(name, data) {
     this.name = name,
@@ -42,10 +41,10 @@ export default class Manifest {
 
   find() {
     if (this.attrType === 'component') {
-      return new ComponentLoader(this.attrName) || {};
+      return new ComponentLoader(this.attrName);
     }
     else {
-      return new ComponentLoader(this.attrType, this.attrName) || {};
+      return new ComponentLoader(this.attrType, this.attrName);
     }
   }
 
