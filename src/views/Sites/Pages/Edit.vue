@@ -172,8 +172,19 @@ export default {
         this.graftMode = false
       }
     })
-    this.bus.$on('createDataVariable', newDataVariable => {
+    this.bus.$on('createDataVariable', (newDataVariable) => {
       this.set('variables', _.merge({}, this.get('variables'), newDataVariable))
+    })
+    this.bus.$on('updateDataVariable', (oldVariableName, newDataVariable) => {
+      let variables = _.merge({}, this.get('variables'))
+      _.unset(variables, oldVariableName)
+      _.merge(variables, newDataVariable)
+      this.set('variables', variables)
+    })
+    this.bus.$on('deleteDataVariable', (variableName) => {
+      let variables = _.merge({}, this.get('variables'))
+      _.unset(variables, variableName)
+      this.set('variables', variables)
     })
   },
   methods: {

@@ -30,36 +30,37 @@
             {{ variable.type }}
           </td>
           <td>
-            <button :disabled="variable.protected">edit</button>
+            <button :disabled="variable.protected" @click="editPage(variable)"><font-awesome-icon :icon="['fa', 'edit']"/></button>
+            <button :disabled="variable.protected" @click="deleteVariable(variable.name)"><font-awesome-icon :icon="['fa', 'minus']"/></button>
           </td>
         </tr>
       </table>
       <div v-else>
-        <select v-model="newVariable.type">
+        <select v-model="changesetVariable.type">
           <option disabled value="">Select a variable type</option>
           <option>constant</option>
           <option>query</option>
           <option>image</option>
         </select>
         <br>
-        <form @submit.prevent="createVariable()" autocomplete="off" :hidden="newVariable.type === ''">
+        <form @submit.prevent="saveVariable()" autocomplete="off" :hidden="changesetVariable.type === ''">
           <table>
             <tr>
               <td>name</td>
               <td>
                 <input
                   type="text"
-                  :value="newVariable.name"
-                  @input="setNewVariableName($event)"
+                  :value="changesetVariable.name"
+                  @input="setVariableName($event)"
                   required
                 >
               </td>
             </tr>
-            <tr v-if="newVariable.type === 'constant'">
+            <tr v-if="changesetVariable.type === 'constant'">
               <td>value</td>
               <td>
                 <input
-                  v-model="newVariable.value"
+                  v-model="changesetVariable.value"
                   type="text"
                   required
                 >
@@ -69,13 +70,18 @@
               <td>protected?</td>
               <td>
                 <input
-                  v-model="newVariable.protected"
+                  v-model="changesetVariable.protected"
                   type="checkbox"
                 >
               </td>
             </tr>
             <tr>
-              <button type="submit"><font-awesome-icon :icon="['fa', 'plus']"/></button>
+              <td>
+                <button type="submit">submit</button>
+              </td>
+              <td>
+                <button @click="indexPage()">cancel</button>
+              </td>
             </tr>
           </table>
         </form>
@@ -91,7 +97,8 @@ export default {
   data() {
     return {
       template: 'index',
-      newVariable: {
+      selectedVariable: null,
+      changesetVariable: {
         name: null,
         type: '',
         protected: false,
@@ -114,32 +121,58 @@ export default {
     addPage() {
       this.template = 'add'
     },
+    editPage(variable) {
+      this.template = 'edit'
+      this.selectedVariable = variable
+      this.changesetVariable = _.cloneDeep(variable);
+    },
     indexPage() {
       this.template = 'index'
-      this.newVariable = {}
+      this.changesetVariable = {
+        name: null,
+        type: '',
+        protected: false,
+        value: null,
+      }
     },
-    setNewVariableName(event) {
+    setVariableName(event) {
       let names = this.allDataVariables().map(_var => _var.name)
       let newValue = event.target.value
-      this.newVariable.name = newValue
+      let oldValue = _.get(this.selectedVariable, 'name')
 
-      if (_.includes(names, newValue)) {
+      this.changesetVariable.name = newValue
+
+      if (oldValue != newValue && _.includes(names, newValue)) {
         event.target.setCustomValidity('Variable name is already taken')
       }
       else {
         event.target.setCustomValidity('')
       }
     },
+    formatVariable(variable) {
+      let name = variable.name
+      _.set(variable, 'protected', variable.protected || false)
+      _.unset(variable, 'name')
+      return _.set({}, name, variable)
+    },
+    saveVariable() {
+      (this.template === 'add') ? (this.createVariable()) : (this.updateVariable())
+    },
     createVariable() {
-      let name = this.newVariable.name
-      _.set(this.newVariable, 'protected', this.newVariable.protected || false)
-      _.unset(this.newVariable, 'name')
-      let formattedVariable = _.set({}, name, this.newVariable)
-
+      let formattedVariable = this.formatVariable(this.changesetVariable)
       this.bus.$emit('createDataVariable', formattedVariable)
-      this.newVariable = {}
-      this.template = 'index'
-    }
+      this.indexPage()
+    },
+    updateVariable() {
+      let oldVariableName = this.selectedVariable.name
+      let formattedVariable = this.formatVariable(this.changesetVariable)
+      this.bus.$emit('updateDataVariable', oldVariableName, formattedVariable)
+      this.indexPage()
+    },
+    deleteVariable(variableName) {
+      this.bus.$emit('deleteDataVariable', variableName)
+      this.indexPage()
+    },
   }
 }
 </script>

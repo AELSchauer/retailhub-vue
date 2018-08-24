@@ -15,7 +15,7 @@ export default class Page extends Model {
       
       site_id: this.attr(null),
 
-      site:  this.belongsTo(Site, 'site_id'),
+      site: this.belongsTo(Site, 'site_id'),
 
       // meta
       $site_queried: this.attr(false),
