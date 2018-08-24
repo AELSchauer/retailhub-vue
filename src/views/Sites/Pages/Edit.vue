@@ -6,6 +6,9 @@
     Loading...
   </div>
   <div v-else class="row">
+    <bento-data-variables-editor
+      :bus="bus"
+    ></bento-data-variables-editor>
     <modal name="add-child-menu" height="auto">
       <template v-for="(components, category) in allowedChildren">
         <h4>{{category}}</h4>
@@ -20,6 +23,7 @@
       </template>
     </modal>
     <div class="component-tree col-md-6">
+      <font-awesome-icon :icon="['fa', 'hand-spock']" @click="showDataVariablesMenu()"/>
       <div class="float-right">
         <div
           class="action-button btn btn-sm"
@@ -33,7 +37,7 @@
         </div>
       </div>
       <bento-component-tree
-        :model="model"
+        :model="page"
         :bus="bus"
       ></bento-component-tree>
       <button @click="consoleLogBody">view json</button>
@@ -55,7 +59,7 @@
         ></bento-base-component-attributes>
         <hr>
         styling:
-        {{ model.styling }}
+        {{ page.styling }}
       </template>
     </div>
   </div>
@@ -70,6 +74,7 @@ import Page from '@/models/page'
 import BentoComponent from '@/models/bento/component'
 
 import BentoBaseComponentAttributes from '@/components/site-editor/bento-components/attributes'
+import BentoDataVariablesEditor from '@/components/site-editor/bento-components/data-variables-editor'
 
 export default {
   name: 'SitePageEdit',
@@ -167,6 +172,9 @@ export default {
         this.graftMode = false
       }
     })
+    this.bus.$on('createDataVariable', newDataVariable => {
+      this.set('variables', _.merge({}, this.get('variables'), newDataVariable))
+    })
   },
   methods: {
     viewComponentDetails: function(component) {
@@ -191,7 +199,7 @@ export default {
     getModel() {
       Page.with('site').find(this.page_id)
       .then((record) => {
-        this.model = record
+        this.page = record
       })
       .catch((error) => {
         console.error('request failed', error);
@@ -201,9 +209,35 @@ export default {
         this.loading = false
       })
     },
+    get(attrName) {
+      if (attrName === 'all_data_variables') {
+        function mapVariables(variables) {
+          return _
+            .chain(variables)
+            .map((v,k) => {
+              let data = _.merge({}, v)
+              data = _.set(data, 'name', k)
+              // data = _.set(data, 'protected', true)
+              data = _.set(data, 'protected', false)
+              return data
+            })
+            .orderBy(['name'], ['asc'])
+            .value()
+        }
+        let page_variables = mapVariables(this.page.get('variables'))
+        let site_variables = mapVariables(this.page.get('site').get('variables'))
+        return _.concat([], page_variables, site_variables)
+      }
+      else {
+        return this.page.get(attrName)
+      }
+    },
+    set(attrName, newValue) {
+      this.page.set(attrName, newValue)
+    },
     showAddComponentMenu(componentPath="") {
       this.pathForComponentAddingChild = componentPath;
-      let component = _.get(this.model, componentPath) || this.model;
+      let component = _.get(this.page, componentPath) || this.page;
 
       function allowedChildren(component, site) {
         let manifest = component.bentoManifest;
@@ -227,21 +261,24 @@ export default {
         return children
       }
 
-      this.allowedChildren = allowedChildren(component, this.model.site)
+      this.allowedChildren = allowedChildren(component, this.page.site)
       this.$modal.show('add-child-menu');
     },
+    showDataVariablesMenu() {
+      this.bus.$emit('showDataVariablesMenu')
+    },
     addComponent(name, type) {
-      let page = { children: _.cloneDeep(this.model.children) }
+      let page = { children: _.cloneDeep(this.page.children) }
       let branchPath = this.pathForComponentAddingChild.concat(['children'])
       let branch = _.get(page, branchPath)
 
       branch.push(new BentoComponent({ name: name, type: type.singularize() }))
 
-      this.model.children = page.children
+      this.page.children = page.children
       this.$modal.hide('add-child-menu');
     },
     removeComponent(path) {
-      let page = { children: _.cloneDeep(this.model.children) }
+      let page = { children: _.cloneDeep(this.page.children) }
       let node = _.get(page, path)
 
       let confirm = window.confirm(`This item${(node.children.length) ? (' and all its children ') : (' ')}will be PERMANENTLY deleted. Continue?`)
@@ -251,11 +288,11 @@ export default {
 
         branch.splice(index, 1)
 
-        this.model.children = page.children
+        this.page.children = page.children
       }
     },
     commitGraft(newIndex, newParentPath=[]) {
-      let page = { children: _.cloneDeep(this.model.children) }
+      let page = { children: _.cloneDeep(this.page.children) }
 
       let oldPath = this.componentToGraft.path
       let oldIndex = _.last(oldPath)
@@ -280,7 +317,7 @@ export default {
 
       _.set(page, newBranchPath, newBranch)
 
-      this.model.children = page.children
+      this.page.children = page.children
       this.graftMode = false;
     },
     cancelGraft() {
@@ -288,11 +325,12 @@ export default {
       this.bus.$emit('pasteComponent')
     },
     consoleLogBody() {
-      console.log(this.model.getJsonBody())
+      console.log(this.page.getJsonBody())
     }
   },
   components: {
     BentoBaseComponentAttributes,
+    BentoDataVariablesEditor,
     // Import this differently because these components are circular.
     BentoComponentTree: () => import('@/components/site-editor/bento-components/component-tree.vue'),
   }

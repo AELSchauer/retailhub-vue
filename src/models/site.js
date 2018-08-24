@@ -37,37 +37,15 @@ export default class Site extends Model {
     return ['published_at']
   }
 
-  get partials() {
-    return this.properties.partials
+  get(attrName) {
+    if (attrName === 'variables') {
+      return this.properties.variables
+    }
+    if (attrName === 'partials') {
+      return this.properties.partials
+    }
+    else {
+      return super.get(attrName)
+    }
   }
-
-  // get(attr) {
-  //   if (this[attr] === null) {
-  //     return this.constructor.fields()[attr].value
-  //   }
-  //   else if (_.includes(this.constructor.dateAttributeNames, attr)) {
-  //     return moment.utc(this[attr])
-  //   }
-  //   else {
-  //     return this[attr]
-  //   }
-  // }
-
-  // set(attr, newValue) {
-  //   let dateAttributeNames = this.constructor.dateAttributeNames || [];
-
-  //   function format(attr, value) {
-  //     if (attr === 'seo_slug') {
-  //       return value.slugify()
-  //     }
-  //     else if (_.includes((dateAttributeNames || []), attr)) {
-  //       return moment.utc(value).format('YYYY-MM-DD HH:mm:ss')
-  //     }
-  //     else {
-  //       return value
-  //     }
-  //   }
-
-  //   this[attr] = format(attr, newValue)
-  // }
 }

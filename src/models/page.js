@@ -1,5 +1,5 @@
 import Model from '@/services/customized-model'
-import Site from './page'
+import Site from './site'
 import BentoComponent from './bento/component'
 import BentoManifest from './bento/manifest/index'
 
@@ -19,6 +19,15 @@ export default class Page extends Model {
 
       // meta
       $site_queried: this.attr(false),
+    }
+  }
+
+  get(attrName) {
+    if (attrName === 'variables') {
+      return this.properties.variables
+    }
+    else {
+      return super.get(attrName)
     }
   }
 
