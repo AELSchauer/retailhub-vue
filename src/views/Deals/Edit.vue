@@ -475,7 +475,7 @@ export default {
       return Deal
         .with('retailer,stores,retailer.stores').find(this.deal_id)
         .then((record) => {
-          record.snapshot()
+          record.takeSnapshot()
           this.deal = record
           return this.deal
         })

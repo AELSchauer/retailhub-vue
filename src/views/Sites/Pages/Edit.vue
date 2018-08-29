@@ -34,7 +34,8 @@
         :model="page"
         :bus="bus"
       ></bento-component-tree>
-      <button @click="consoleLogBody">view json</button>
+      <button @click="saveAction('quit')" :disabled="!isPageChanged">save and quit</button>
+      <button @click="cancelAction()">cancel</button>
     </div>
     <div class="component-details-aside container col-md-6">
       <div class="row">
@@ -74,6 +75,7 @@ import BentoDataVariablesEditor from '@/components/site-editor/bento-components/
 export default {
   name: 'SitePageEdit',
   data() {
+    let site_id = this.$route.params.site_id
     let page_id = this.$route.params.page_id
     let page_name = this.$route.params.page_name
     let site_name = this.$route.params.site_name
@@ -110,24 +112,28 @@ export default {
     }
 
     return {
-      permissions: ['admin'],
-      breadcrumbs: breadcrumbs,
       allowedChildren: [],
+      breadcrumbs: breadcrumbs,
+      bus: new Vue(),
+      detailComponent: { model: new BentoComponent() },
+      error: false,
+      loading: true,
+      page: null,
+      page_id: page_id,
       pathForComponentAddingChild: null,
-      error:     false,
-      loading:   true,
-      page_id:   page_id,
-      page:      null,
-      bus:       new Vue(),
-
-      detailComponent: { model: new BentoComponent() }
+      permissions: ['admin'],
+      site_id: site_id,
     }
   },
   computed: {
     ...mapGetters({ currentUser: 'currentUser' }),
     model: function() {
       return this.page
-    }
+    },
+    isPageChanged: function() {
+      let changed = _.get(this.page, 'changed', {})
+      return _.keys(changed.attributes).length + _.keys(changed.relationships).length
+    },
   },
   created() {
     this.checkCurrentLogin()
@@ -189,6 +195,7 @@ export default {
     getModel() {
       Page.with('site').find(this.page_id)
       .then((record) => {
+        record.takeSnapshot()
         this.page = record
       })
       .catch((error) => {
@@ -282,8 +289,26 @@ export default {
         this.page.set('children', _page.children)
       }
     },
-    consoleLogBody() {
-      console.log(this.page.getJsonBody())
+    saveAction() {
+      this.loading = true;
+      this.page.save()
+      .then(() => {
+        this.saved = true
+        this.$router.push('/sites/' + this.site_id)
+      })
+      .catch((error) => {
+        console.error('request failed', error);
+        this.error = true;
+      })
+      .finally(() => {
+        this.loading = false
+      })
+    },
+    cancelAction() {
+      this.loading = true;
+      this.page.rollback()
+      this.$router.push('/sites/' + this.site_id)
+      this.loading = false
     }
   },
   components: {

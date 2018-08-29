@@ -168,7 +168,7 @@ export default {
     getDeal() {
       Deal.with('images,retailer,retailer.stores,stores').find(this.deal_id)
       .then((record) => {
-        record.snapshot()
+        record.takeSnapshot()
         this.deal = record
       })
       .catch((error) => {

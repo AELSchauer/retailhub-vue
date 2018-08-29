@@ -36,7 +36,7 @@ export default class ExtendedOrmModel extends Model {
   static new() {
     let newObj = new this
     return new Promise(resolve => {
-      newObj.snapshot()
+      newObj.takeSnapshot()
       resolve(newObj)
     })
   }
@@ -88,8 +88,8 @@ export default class ExtendedOrmModel extends Model {
     }, {});
   }
 
-  snapshot() {
-    this._snapshot = {
+  takeSnapshot() {
+    this.snapshot = {
       attributes: _.cloneDeep(this.attributes),
       relationships: _.cloneDeep(this.relationships)
     }
@@ -97,7 +97,10 @@ export default class ExtendedOrmModel extends Model {
 
   rollback() {
     let self = this
-    _.keys(this._snapshot).forEach(k => {
+    _.keys(this.snapshot.attributes).forEach(k => {
+      self[k] = self.snapshot[k]
+    })
+    _.keys(this.snapshot.relationships).forEach(k => {
       self[k] = self.snapshot[k]
     })
   }
@@ -166,7 +169,7 @@ export default class ExtendedOrmModel extends Model {
 
   get changes() {
     let self = this
-    let snapshot = this._snapshot
+    let snapshot = this.snapshot
     let changes = { attributes: {}, relationships: {} }
 
     _.toPairs(snapshot.attributes).forEach(([ attrName, oldVal ]) => {

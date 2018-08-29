@@ -108,7 +108,7 @@ export default {
     getCompany() {
       Company.with('malls').find(this.company_id)
       .then((record) => {
-        record.snapshot()
+        record.takeSnapshot()
         this.company = record
       })
       .catch((error) => {

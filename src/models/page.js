@@ -58,7 +58,14 @@ export default class Page extends Model {
     }
   }
 
-
+  _isChanged(attrName, oldVal, newVal) {
+    if (attrName === 'properties') {
+      return JSON.stringify(oldVal) != JSON.stringify(newVal)
+    }
+    else {
+      return super._isChanged(attrName, oldVal, newVal)
+    }
+  }
 
   getJsonBody() {
     return JSON.stringify(this.properties.body)
