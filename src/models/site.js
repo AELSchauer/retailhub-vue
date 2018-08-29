@@ -38,11 +38,8 @@ export default class Site extends Model {
   }
 
   get(attrName) {
-    if (attrName === 'variables') {
-      return this.properties.variables
-    }
-    if (attrName === 'partials') {
-      return this.properties.partials
+    if (_.keys(this.properties).find(x => attrName.indexOf(x) === 0 )) {
+      return _.get(this.properties, attrName)
     }
     else {
       return super.get(attrName)

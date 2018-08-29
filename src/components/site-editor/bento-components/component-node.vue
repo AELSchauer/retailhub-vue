@@ -1,7 +1,7 @@
 <template>
   <li class="component-wrapper">
     <div class="component-data">
-      <div class="component-title">{{model.displayName}}</div>
+      <div class="component-title">{{ model.displayName }}</div>
       <div class="component-button-wrapper">
         <div @click="viewDetails" class="btn btn-sm details-button">details</div>
         <div v-if="!pasteModeEnabled"

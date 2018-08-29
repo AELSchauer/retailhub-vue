@@ -13,6 +13,14 @@ export default class BentoComponent {
                       });
   }
 
+  get(attrName) {
+    return _.get(this, attrName)
+  }
+
+  set(attrName, newValue) {
+    return _.set(this, attrName, newValue)
+  }
+
   toJSON() {
     return {
       name:       this.name,

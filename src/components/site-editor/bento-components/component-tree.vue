@@ -15,7 +15,7 @@
         </div>
       </div>
     </li>
-    <template v-for="(bentoComponent, index) in children">
+    <template v-for="(bentoComponent, index) in get('children')">
       <bento-component-node
         :model="bentoComponent"
         :bus="bus"
@@ -54,11 +54,6 @@ export default {
     bus:        Object,
     isSubclass: Boolean,
   },
-  computed: {   
-    children: function() {
-      return this.model.children
-    },
-  },
   created() {
     this.bus.$on('graftComponent', (component, action) => {
       this.componentToGraft = component;
@@ -69,6 +64,9 @@ export default {
     })
   },
   methods: {
+    get(attrName) {
+      return this.model.get(attrName)
+    },
     pasteComponent(newIndex) {
       this.bus.$emit('pasteComponent', newIndex + 1, this.$parent.path)
     },
@@ -111,7 +109,7 @@ export default {
           return manifest.isAllowedPartialsChildren()
         }
         else {
-          let allowedChildren = this.$parent.model.bentoManifest.allowedComponentChildren()
+          let allowedChildren = manifest.allowedComponentChildren()
           return _
             .chain(allowedChildren)
             .map(child => {

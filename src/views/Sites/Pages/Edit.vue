@@ -11,13 +11,13 @@
     ></bento-data-variables-editor>
     <modal name="add-child-menu" height="auto">
       <template v-for="(components, category) in allowedChildren">
-        <h4>{{category}}</h4>
+        <h4>{{ category }}</h4>
         <ul class="allowed-children-list">
           <li v-for="component in components"
             @click="addComponent(component.name, category)"
           >
             <font-awesome-icon :icon="component.icon" />
-            {{component.displayName}}
+            {{ component.displayName }}
           </li>
         </ul>
       </template>
@@ -44,22 +44,23 @@
     </div>
     <div class="component-details-aside container col-md-6">
       <div class="row">
-        <span class="col-md-11 component-name">
+        <h2 class="col-md-11 component-name">
           {{ detailComponent.displayName }}
-        </span>
+        </h2>
         <span class="col-md-1">
           <button @click="closeComponentDetails" class="close-component-details">x</button>
         </span>
       </div>
       <template v-if="detailComponent.name">
         <hr>
-        attributes:
+        <h4>attributes:</h4>
         <bento-base-component-attributes
           :model="detailComponent"
         ></bento-base-component-attributes>
         <hr>
-        styling:
-        {{ page.styling }}
+        <h4>styling:</h4>
+        <!-- {{ get('styling') }} -->
+        <em>styling stuff goes here</em>
       </template>
     </div>
   </div>
@@ -118,7 +119,6 @@ export default {
       permissions: ['admin'],
       breadcrumbs: breadcrumbs,
       allowedChildren: [],
-      modalHeight: 500,
       pathForComponentAddingChild: null,
       componentToGraft: null,
       graftMode: false,
@@ -136,6 +136,9 @@ export default {
     pasteModeEnabled: function() {
       return !!this.graftMode;
     },
+    model: function() {
+      return this.page
+    }
   },
   created() {
     this.checkCurrentLogin()
@@ -222,21 +225,22 @@ export default {
     },
     get(attrName) {
       if (attrName === 'all_data_variables') {
-        function mapVariables(variables) {
+        function mapVariables(variables, _protected) {
           return _
             .chain(variables)
             .map((v,k) => {
               let data = _.merge({}, v)
               data = _.set(data, 'name', k)
-              // data = _.set(data, 'protected', true)
-              data = _.set(data, 'protected', false)
+              if (_protected) {
+                data = _.set(data, 'protected', _protected)
+              }
               return data
             })
             .orderBy(['name'], ['asc'])
             .value()
         }
         let page_variables = mapVariables(this.page.get('variables'))
-        let site_variables = mapVariables(this.page.get('site').get('variables'))
+        let site_variables = mapVariables(this.page.get('site.variables'), true)
         return _.concat([], page_variables, site_variables)
       }
       else {
@@ -248,7 +252,7 @@ export default {
     },
     showAddComponentMenu(componentPath="") {
       this.pathForComponentAddingChild = componentPath;
-      let component = _.get(this.page, componentPath) || this.page;
+      let component = this.page.get(componentPath) || this.page
 
       function allowedChildren(component, site) {
         let manifest = component.bentoManifest;
@@ -272,38 +276,38 @@ export default {
         return children
       }
 
-      this.allowedChildren = allowedChildren(component, this.page.site)
+      this.allowedChildren = allowedChildren(component, this.page.get('site'))
       this.$modal.show('add-child-menu');
     },
     showDataVariablesMenu() {
       this.bus.$emit('showDataVariablesMenu')
     },
     addComponent(name, type) {
-      let page = { children: _.cloneDeep(this.page.children) }
+      let _page = { children: _.cloneDeep(this.page.get('children')) }
       let branchPath = this.pathForComponentAddingChild.concat(['children'])
-      let branch = _.get(page, branchPath)
+      let branch = _.get(_page, branchPath)
 
       branch.push(new BentoComponent({ name: name, type: type.singularize() }))
 
-      this.page.children = page.children
+      this.page.set('children', _page.children) 
       this.$modal.hide('add-child-menu');
     },
     removeComponent(path) {
-      let page = { children: _.cloneDeep(this.page.children) }
-      let node = _.get(page, path)
+      let _page = { children: _.cloneDeep(this.page.get('children')) }
+      let node = _.get(_page, path)
 
       let confirm = window.confirm(`This item${(node.children.length) ? (' and all its children ') : (' ')}will be PERMANENTLY deleted. Continue?`)
       if (confirm) {
-        let branch = _.get(page, path.slice(0, path.length-1))
+        let branch = _.get(_page, path.slice(0, path.length-1))
         let index = _.last(path)
 
         branch.splice(index, 1)
 
-        this.page.children = page.children
+        this.page.set('children', _page.children)
       }
     },
     commitGraft(newIndex, newParentPath=[]) {
-      let page = { children: _.cloneDeep(this.page.children) }
+      let _page = { children: _.cloneDeep(this.page.get('children')) }
 
       let oldPath = this.componentToGraft.path
       let oldIndex = _.last(oldPath)
@@ -311,8 +315,8 @@ export default {
       let oldBranchPath = oldPath.slice(0, oldPath.length-1)
       let newBranchPath = newParentPath.concat(['children'])
 
-      let oldBranch =  _.get(page, oldBranchPath) || page;
-      let newBranch =  _.get(page, newBranchPath) || page;
+      let oldBranch =  _.get(_page, oldBranchPath) || _page;
+      let newBranch =  _.get(_page, newBranchPath) || _page;
       let node
 
       if (this.graftMode === 'cut') {
@@ -326,9 +330,9 @@ export default {
       let after = newBranch.slice(newIndex)
       newBranch = before.concat(node).concat(after)
 
-      _.set(page, newBranchPath, newBranch)
+      _.set(_page, newBranchPath, newBranch)
 
-      this.page.children = page.children
+      this.page.set('children', _page.children)
       this.graftMode = false;
     },
     cancelGraft() {
