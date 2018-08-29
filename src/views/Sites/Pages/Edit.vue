@@ -25,12 +25,6 @@
     <div class="component-tree col-md-6">
       <font-awesome-icon :icon="['fa', 'hand-spock']" @click="showDataVariablesMenu()"/>
       <div class="float-right">
-        <div
-          class="action-button btn btn-sm"
-          :class="{ 'paste-mode-disabled': !pasteModeEnabled }"
-        >
-          <font-awesome-icon :icon="['fas', 'times']" @click="cancelGraft"/>
-        </div>
         <div class="action-button empty btn btn-sm">.</div>
         <div class="action-button add-child btn btn-sm" @click="showAddComponentMenu()">
           <font-awesome-icon :icon="['fas', 'plus-square']"/>
@@ -120,8 +114,6 @@ export default {
       breadcrumbs: breadcrumbs,
       allowedChildren: [],
       pathForComponentAddingChild: null,
-      componentToGraft: null,
-      graftMode: false,
       error:     false,
       loading:   true,
       page_id:   page_id,
@@ -133,9 +125,6 @@ export default {
   },
   computed: {
     ...mapGetters({ currentUser: 'currentUser' }),
-    pasteModeEnabled: function() {
-      return !!this.graftMode;
-    },
     model: function() {
       return this.page
     }
@@ -161,19 +150,6 @@ export default {
     })
     this.bus.$on('removeComponent', (component) => {
       this.removeComponent(component.path)
-    })
-    this.bus.$on('graftComponent', (component, action) => {
-      this.componentToGraft = component;
-      this.graftMode = action;
-    })
-    this.bus.$on('pasteComponent', (newIndex, newParentPath) => {
-      if (newIndex != undefined) {
-        this.commitGraft(newIndex, newParentPath)
-      }
-      else {
-        this.componentToGraft = null;
-        this.graftMode = false
-      }
     })
     this.bus.$on('createDataVariable', (newDataVariable) => {
       this.set('variables', _.merge({}, this.get('variables'), newDataVariable))
@@ -305,39 +281,6 @@ export default {
 
         this.page.set('children', _page.children)
       }
-    },
-    commitGraft(newIndex, newParentPath=[]) {
-      let _page = { children: _.cloneDeep(this.page.get('children')) }
-
-      let oldPath = this.componentToGraft.path
-      let oldIndex = _.last(oldPath)
-
-      let oldBranchPath = oldPath.slice(0, oldPath.length-1)
-      let newBranchPath = newParentPath.concat(['children'])
-
-      let oldBranch =  _.get(_page, oldBranchPath) || _page;
-      let newBranch =  _.get(_page, newBranchPath) || _page;
-      let node
-
-      if (this.graftMode === 'cut') {
-        node = oldBranch.splice(oldIndex, 1)
-      }
-      else if (this.graftMode === 'copy') {
-        node = [ oldBranch[oldIndex] ]
-      }
-
-      let before = newBranch.slice(0, newIndex)
-      let after = newBranch.slice(newIndex)
-      newBranch = before.concat(node).concat(after)
-
-      _.set(_page, newBranchPath, newBranch)
-
-      this.page.set('children', _page.children)
-      this.graftMode = false;
-    },
-    cancelGraft() {
-      this.graftMode = false;
-      this.bus.$emit('pasteComponent')
     },
     consoleLogBody() {
       console.log(this.page.getJsonBody())

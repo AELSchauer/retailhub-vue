@@ -4,20 +4,6 @@
       <div class="component-title">{{ model.displayName }}</div>
       <div class="component-button-wrapper">
         <div @click="viewDetails" class="btn btn-sm details-button">details</div>
-        <div v-if="!pasteModeEnabled"
-          @click="graftComponent('copy')"
-          class="btn btn-sm action-button copy-button"
-        >
-          <font-awesome-icon :icon="['fa', 'copy']"/>
-        </div>
-        <div v-else class="empty">.</div>
-        <div v-if="!pasteModeEnabled"
-          @click="graftComponent('cut')"
-          class="btn btn-sm action-button cut-button"
-        >
-          <font-awesome-icon :icon="['fa', 'cut']"/>
-        </div>
-        <div v-else class="empty">.</div>
         <div
           @click="removeComponent"
           class="btn btn-sm action-button remove-button"
@@ -47,9 +33,7 @@
 export default {
   name: 'bento-component-node',
   data() {
-    return {
-      pasteModeEnabled: false,
-    }
+    return {}
   },
   props: {
     model: Object,
@@ -64,17 +48,6 @@ export default {
       let parentPath = this.$parent.$parent.path || [];
       return parentPath.concat([ 'children', this.index ])
     },
-    canPaste: function() {
-      let component = this.componentToGraft;
-    }
-  },
-  created() {
-    this.bus.$on('graftComponent', (component, action) => {
-      this.pasteModeEnabled = true;
-    })
-    this.bus.$on('pasteComponent', () => {
-      this.pasteModeEnabled = false;
-    })
   },
   methods: {
     viewDetails() {
@@ -85,9 +58,6 @@ export default {
     },
     removeComponent() {
       this.bus.$emit('removeComponent', this)
-    },
-    graftComponent(action) {
-      this.bus.$emit('graftComponent', this, action)
     },
   },
   components: {
