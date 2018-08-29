@@ -97,11 +97,11 @@ export default class ExtendedOrmModel extends Model {
 
   rollback() {
     let self = this
-    _.keys(this.snapshot.attributes).forEach(k => {
-      self[k] = self.snapshot[k]
+    _.toPairs(this.snapshot.attributes).forEach(([ attrName, attrVal ]) => {
+      self[attrName] = attrVal
     })
-    _.keys(this.snapshot.relationships).forEach(k => {
-      self[k] = self.snapshot[k]
+    _.keys(this.snapshot.relationships).forEach(([ attrName, attrVal ]) => {
+      self[attrName] = attrVal
     })
   }
 

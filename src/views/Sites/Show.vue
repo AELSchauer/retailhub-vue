@@ -22,6 +22,25 @@
           </div>
         </div>
         <hr>
+        <div class="partials-section">
+          <h2>partials</h2>
+          <router-link 
+            :to="{
+              name: 'SiteEdit',
+              params: {
+                site_id: site.id,
+              }
+            }"
+          >
+            edit
+          </router-link>
+          <ul>
+            <li v-for="partial in site.partials">
+              {{ partial.name }}
+            </li>
+          </ul>
+        </div>
+        <hr>
         <div class="pages-section">
           <h2>pages</h2>
           <table>
@@ -29,7 +48,7 @@
               <td>path</td>
               <td></td>
             </th>
-            <tr v-for="page in model.pages">
+            <tr v-for="page in site.pages">
               <td class="page-name">
                 {{ page.path }}
               </td>
@@ -40,7 +59,7 @@
                     params: {
                       page_id: page.id,
                       page_name: page.path,
-                      site_name: model.name,
+                      site_name: site.name,
                     }
                   }"
                   class='btn edit-button col-md-1'
@@ -67,7 +86,6 @@ export default {
     let id = this.$route.params.site_id
 
     return {
-      permissions: ['admin'],
       breadcrumbs: [
         {
           name: 'SiteIndex',
@@ -77,21 +95,22 @@ export default {
           text: id,
         }
       ],
-      model:    null,
       editName: false,
-      loading:  true,
-      error:    false,
-      site_id:  id,
+      error: false,
+      loading: true,
+      permissions: ['admin'],
+      site: null,
+      site_id: id,
     }
   },
   computed: {
     ...mapGetters({ currentUser: 'currentUser' }),
     attributeManifest: function() {
-      let manifest = this.model.attributeManifest
-      if (this.model.published_at.isValid()) {
+      let manifest = this.site.attributeManifest
+      if (this.site.published_at.isValid()) {
         manifest.push({
           label: 'Published Date',
-          name:  'published_at'
+          name: 'published_at'
         })
       }
       return manifest
@@ -125,7 +144,7 @@ export default {
     getModel() {
       Site.with('pages').find(this.site_id)
       .then((record) => {
-        this.model = record
+        this.site = record
       })
       .catch((error) => {
         console.error('request failed', error);
@@ -136,7 +155,7 @@ export default {
       })
     },
     get(attrName) {
-      let attribute = this.model.get(attrName)
+      let attribute = this.site.get(attrName)
       if (attribute.constructor.name === 'Moment') {
         return attribute.format('YYYY-MM-DD HH:mm:ss')
       }

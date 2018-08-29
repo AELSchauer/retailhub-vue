@@ -131,7 +131,7 @@ export default {
       return this.page
     },
     isPageChanged: function() {
-      let changed = _.get(this.page, 'changed', {})
+      let changed = _.get(this.page, 'changes', {})
       return _.keys(changed.attributes).length + _.keys(changed.relationships).length
     },
   },
@@ -243,7 +243,6 @@ export default {
           components: manifest.allowedComponentChildren(),
         }
 
-
         if (manifest.isAllowedPartialsChildren) {
           let sitePartials = (site.partials || [])
 
@@ -289,12 +288,14 @@ export default {
         this.page.set('children', _page.children)
       }
     },
-    saveAction() {
+    saveAction(routeOption) {
       this.loading = true;
       this.page.save()
       .then(() => {
         this.saved = true
-        this.$router.push('/sites/' + this.site_id)
+        if(routeOption === 'quit') {
+          this.$router.push('/sites/' + this.site_id)
+        }
       })
       .catch((error) => {
         console.error('request failed', error);
